@@ -27,18 +27,14 @@ function App() {
                 <Route path="/Login" element={<Login />} />
                 <Route path="/Registrar" element={<SignUp />} />
                 <Route path="/RecuperarContrasenna" element={<ResetPassword />} />
-
-                <Route element={<PersistLogin />}>
-                    <Route element={<RequireAuth allowedRoles={[...Object.values(ROLES)]} />}>
-                        <Route path="/CambiarContrasenna" element={<ChangePassword />} />
-                        <Route path="/" element={<MainLayout />}>
-                            <Route index element={<Home />} />
-                            <Route path="Services/:id" element={<ServicesDetails />} />
-                            <Route path="/Proceso_Solicitud" element={<RequestServices/>}/>
-                            <Route path="/Mi_Perfil" element={<ProfileDetails/>}/>
-                        </Route>
-                    </Route>
+                <Route path="/CambiarContrasenna" element={<ChangePassword />} />
+                <Route path="/" element={<MainLayout />}>
+                    <Route index element={<Home />} />
+                    <Route path="Services/:id" element={<ServicesDetails />} />
+                    <Route path="/Proceso_Solicitud" element={<RequestServices />} />
+                    <Route path="/Mi_Perfil" element={<ProfileDetails />} />
                 </Route>
+
                 <Route element={<PersistLogin />}>
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
                         <Route path="mantenimiento" element={<MaintenanceLayout />}>
@@ -53,7 +49,11 @@ function App() {
                     </Route>
                 </Route>
 
-                {/* Inserta más rutas fuera de PersistLogin si es necesario */}
+                {/*  <Route element={<PersistLogin />}>
+                    <Route element={<RequireAuth allowedRoles={[...Object.values(ROLES)]} />}>
+                    
+                 </Route>
+                </Route>*/}
             </Routes>
         </div>
     );

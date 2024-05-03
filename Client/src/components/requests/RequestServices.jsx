@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Form, Row, Col, Card, Button, Typography, Steps, Empty, Input, message } from 'antd';
+import { Form, Row, Col, Card, Button, Typography, Steps, Input } from 'antd';
 import { useCreateSolicitudWithDetailsMutation } from "../../features/RequestService/RequestServiceApiSlice";
-import { DeleteOutlined } from '@ant-design/icons';
-import { useGetUserServicesQuery, useDeleteUserServiceMutation, useGetServicesByIdsQuery,useDeleteAllUserServiceMutation } from '../../features/services/ServicesApiSlice';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { useGetUserByIdQuery } from '../../features/users/UsersApiSlice';
-import { Toast } from 'primereact';
-import useAuth from "../../hooks/useAuth";
+import { Calendar } from 'primereact/calendar';
+import { DeleteOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Toast } from 'primereact/toast';
+import ServicesHook from "../../hooks/services/ServicesHook";
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -14,83 +12,76 @@ const { Step } = Steps;
 export default function RequestServices() {
     const [current, setCurrent] = useState(0);
     const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
-    const [deleteService, { isLoading: isDeleting }] = useDeleteUserServiceMutation();
-    const [deleteAllService] = useDeleteAllUserServiceMutation();
-    const [createSolicitudWithDetails, { isLoading: isSubmitting, isSuccess: isSubmitSuccess }] = useCreateSolicitudWithDetailsMutation();
-
-    const auth = useAuth() || {};
+    const [createSolicitudWithDetails, { isLoading: isSubmitting }] = useCreateSolicitudWithDetailsMutation();
     const [form] = Form.useForm();
-
-    const { data: userServices, isLoading: isLoadingUserServices } = useGetUserServicesQuery(auth.userId);
-
-    let isEmpty = !userServices || userServices.length === 0;
     const toast = useRef(null);
 
-    const serviceIds = isEmpty ? [] : userServices.map(service => service.id_servicio);
-    const { data: userData, isSuccess } = useGetUserByIdQuery(auth.userId);
-    const { data: servicesDetails } = useGetServicesByIdsQuery(serviceIds, { skip: isEmpty });
-
     const stepStyle = {
-        maxWidth: 700, // Ajusta esto según tus necesidades
-        margin: '0 auto', // Centra los steps
+        maxWidth: 700,
+        margin: '0 auto',
+    };
+
+    const updateServicesFromStorage = () => {
+        const storedServices = JSON.parse(localStorage.getItem('serviceRequests')) || [];
+        setUpdatedServicesDetails(storedServices);
     };
 
     useEffect(() => {
-        if (servicesDetails) {
-            setUpdatedServicesDetails(servicesDetails);
-        }
-    }, [servicesDetails]);
+        updateServicesFromStorage();
 
+        const handleStorageChange = () => updateServicesFromStorage();
+        window.addEventListener('storage', handleStorageChange);
+        window.addEventListener('serviceAdded', handleStorageChange);
 
-    useEffect(() => {
-        if (isSuccess && userData) {
-            form.setFieldsValue({
-                nombre: userData.nombre,
-                apellido: userData.apellido,
-                correo_electronico: userData.correo_electronico,
-                telefono: userData.telefono,
-            });
-        }
-    }, [userData, isSuccess, form]);
-
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('serviceAdded', handleStorageChange);
+        };
+    }, []);
 
     const onFinish = async (values) => {
+        const date = new Date(values.fecha_preferencia);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+    
         const solicitudDetails = {
             ...values,
-            id_usuario: auth.userId, 
-            estado: 'Pendiente', 
-            fecha_creacion: new Date().toISOString(), 
-            servicios: updatedServicesDetails.map(detail => detail.id_servicio), 
+            estado: 'Pendiente',
+            id_usuario: null,
+            fecha_creacion: new Date().toISOString(),
+            fecha_preferencia: date.toISOString(),
+            servicios: updatedServicesDetails.map(detail => detail.id_servicio),
         };
     
         try {
             await createSolicitudWithDetails(solicitudDetails).unwrap();
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud enviada con éxito', life: 3000 });
-            // Acciones después del envío exitoso
-            form.resetFields(); 
-            setCurrent(0); 
-            setUpdatedServicesDetails([]);
-            await deleteAllService({ id_usuario: auth.userId }).unwrap();
+            form.resetFields();
+            setCurrent(0);
+            localStorage.removeItem('serviceRequests');
+            const event = new Event('serviceAdded');
+            window.dispatchEvent(event);
         } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al enviar la solicitud', life: 3000 });
         }
     };
-    
 
     const onReset = () => {
         form.resetFields();
     };
 
-    const handleDelete = async (id_servicio) => {
+    const handleDelete = (id_servicio) => {
         try {
-            await deleteService({ id_servicio, id_usuario: auth.userId }).unwrap();
-            setUpdatedServicesDetails(prevDetails => prevDetails.filter(service => service.id_servicio !== id_servicio));
+            let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
+            serviceRequests = serviceRequests.filter(service => service.id_servicio !== id_servicio);
+            localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
+            const event = new Event('serviceAdded');
+            window.dispatchEvent(event);
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'El servicio ha sido eliminado correctamente', life: 3000 });
         } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al eliminar el servicio', life: 3000 });
         }
     };
-
 
     const next = () => {
         if (current === 0 && updatedServicesDetails.length === 0) {
@@ -99,48 +90,23 @@ export default function RequestServices() {
         }
         setCurrent(current + 1);
     };
-    
 
     const prev = () => {
         setCurrent(current - 1);
     };
+
     const stepsContent = [
         {
             content: (
                 <div>
-                    {!isEmpty ? (
-                        updatedServicesDetails.length > 0 ? (
-                            updatedServicesDetails.map((service, index) => (
-                                <Card className="rounded-3 mb-4 shadow-sm" key={index}>
-                                    <Row justify="space-between" align="middle">
-                                        <Col span={10}>
-                                            <Title level={5} className="mb-2">{service.nombre}</Title>
-                                        </Col>
-                                        <Col span={10}>
-                                            <Text>{service.descripcion}</Text>
-                                        </Col>
-                                        <Col span={50} className="text-end">
-                                            <Button shape="circle" style={{
-                                                backgroundColor: 'transparent',
-                                                border: '1px solid white',
-                                                boxShadow: 'none',
-                                                color: "black",
-                                                borderRadius: '10px'
-                                            }} icon={<DeleteOutlined />} type="link" className="text-danger shadow-sm" onClick={() => handleDelete(service.id_servicio)} disabled={isDeleting} />
-                                        </Col>
-                                    </Row>
-
-                                </Card>
-                            ))
-
-                        ) : (
-                            <Text>No hay servicios para mostrar</Text>
-                        )
+                    {updatedServicesDetails.length > 0 ? (
+                        updatedServicesDetails.map((serviceDetail, index) => (
+                            <ServicesHook key={index} serviceId={serviceDetail.id_servicio} onDelete={handleDelete} />
+                        ))
                     ) : (
-                        <Text><Empty description={false} /></Text>
+                        <Text>No hay servicios para mostrar</Text>
                     )}
                     <div>
-                        {/* Your services content */}
                         <Button type="primary" style={{ margin: "20px" }} onClick={next}>
                             Siguiente <RightOutlined />
                         </Button>
@@ -188,6 +154,17 @@ export default function RequestServices() {
                                 </Col>
                             </Row>
                             <Row>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="fecha_preferencia"
+                                        label="Fecha Preferencia"
+                                        rules={[{ required: true, message: 'Por favor seleccione la fecha y hora de preferencia' }]}
+                                    >
+                                        <Calendar showTime hourFormat="12" stepMinute={15} />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row>
                                 <Col span={24}>
                                     <Form.Item
                                         name="observacion"
@@ -214,24 +191,23 @@ export default function RequestServices() {
                     </Button>
                 </div>
             )
-        },
-        // Agrega más contenido de pasos según sea necesario
+        }
     ];
 
     return (
-        <div style={{ width: '100%', padding: '0 10px' }}> {/* Ajusta el padding para la responsividad */}
+        <div style={{ width: '100%', padding: '0 10px' }}>
             <div className="d-flex justify-content-center align-items-center mb-4 mt-5">
                 <Title level={2} className="fw-normal mb-0 text-black section-title">
                     <div className="section-title" data-aos="fade-up">
                         <h2>Proceso de Solicitud</h2>
-                    </div>  
+                    </div>
                 </Title>
             </div>
             <Toast ref={toast} />
             <div style={stepStyle}>
                 <Steps current={current} onChange={setCurrent} direction="horizontal">
                     <Step title="Servicios Solicitados" />
-                    <Step title="Confimar Solicitud" />
+                    <Step title="Confirmar Solicitud" />
                 </Steps>
             </div>
             <Row justify="center" align="middle" className="h-100" style={{ marginTop: 20 }}>
