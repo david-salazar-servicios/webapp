@@ -61,10 +61,56 @@ const crearSolicitud_AgregarServicios = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+const getSolicitudById = async (req, res) => {
+    try {
+        const { solicitudId } = req.params;
+        // Fetch solicitud data
+        const solicitudQuery = await pool.query('SELECT * FROM solicitud WHERE id_solicitud = $1', [solicitudId]);
+        const solicitud = solicitudQuery.rows[0];
+        
+        // Fetch servicios (details)
+        const detallesQuery = await pool.query(
+            'SELECT ds.id_detalle_solicitud, ds.id_servicio, s.nombre AS servicio_nombre, s.descripcion AS servicio_descripcion ' +
+            'FROM detallesolicitud ds ' +
+            'JOIN servicios s ON ds.id_servicio = s.id_servicio ' +
+            'WHERE ds.id_solicitud = $1', [solicitudId]);
 
+        const detalles = detallesQuery.rows;
 
+        res.json({
+            ...solicitud,
+            detalles
+        });
+    } catch (error) {
+        console.error("Error retrieving solicitud by id:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+const updateSolicitudEstado = async (req, res) => {
+    const { solicitudId } = req.params;
+    const { estado } = req.body;
+
+    try {
+        // Update the estado of the solicitud
+        const queryResult = await pool.query(
+            'UPDATE solicitud SET estado = $1 WHERE id_solicitud = $2 RETURNING *',
+            [estado, solicitudId]
+        );
+
+        if (queryResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Solicitud not found' });
+        }
+
+        res.json(queryResult.rows[0]);
+    } catch (error) {
+        console.error("Error updating solicitud estado:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
 
 module.exports = {
     crearSolicitud_AgregarServicios,
-    getAllSolicitudes
+    getAllSolicitudes,
+    getSolicitudById,
+    updateSolicitudEstado
 };

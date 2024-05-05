@@ -19,6 +19,26 @@ const getAllRoles = async (req, res) => {
     }
 };
 
+const getAllUserRoles = async (req, res) => {
+    try {
+        // Debugging: log message indicating start of the query
+
+        // Execute the SQL query to fetch all roles
+        const queryResult = await pool.query('SELECT * FROM usuario_roles');
+
+
+        // Extract the role data from the query result
+        const roles = queryResult.rows;
+
+        // Return the list of roles
+        res.json(roles);
+    } catch (error) {
+        console.error("Error retrieving roles:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
 // @desc Create a new role
 // @route POST /roles
 // @access Private
@@ -56,14 +76,19 @@ const deleteRole = async (req, res) => {
 // @route GET /roles/:id
 // @access Private
 const getRoleById = async (req, res) => {
+    const { id } = req.params;
+    
+    // Validate that the ID is an integer
+    const roleId = parseInt(id, 10);
+    if (isNaN(roleId)) {
+        return res.status(400).json({ message: "Invalid role ID, must be an integer." });
+    }
+
     try {
-        const { id } = req.params;
-        const role = await pool.query('SELECT * FROM roles WHERE id_rol = $1', [id]);
-
+        const role = await pool.query('SELECT * FROM roles WHERE id_rol = $1', [roleId]);
         if (role.rows.length === 0) {
-            return res.status(404).json({ message: 'Role not found' });
+            return res.status(404).json({ message: "Role not found." });
         }
-
         res.json(role.rows[0]);
     } catch (error) {
         console.error("Error retrieving role:", error);
@@ -96,6 +121,7 @@ const updateRole = async (req, res) => {
 
 module.exports = {
     getAllRoles,
+    getAllUserRoles,
     createNewRole,
     deleteRole,
     getRoleById,

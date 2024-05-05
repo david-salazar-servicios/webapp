@@ -19,6 +19,22 @@ export const rolesApiSlice = apiSlice.injectEndpoints({
             },
         }),
 
+        getUsersRoles: builder.query({
+            query: () => '/roles/usuarios/all',
+            transformResponse: (responseData) => {
+
+                return responseData;
+            },
+            providesTags: (result, error, arg) => {
+                if (result?.length) {
+                    return [
+                        { type: 'Roles', id: 'LIST' },
+                        ...result.map(({ id_categoria }) => ({ type: 'Roles', id: id_categoria })),
+                    ];
+                } else return [{ type: 'Roles', id: 'LIST' }];
+            },
+        }),
+    
         getRolById: builder.query({
             query: (id) => `/roles/${id}`,
             transformResponse: (responseData) => {
@@ -51,7 +67,7 @@ export const rolesApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: rest,
             }),
-            invalidatesTags: [{ type: 'Roles', id: 'LIST' }],
+            invalidatesTags: [{ type: 'Roles', id: 'LIST' }, { type: 'Roles', id: 'USERS_ROLES' }],
         }),
 
     }),
@@ -63,4 +79,6 @@ export const {
     useCreateRolMutation,
     useDeleteRolMutation,
     useUpdateRolMutation,
+    useGetUsersRolesQuery
+    
 } = rolesApiSlice;

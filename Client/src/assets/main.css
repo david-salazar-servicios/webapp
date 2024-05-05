@@ -2118,3 +2118,7 @@ footer .contact-form button.filled-button:hover {
 .navbar-toggler:focus {
   background-color: rgba(255, 142, 0, 0.3); /* Ajusta este color según tus preferencias */
 }
+
+.custom-hover-effect .p-datatable-tbody > tr:hover {
+  background-color:lightgrey; /* Light green color */
+}

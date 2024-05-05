@@ -4,9 +4,6 @@ export const requestServiceApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getSolicitudes: builder.query({
             query: () => '/solicitudes',
-            transformResponse: (responseData) => {
-                return responseData;
-            },
             providesTags: (result, error, arg) => {
                 if (result?.length) {
                     return [
@@ -24,15 +21,24 @@ export const requestServiceApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: [{ type: 'Solicitud', id: 'LIST' }, { type: 'DetalleSolicitud', id: 'LIST' }],
         }),
-
-
-
-        // Elimina addSolicitudDetails si no es necesario debido a la lógica combinada del endpoint
-
+        getSolicitudById: builder.query({
+            query: (solicitudId) => `/solicitudes/${solicitudId}`,
+            providesTags: (result, error, solicitudId) => [{ type: 'Solicitud', id: solicitudId }],
+        }),
+        updateSolicitudEstado: builder.mutation({
+            query: ({ id, estado }) => ({
+                url: `/solicitudes/${id}/estado`,
+                method: 'PUT',
+                body: { estado },
+            }),
+            invalidatesTags: (result, error, { id }) => [{ type: 'Solicitud', id }],
+        }),
     }),
 });
 
 export const {
-    useCreateSolicitudWithDetailsMutation, 
-    useGetSolicitudesQuery
+    useCreateSolicitudWithDetailsMutation,
+    useGetSolicitudesQuery,
+    useGetSolicitudByIdQuery,
+    useUpdateSolicitudEstadoMutation, // Export the new hook
 } = requestServiceApiSlice;

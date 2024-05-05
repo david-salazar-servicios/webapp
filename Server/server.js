@@ -31,12 +31,12 @@ app.use("/roles", require("./Routes/rolesRoutes"));
 app.use("/send-reset-password-email", require("./Routes/emailRoutes"));
 app.use("/change-password", require("./Routes/usersRoutes"));
 app.use("/solicitudes", require("./Routes/solicitudRoutes"));
-
+app.use("/citas", require("./Routes/citaRoutes"));
 // Socket.IO connection handler
 io.on('connection', (socket) => {
-  console.log('New client connected');
+  console.log('Socket Server successfully connected');
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
+    console.log('Socket Server disconnected');
   });
 });
 

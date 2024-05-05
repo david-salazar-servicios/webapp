@@ -59,10 +59,7 @@ export default function Header() {
     };
   }, []);
 
-  const handleLogout = () => {
-    // Clear authentication data or perform necessary logout actions
-    navigate('/Login');
-  };
+
 
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
   const toggleMenu = () => setIsMenuCollapsed(!isMenuCollapsed);
@@ -96,11 +93,6 @@ export default function Header() {
                   </NavLink>
                 </li>
 
-                <li className="nav-item">
-                  <NavLink to="/Login" className="nav-link" onClick={handleLogout}>
-                    <i className="bi bi-box-arrow-right"></i> Salir
-                  </NavLink>
-                </li>
                 <li style={{ padding: "10px" }}>
                   <Button icon="pi pi-shopping-cart" style={{ backgroundColor: "rgba(255, 255, 255, 0)", borderRadius: "10px", border: "2px solid #FF8E03" }} onClick={(e) => op.current.toggle(e)} />
                   <Badge count={updatedServicesDetails?.length || 0} overflowCount={99} style={{ backgroundColor: '#52c41a' }}>

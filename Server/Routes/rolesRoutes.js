@@ -5,15 +5,13 @@ const { verifyJWT, isAdmin } = require("../middleware/verifyJWT");
 
 /* router.use(verifyJWT); */
 
-router.route("/").get([isAdmin], rolesController.getAllRoles);
-
-router.route("/").post(rolesController.createNewRole);
-
+// Routes
+router.get("/", [isAdmin], rolesController.getAllRoles);
+router.post("/", rolesController.createNewRole);
 router.delete("/:id", rolesController.deleteRole);
-
 router.get("/:id", rolesController.getRoleById);
-
 router.put("/:id", rolesController.updateRole);
+router.get("/usuarios/all", rolesController.getAllUserRoles);
 
 module.exports = router
 

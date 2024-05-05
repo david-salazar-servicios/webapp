@@ -1,36 +1,24 @@
 import React, { useState } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-import 'react-big-calendar/lib/css/react-big-calendar.css'; // Ensure CSS is also imported for styles
-import { Modal } from 'antd';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Modal, Spin, Alert } from 'antd';
+import { useGetAllCitasQuery } from "../../features/cita/CitaApiSlice";
+import { useGetSolicitudByIdQuery } from "../../features/RequestService/RequestServiceApiSlice";
 
-// Set up the localizer by providing the moment Object
 const localizer = momentLocalizer(moment);
-
-const views = ['month', 'week', 'day', 'agenda']; // Commonly used views
-
-const events = [
-  {
-    'title': 'All Day Event very long title',
-    'allDay': true,
-    'start': new Date(2015, 3, 0),
-    'end': new Date(2015, 3, 1),
-    'desc': 'Description for All Day Event'
-  },
-  {
-    'title': 'Long Event',
-    'start': new Date(2015, 3, 7),
-    'end': new Date(2015, 3, 10),
-    'desc': 'Description for Long Event'
-  },
-  // Add more events here
-];
 
 const ProcessCalendar = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState({});
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const handleEventClick = event => {
+  const { data: citas, isLoading: isCitasLoading, isError: isCitasError } = useGetAllCitasQuery();
+  console.log(citas)
+  const { data: solicitudDetails, isLoading: isSolicitudDetailsLoading, isError: isSolicitudDetailsError } = useGetSolicitudByIdQuery(selectedEvent?.solicitudId, {
+    skip: !selectedEvent
+  });
+
+  const handleEventClick = (event) => {
     setSelectedEvent(event);
     setModalVisible(true);
   };
@@ -39,6 +27,26 @@ const ProcessCalendar = () => {
     setModalVisible(false);
   };
 
+  const events = citas?.filter(cita => cita.estado === 'En Agenda')
+    .map(cita => ({
+      title: `Solicitud ${cita.id_solicitud} - ${cita.nombre || 'Sin nombre'} ${cita.apellido || 'Sin apellido'}`,
+      start: new Date(cita.datetime),
+      end: new Date(new Date(cita.datetime).getTime() + 60 * 60 * 1000),
+      desc: `Estado: ${cita.estado}`,
+      solicitudId: cita.id_solicitud,
+      tecnicoId: cita.id_tecnico,
+      tecnicoNombre: cita.tecnico_nombre, // Include technician's name from query
+      tecnicoApellido: cita.tecnico_apellido // Include technician's surname from query
+  })) || [];
+
+  if (isCitasLoading) {
+    return <Spin size="large" />;
+  }
+
+  if (isCitasError) {
+    return <Alert message="Error loading data" type="error" />;
+  }
+
   return (
     <div style={{ height: "100%" }}>
       <Calendar
@@ -46,19 +54,44 @@ const ProcessCalendar = () => {
         events={events}
         startAccessor="start"
         endAccessor="end"
-        defaultDate={new Date(2015, 3, 1)}
-        views={views}
+        defaultView='month'
+        views={['month', 'week', 'day', 'agenda']}
         onSelectEvent={handleEventClick}
       />
-      <Modal
-        title={selectedEvent.title}
-        open={modalVisible}
-        onOk={closeModal}
-        onCancel={closeModal}
-        footer={null}
-      >
-        <p>{selectedEvent.desc}</p>
-      </Modal>
+      {selectedEvent && (
+        <Modal
+          title={selectedEvent.title}
+          open={modalVisible}
+          onOk={closeModal}
+          onCancel={closeModal}
+          footer={null}
+        >
+          {isSolicitudDetailsLoading ? (
+            <Spin size="large" />
+          ) : isSolicitudDetailsError ? (
+            <Alert message="Error loading solicitud details" type="error" />
+          ) : (
+            <div>
+              <p><strong>Usuario:</strong> {solicitudDetails?.nombre} {solicitudDetails?.apellido}</p>
+              <p><strong>Correo electrónico:</strong> {solicitudDetails?.correo_electronico}</p>
+              <p><strong>Teléfono:</strong> {solicitudDetails?.telefono}</p>
+              <p><strong>Observación:</strong> {solicitudDetails?.observacion}</p>
+              <p><strong>Fecha preferencia:</strong> {moment(solicitudDetails?.fecha_preferencia).format('YYYY-MM-DD HH:mm')}</p>
+              <p><strong>Técnico:</strong> {selectedEvent.tecnicoNombre} {selectedEvent.tecnicoApellido || 'Desconocido'}</p> {/* Add technician info */}
+              {solicitudDetails?.detalles && solicitudDetails.detalles.length > 0 && (
+                <>
+                  <h4>Detalles del Servicio</h4>
+                  {solicitudDetails.detalles.map(detalle => (
+                    <div key={detalle.id_detalle_solicitud}>
+                      <p><strong>Servicio:</strong> {detalle.servicio_nombre}</p>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+        </Modal>
+      )}
     </div>
   );
 };
