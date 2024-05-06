@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, ConfigProvider, Select, Button, Space, Spin, message } from 'antd';
+import React, { useEffect, useState, useRef } from 'react';
+import { Modal, Form, Input, ConfigProvider, Select, Button, Space, Spin } from 'antd';
 import { DatePicker as AntDatePicker } from 'antd';
 import { useGetUsersQuery } from '../../features/users/UsersApiSlice';
 import { useGetUsersRolesQuery, useGetRolesQuery } from '../../features/roles/RolesApiSlice';
@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import utc from 'dayjs/plugin/utc';
 import enUS from 'antd/es/locale/en_US';
+import { Toast } from 'primereact/toast'; // Import PrimeReact Toast
 
 const { Option } = Select;
 
@@ -33,7 +34,8 @@ export default function CitaForm({ visible, onClose, citaData }) {
     const [form] = Form.useForm();
     const [technicians, setTechnicians] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+    const toast = useRef(null); // Create a Toast reference
+
     // Fetch users, roles, and user roles only once
     const { data: users } = useGetUsersQuery();
     const { data: rolesData } = useGetRolesQuery();
@@ -90,61 +92,78 @@ export default function CitaForm({ visible, onClose, citaData }) {
             const values = await form.validateFields();
             await createCita(values).unwrap();
             await updateSolicitudEstado({ id: values.id_solicitud, estado: 'En Agenda' }).unwrap();
-            message.success('Cita creada correctamente');
             onClose();
         } catch (error) {
             console.error('Error creando cita:', error);
-            message.error('No se pudo crear la cita');
+
+            if (error.status === 409) {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Ya existe una cita para esta fecha y hora con este técnico',
+                    life: 5000
+                });
+            } else {
+                toast.current.show({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudo crear la cita',
+                    life: 5000
+                });
+            }
         }
     };
 
     return (
-        <Modal open={visible} title="Crear Cita" onCancel={onClose} footer={null}>
-            {loading ? (
-                <Spin tip="Cargando..." />
-            ) : (
-                <Form form={form} layout="vertical">
-                    <Form.Item label="Id Solicitud" name="id_solicitud">
-                        <Input disabled />
-                    </Form.Item>
-                    <Form.Item label="Id Técnico" name="id_tecnico" rules={[{ required: true, message: 'Selecciona un técnico' }]}>
-                        <Select loading={!technicians.length}>
-                            {technicians.map(tech => (
-                                <Option key={tech.id_usuario} value={tech.id_usuario}>
-                                    {tech.nombre} {tech.apellido}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Fecha y Hora" name="datetime">
-                        <ConfigProvider locale={buddhistLocale}>
-                            <Space direction="vertical">
-                                <AntDatePicker
-                                    showTime={{ format: 'HH:mm', minuteStep: 15 }}
-                                    format="YYYY-MM-DD HH:mm"
-                                    value={form.getFieldValue('datetime')}
-                                    onChange={(date) => form.setFieldValue('datetime', date)}
-                                />
-                            </Space>
-                        </ConfigProvider>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" onClick={handleSubmit} loading={isCreating}>Enviar</Button>
-                    </Form.Item>
-                </Form>
-            )}
+        <>
+            <Toast ref={toast} /> {/* Add the Toast component */}
+            <Modal open={visible} title="Crear Cita" onCancel={onClose} footer={null}>
+                {loading ? (
+                    <Spin tip="Cargando..." />
+                ) : (
+                    <Form form={form} layout="vertical">
+                        <Form.Item label="Id Solicitud" name="id_solicitud">
+                            <Input disabled />
+                        </Form.Item>
+                        <Form.Item label="Id Técnico" name="id_tecnico" rules={[{ required: true, message: 'Selecciona un técnico' }]}>
+                            <Select loading={!technicians.length}>
+                                {technicians.map(tech => (
+                                    <Option key={tech.id_usuario} value={tech.id_usuario}>
+                                        {tech.nombre} {tech.apellido}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="Fecha y Hora" name="datetime">
+                            <ConfigProvider locale={buddhistLocale}>
+                                <Space direction="vertical">
+                                    <AntDatePicker
+                                        showTime={{ format: 'HH:mm', minuteStep: 15 }}
+                                        format="YYYY-MM-DD HH:mm"
+                                        value={form.getFieldValue('datetime')}
+                                        onChange={(date) => form.setFieldValue('datetime', date)}
+                                    />
+                                </Space>
+                            </ConfigProvider>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" onClick={handleSubmit} loading={isCreating}>Enviar</Button>
+                        </Form.Item>
+                    </Form>
+                )}
 
-            {/* Show details */}
-            {solicitudDetails && (
-                <div>
-                    <h3>Servicios</h3>
-                    {solicitudDetails.detalles && solicitudDetails.detalles.map(servicio => (
-                        <div key={servicio.id_detalle_solicitud}>
-                            <p><strong>{servicio.servicio_nombre}</strong>: {servicio.servicio_descripcion}</p>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </Modal>
+                {/* Show details */}
+                {solicitudDetails && (
+                    <div>
+                        <h3>Servicios</h3>
+                        {solicitudDetails.detalles && solicitudDetails.detalles.map(servicio => (
+                            <div key={servicio.id_detalle_solicitud}>
+                                <p><strong>{servicio.servicio_nombre}</strong>: {servicio.servicio_descripcion}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </Modal>
+        </>
     );
 }

@@ -24,8 +24,6 @@ const getAllSolicitudes = async (req, res) => {
 const crearSolicitud_AgregarServicios = async (req, res) => {
     try {
         let { fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico, telefono, observacion, fecha_preferencia, servicios } = req.body;
-
-        // Convert fecha_preferencia to the correct timezone
         fecha_preferencia = moment(fecha_preferencia).tz('America/Costa_Rica').format();
 
         const newSolicitud = await pool.query(
@@ -41,19 +39,18 @@ const crearSolicitud_AgregarServicios = async (req, res) => {
                 [solicitudId, servicioId]
             );
         }
-        
+
+        const fullSolicitudDetails = await getSolicitudByIdForEmit(solicitudId); // Get the full details
         const io = socketManager.getIO();
 
-        // Emitir un evento a todos los clientes conectados
         io.emit('solicitudCreada', {
             message: 'Nueva solicitud creada',
-            solicitud: newSolicitud.rows[0],
-            servicios: servicios
+            solicitud: fullSolicitudDetails // Emit the full details
         });
+
         res.json({
             message: 'Solicitud y servicios agregados correctamente',
-            solicitud: newSolicitud.rows[0],
-            servicios: servicios
+            solicitud: fullSolicitudDetails
         });
 
     } catch (error) {
@@ -61,6 +58,7 @@ const crearSolicitud_AgregarServicios = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 const getSolicitudById = async (req, res) => {
     try {
         const { solicitudId } = req.params;
@@ -107,7 +105,20 @@ const updateSolicitudEstado = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+const getSolicitudByIdForEmit = async (solicitudId) => {
+    const solicitudQuery = await pool.query('SELECT * FROM solicitud WHERE id_solicitud = $1', [solicitudId]);
+    const solicitud = solicitudQuery.rows[0];
 
+    const detallesQuery = await pool.query(
+        'SELECT ds.id_detalle_solicitud, ds.id_servicio, s.nombre AS servicio_nombre, s.descripcion AS servicio_descripcion ' +
+        'FROM detallesolicitud ds ' +
+        'JOIN servicios s ON ds.id_servicio = s.id_servicio ' +
+        'WHERE ds.id_solicitud = $1', [solicitudId]);
+
+    const detalles = detallesQuery.rows;
+
+    return { ...solicitud, detalles };
+};
 module.exports = {
     crearSolicitud_AgregarServicios,
     getAllSolicitudes,

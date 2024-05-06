@@ -7,25 +7,43 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
+import { Toast } from 'primereact/toast'; // Import Toast
 import CitaForm from '../cita/CitaForm';
 import { format } from 'date-fns';
+import { Row, Col } from 'antd'; // Import Row and Col
 
 export default function SolicitudesTable() {
-    const { data: solicitudes, isLoading, isError, error, refetch } = useGetSolicitudesQuery(); // Destructure refetch
+    const { data: solicitudes, isLoading, isError, error, refetch } = useGetSolicitudesQuery();
     const [globalFilter, setGlobalFilter] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentSolicitud, setCurrentSolicitud] = useState(null);
     const dt = useRef(null);
+    const toast = useRef(null); // Create Toast reference
 
     const showCitaForm = (solicitud) => {
-        setCurrentSolicitud(solicitud);
-        setIsModalVisible(true);
+        if (solicitud.estado === 'En Agenda') {
+            toast.current.show({
+                severity: 'info',
+                summary: 'Información',
+                detail: 'La solicitud ya está en agenda',
+                life: 3000
+            });
+        } else {
+            setCurrentSolicitud(solicitud);
+            setIsModalVisible(true);
+        }
     };
 
     const handleFormClose = (shouldRefetch = false) => {
         setIsModalVisible(false);
         if (shouldRefetch) {
-            refetch(); // Refetch data when form is closed and updates are made
+            refetch();
+            toast.current.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'La solicitud ha sido agendada correctamente',
+                life: 3000
+            });
         }
     };
 
@@ -36,21 +54,23 @@ export default function SolicitudesTable() {
                 icon="pi pi-upload"
                 className="p-button-help"
                 onClick={() => dt.current.exportCSV()}
-                style={{ backgroundColor: '#FF8E00', borderColor: '#FF8E00' }} // Applying orange color
+                style={{ backgroundColor: '#FF8E00', borderColor: '#FF8E00' }}
             />
-        );      
+        );
     };
 
     const statusBodyTemplate = (rowData) => {
         const status = rowData.estado === 'Pendiente' ? 'warning' :
-                       rowData.estado === 'En Agenda' ? 'info' : 'success';
+            rowData.estado === 'En Agenda' ? 'info' : 'success';
         return <Tag value={rowData.estado} severity={status} />;
     };
 
     const header = (
-        <div className="table-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <Toolbar right={rightToolbarTemplate} style={{ padding: 0, border:"0px solid" }} />
+        <Row justify="space-between" align="middle" className="table-header">
+            <Col>
+                <Toolbar right={rightToolbarTemplate} style={{ padding: 0, border: "0px solid" }} />
+            </Col>
+            <Col>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText
@@ -59,8 +79,8 @@ export default function SolicitudesTable() {
                         placeholder="Search..."
                     />
                 </span>
-            </div>
-        </div>
+            </Col>
+        </Row>
     );
 
     if (isLoading) {
@@ -72,35 +92,38 @@ export default function SolicitudesTable() {
     }
 
     return (
-        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ flexGrow: 1 }}>
-                <DataTable
-                    ref={dt}
-                    value={solicitudes}
-                    dataKey="id_solicitud"
-                    paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} solicitudes"
-                    globalFilter={globalFilter}
-                    header={header}
-                    scrollable
-                    scrollHeight="100%"
-                    onRowClick={(e) => showCitaForm(e.data)}
-                    className="custom-hover-effect" // Adding custom class for hover effect
-                    style={{border:"grey 1px solid"}}
-                >
-                    <Column field="id_solicitud" header="Id Solicitud" sortable style={{ width: '6rem' }}></Column>
-                    <Column field="fecha_creacion" header="Fecha de Creación" sortable  body={rowData => format(new Date(rowData.fecha_creacion), 'yyyy-dd-MM HH:mm')}style={{ width: '9rem' }}></Column>
-                    <Column field="fecha_preferencia" header="Fecha de Preferencia" sortable body={rowData => format(new Date(rowData.fecha_preferencia), 'yyyy-dd-MM HH:mm')} style={{ width: '12rem' }}></Column>
-                    <Column field="nombre" header="Nombre" sortable style={{ width: '8rem' }}></Column>
-                    <Column field="apellido" header="Apellido" sortable style={{ width: '8rem' }}></Column>
-                    <Column field="correo_electronico" header="Correo Electrónico" sortable style={{ width: '12rem' }}></Column>
-                    <Column field="telefono" header="Teléfono" sortable style={{ width: '8rem' }}></Column>
-                    <Column field="observacion" header="Observación" sortable style={{ width: '10rem' }}></Column>
-                    <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '8rem' }}></Column>
-                </DataTable>
-            </div>
-            <CitaForm key={currentSolicitud?.id_solicitud} visible={isModalVisible} onClose={() => handleFormClose(true)} citaData={currentSolicitud} />
-        </div>
+        <>
+            <Toast ref={toast} /> {/* Add the Toast component */}
+            <Row style={{display: 'flex', flexDirection: 'column' }}>
+                <Col span={24} style={{ flexGrow: 1 }}>
+                    <DataTable
+                        ref={dt}
+                        value={solicitudes}
+                        dataKey="id_solicitud"
+                        paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} solicitudes"
+                        globalFilter={globalFilter}
+                        header={header}
+                        scrollable
+                        scrollHeight="100%"
+                        onRowClick={(e) => showCitaForm(e.data)}
+                        className="custom-hover-effect"
+                        style={{ border: "grey 1px solid" }}
+                    >
+                        <Column field="id_solicitud" header="Id Solicitud" sortable style={{ width: '6rem' }}></Column>
+                        <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'yyyy-dd-MM HH:mm')} style={{ width: '9rem' }}></Column>
+                        <Column field="fecha_preferencia" header="Fecha de Preferencia" sortable body={rowData => format(new Date(rowData.fecha_preferencia), 'yyyy-dd-MM HH:mm')} style={{ width: '12rem' }}></Column>
+                        <Column field="nombre" header="Nombre" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="apellido" header="Apellido" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="correo_electronico" header="Correo Electrónico" sortable style={{ width: '12rem' }}></Column>
+                        <Column field="telefono" header="Teléfono" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="observacion" header="Observación" sortable style={{ width: '10rem' }}></Column>
+                        <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '8rem' }}></Column>
+                    </DataTable>
+                </Col>
+                <CitaForm key={currentSolicitud?.id_solicitud} visible={isModalVisible} onClose={() => handleFormClose(true)} citaData={currentSolicitud} />
+            </Row>
+        </>
     );
 }

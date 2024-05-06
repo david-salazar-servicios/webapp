@@ -11,8 +11,9 @@ import {
     LoginOutlined,
     UserSwitchOutlined
 } from '@ant-design/icons';
-import { Layout, Menu, Modal, List, Avatar, Badge } from 'antd';    
+import { Layout, Menu, Modal, List, Badge } from 'antd';
 import io from 'socket.io-client';
+import { format } from 'date-fns'; // Ensure you import the date-fns format function
 
 const { Content, Sider } = Layout;
 
@@ -24,7 +25,10 @@ const MaintenanceLayout = () => {
     const [sendLogout] = useSendLogoutMutation();
     const socketRef = useRef(null);
 
-    const { data: solicitudes, isLoading, refetch  } = useGetSolicitudesQuery();
+    const { data: solicitudes, refetch } = useGetSolicitudesQuery();
+
+    // Calculate the number of "Pendiente" solicitudes
+    const pendientesCount = solicitudes ? solicitudes.filter(solicitud => solicitud.estado === 'Pendiente').length : 0;
 
     useEffect(() => {
         socketRef.current = io('http://localhost:3000', { withCredentials: true });
@@ -51,6 +55,18 @@ const MaintenanceLayout = () => {
         }
     };
 
+    const formatFechaCreacion = (fecha) => {
+        if (fecha) {
+            try {
+                return format(new Date(fecha), 'yyyy-MM-dd HH:mm');
+            } catch (e) {
+                console.error('Invalid date value:', e);
+                return 'Invalid date';
+            }
+        }
+        return 'No date';
+    };
+
     const items = [
         { label: 'Home', key: 'mantenimiento/index', icon: <HomeOutlined /> },
         { label: 'Reportes', key: 'mantenimiento/reportes', icon: <PieChartOutlined /> },
@@ -70,8 +86,8 @@ const MaintenanceLayout = () => {
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span>Solicitudes</span>
                 <Badge 
-                  count={isLoading ? 0 : solicitudes?.length} 
-                  style={{ backgroundColor: '#52c41a', marginLeft:10 }}
+                  count={pendientesCount} // Show count of pendientes
+                  style={{ backgroundColor: '#52c41a', marginLeft: 10 }}
                   size='small'
                 />
               </div>
@@ -108,16 +124,32 @@ const MaintenanceLayout = () => {
                 <Content style={{ padding: '20px' }}>
                     <Outlet />
                     <Modal
-                        title="New Solicitud Created"
+                        title="Nueva Solicitud Creada"
                         open={modalVisible}
                         onOk={() => setModalVisible(false)}
                         onCancel={() => setModalVisible(false)}
                         footer={null}
                     >
-                        <p><strong>Message:</strong> {notificationData.message}</p>
-                        <p><strong>Solicitud ID:</strong> {notificationData.solicitud?.id_solicitud}</p>
+                        <p><strong>Mensaje:</strong> {notificationData.message}</p>
+                        <p><strong>ID Solicitud:</strong> {notificationData.solicitud?.id_solicitud}</p>
                         <p><strong>Nombre:</strong> {notificationData.solicitud?.nombre}</p>
                         <p><strong>Apellido:</strong> {notificationData.solicitud?.apellido}</p>
+                        <p><strong>Correo Electrónico:</strong> {notificationData.solicitud?.correo_electronico}</p>
+                        <p><strong>Teléfono:</strong> {notificationData.solicitud?.telefono}</p>
+                        <p><strong>Fecha Creación:</strong> {formatFechaCreacion(notificationData.solicitud?.fecha_creacion)}</p>
+                        <p><strong>Observación:</strong> {notificationData.solicitud?.observacion}</p>
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={notificationData.solicitud?.detalles || []}
+                            renderItem={item => (
+                                <List.Item>
+                                    <List.Item.Meta
+                                        title={<span>{item.servicio_nombre}</span>}
+                                        description={item.servicio_descripcion}
+                                    />
+                                </List.Item>
+                            )}
+                        />
                     </Modal>
                 </Content>
             </Layout>

@@ -37,13 +37,19 @@ const getAllCitas = async (req, res) => {
 // @access Private
 const createCita = async (req, res) => {
     try {
-        // Extract fields from request body
         let { id_solicitud, id_tecnico, datetime, estado } = req.body;
-
-        // Provide a default value for estado if not provided
         estado = estado || 'En Agenda';
 
-        // Insert the new cita into the database
+        // Check if a cita already exists with the same technician and datetime
+        const existingCita = await pool.query(
+            'SELECT * FROM cita WHERE id_tecnico = $1 AND datetime = $2',
+            [id_tecnico, datetime]
+        );
+
+        if (existingCita.rows.length > 0) {
+            return res.status(409).json({ message: 'Ya existe una cita para esta fecha y hora con este técnico' });
+        }
+
         const newCita = await pool.query(
             'INSERT INTO cita (id_solicitud, id_tecnico, datetime, estado) VALUES ($1, $2, $3, $4) RETURNING *',
             [id_solicitud, id_tecnico, datetime, estado]
@@ -55,6 +61,7 @@ const createCita = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
+
 
 
 
