@@ -29,7 +29,7 @@ export default function CardServices() {
               <h4 className="title"><a href="">{service.nombre}</a></h4>
               <p className="description">{service.descripcion}</p>
               <Link to={`/Services/${service.id_servicio}`}>
-                <span>Read More</span>
+                <span>Leer más</span>
                 <i className="bi bi-arrow-right" style={{paddingLeft:"5px"}}></i>
               </Link>
             </div>
@@ -51,7 +51,7 @@ export default function CardServices() {
                 <h4 className="title"><a href="">{service.nombre}</a></h4>
                 <p className="description">{service.descripcion}</p>
                 <Link to={`/Services/${service.id_servicio}`}>
-                  <span>Read More</span>
+                  <span>Leer más</span>
                   <i className="bi bi-arrow-right" style={{paddingLeft:"5px"}}></i>
                 </Link>
               </div>
@@ -66,7 +66,7 @@ export default function CardServices() {
     <section id="services" className="services">
       <div className="container">
         <div className="section-title" data-aos="fade-up">
-          <h2>Services</h2>
+          <h2>Servicios</h2>
         </div>
         <Tabs defaultActiveKey="0" centered items={tabItems} />
       </div>

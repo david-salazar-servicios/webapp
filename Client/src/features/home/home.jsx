@@ -77,7 +77,7 @@ export default function Home() {
                   <div className="specialise-box">
                     <div className="inner-box">
                       <div className="content">
-                        <div className="icon icofont-handshake-deal"></div>
+                        <div className="icon trust-icon"></div>
                         <h5>Confianza y Transparencia</h5>
                         <p>La base de nuestro éxito reside en la confianza y transparencia con nuestros clientes, asegurando una comunicación clara y honesta desde el inicio.</p>
                       </div>
@@ -87,7 +87,7 @@ export default function Home() {
                   <div className="specialise-box">
                     <div className="inner-box">
                       <div className="content">
-                        <div className="icon icofont-shield"></div>
+                        <div className="icon protect-icon"></div>
                         <h5>Seguridad en Cada Proyecto</h5>
                         <p>Implementamos rigurosas medidas de seguridad en cada proyecto, protegiendo tanto a nuestro equipo como a nuestros clientes y sus propiedades.</p>
                       </div>
@@ -97,7 +97,7 @@ export default function Home() {
                   <div className="specialise-box">
                     <div className="inner-box">
                       <div className="content">
-                        <div className="icon icofont-satisfaction"></div>
+                        <div className="icon handshake-icon"></div>
                         <h5>Compromiso con la Calidad</h5>
                         <p>Nuestro compromiso con la calidad es inquebrantable, desde la selección de materiales hasta la ejecución y finalización de cada servicio.</p>
                       </div>

@@ -92,6 +92,12 @@ export default function CitaForm({ visible, onClose, citaData }) {
             const values = await form.validateFields();
             await createCita(values).unwrap();
             await updateSolicitudEstado({ id: values.id_solicitud, estado: 'En Agenda' }).unwrap();
+            toast.current.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'La solicitud ha sido agendada correctamente',
+                life: 3000
+            });
             onClose();
         } catch (error) {
             console.error('Error creando cita:', error);
