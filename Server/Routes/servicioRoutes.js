@@ -25,6 +25,8 @@ router.delete('/usuarios_servicios/:id_usuario/:id_servicio', servicioController
 
 router.delete("/usuarios_servicios/:id_usuario",servicioController.deleteAllUsuarioServicio);
 
+router.get("/images",servicioController.getServicesImages)
+
 module.exports = router
 
 

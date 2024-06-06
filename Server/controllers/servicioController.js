@@ -212,7 +212,45 @@ const getDetalleServiciosByIds = async (req, res) => {
         console.error("Error retrieving services by IDs:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
+
+    
 };
+
+const getServicesImages = async (req, res) => {
+    try {
+
+        
+        // Fetch images from the Imgur album
+        const imgurResponse = await fetch(`https://api.imgur.com/3/album/fcsOnlu`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Client-ID ${process.env.CLIENT_ID}`,
+            }
+        });
+
+        // Parse the response as JSON
+        const imgurData = await imgurResponse.json();
+
+        // Check if the response contains images
+        if (!imgurData.success) {
+            throw new Error('Failed to fetch images from Imgur');
+        }
+
+        // Extract images from the Imgur response
+        const imgurImages = imgurData.data;
+
+        // Return the list of services along with Imgur images
+        res.json({
+            imgurImages
+        });
+    } catch (error) {
+        console.error("Error retrieving services or Imgur images:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
 module.exports = {
     getAllServicios,
     createNewServicio,
@@ -223,5 +261,6 @@ module.exports = {
     getUsuarioServicioById,
     getDetalleServiciosByIds,
     deleteUsuarioServicioById,
-    deleteAllUsuarioServicio
+    deleteAllUsuarioServicio,
+    getServicesImages
 };
