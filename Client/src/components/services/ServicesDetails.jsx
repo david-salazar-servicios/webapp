@@ -1,33 +1,35 @@
+// ServicesDetails.js
 import React, { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Accordion } from 'react-bootstrap';
 import { useGetServiceByIdQuery } from '../../features/services/ServicesApiSlice';
-import image from '../../assets/images/why-us-bg.jpg'
-import CarouselHeader from "../home/CarouselHeader";
 import { Button } from 'antd';
-import { Toast } from 'primereact';
+import { Toast } from 'primereact/toast';
+import ServicesCarousel from './ServicesCarousel'; // Import the new Carousel component
 
 export default function ServicesDetails() {
   const { id: serviceId } = useParams();
   const { data: service, isError, isLoading } = useGetServiceByIdQuery(serviceId);
   const toast = useRef(null);
 
+
+  console.log(service)
   // Function to handle the storage of the service request
   const handleServiceRequest = () => {
-    if (serviceId) {
+    if (serviceId && service?.servicio) {
       try {
         // Retrieve the existing services from localStorage or initialize with an empty array
         let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
         
         // Check if the service is already in the localStorage
-        const serviceExists = serviceRequests.some(service => service.id_servicio === serviceId);
+        const serviceExists = serviceRequests.some(req => req.id_servicio === serviceId);
         
         if (serviceExists) {
           // Show a message indicating that the service is already added
           toast.current.show({ severity: 'info', summary: 'Servicio ya agregado', detail: 'Este servicio ya ha sido agregado a la lista de solicitudes', life: 2000 });
         } else {
           // Add the new service request to the list
-          serviceRequests.push({ id_servicio: serviceId, nombre: service?.nombre });
+          serviceRequests.push({ id_servicio: serviceId, nombre: service.servicio.nombre });
 
           // Update localStorage with the new list
           localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
@@ -50,7 +52,7 @@ export default function ServicesDetails() {
     return <div>Loading...</div>;
   }
 
-  if (isError || !service) {
+  if (isError || !service?.servicio) {
     return <div>Service not found</div>;
   }
 
@@ -61,15 +63,23 @@ export default function ServicesDetails() {
           <div className="row">
             <div className="col-lg-7 d-flex flex-column justify-content-center align-items-stretch order-2 order-lg-1">
               <div className="content">
-                <h3><strong>{service.nombre}</strong></h3>
-                <p>{service.descripcion}</p>
+                <h3><strong>{service.servicio.nombre}</strong></h3>
+                <p>{service.servicio.descripcion}</p>
               </div>
 
               <div className="accordion-list">
                 <Toast ref={toast} />
                 <Accordion defaultActiveKey="0">
                   <Accordion.Item eventKey="0" className="accordionItem">
-                    <Accordion.Header className="accordionHeader"><span>01</span> Non consectetur a erat nam at lectus urna duis?</Accordion.Header>
+                    <Accordion.Header className="accordionHeader"><span> Lo que ofrecemos</span></Accordion.Header>
+                    <Accordion.Body className="accordionBody">
+                      {service.offerData[0]}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                </Accordion>
+                <Accordion defaultActiveKey="1">
+                  <Accordion.Item eventKey="1" className="accordionItem">
+                    <Accordion.Header className="accordionHeader"><span>Tipo de servicio</span></Accordion.Header>
                     <Accordion.Body className="accordionBody">
                       Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
                     </Accordion.Body>
@@ -83,7 +93,9 @@ export default function ServicesDetails() {
               </div>
             </div>
 
-            <div className="col-lg-5 align-items-stretch order-1 order-lg-2 imgService" style={{ backgroundImage: `url(${image})` }}></div>
+            <div className="col-lg-5 align-items-stretch order-1 order-lg-2">
+              <ServicesCarousel images={service.imgurImages.images} /> 
+            </div>
           </div>
 
         </div>

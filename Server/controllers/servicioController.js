@@ -59,13 +59,56 @@ const deleteServicio = async (req, res) => {
 const getServicioById = async (req, res) => {
     try {
         const { id } = req.params;
-        const service = await pool.query('SELECT * FROM Servicios WHERE id_servicio = $1', [id]);
+        const resServicio = await pool.query('SELECT * FROM Servicios WHERE id_servicio = $1', [id]);
 
-        if (service.rows.length === 0) {
+        if (resServicio.rows.length === 0) {
             return res.status(404).json({ message: 'Service not found' });
         }
 
-        res.json(service.rows[0]);
+        const imgurResponse = await fetch(`https://api.imgur.com/3/album/${resServicio.rows[0].album}`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                Authorization: `Client-ID ${process.env.CLIENT_ID}`,
+            }
+        });
+
+        // Parse the response as JSON
+        const imgurData = await imgurResponse.json();
+        
+
+        // Check if the response contains images
+        if (!imgurData.success) {
+            throw new Error('Failed to fetch images from Imgur');
+        }
+
+        const offerResponse = await fetch(resServicio.rows[0].id_ofrecemos, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+            }
+        });
+
+        // Parse the response as JSON
+        const offerData = await offerResponse.json();
+        
+        // Check if the response contains images
+        if (!imgurData.success) {
+            throw new Error('Failed to fetch images from Imgur');
+        }
+
+        // Extract images from the Imgur response
+        const imgurImages = imgurData.data;
+        const servicio = resServicio.rows[0];
+        res.json({servicio,
+            offerData,
+            imgurImages
+        });
+       
+
+
+    
+
     } catch (error) {
         console.error("Error retrieving service:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -212,7 +255,13 @@ const getDetalleServiciosByIds = async (req, res) => {
         console.error("Error retrieving services by IDs:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
+
+    
 };
+
+
+
+
 module.exports = {
     getAllServicios,
     createNewServicio,

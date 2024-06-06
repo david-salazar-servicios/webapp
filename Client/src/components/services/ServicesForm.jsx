@@ -88,7 +88,7 @@ const ServicesForm = () => {
     if (error) return <p>Error al cargar las categorías</p>;
 
     return (
-        <Row gutter={[16, 16]} style={{ marginTop: "30px" }}>
+        <Row gutter={[16, 16]} style={{ paddingTop: "30px" }}>
             <Col xs={24} sm={24} md={12} lg={13}>
                 <Card title="Formulario de Servicios" bordered={false} style={{
                     maxWidth: '800px', marginTop: "30px",
