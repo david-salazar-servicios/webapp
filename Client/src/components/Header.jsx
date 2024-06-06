@@ -1,135 +1,131 @@
-import { React, useRef, useState, useEffect } from 'react';
-import { useNavigate, NavLink } from "react-router-dom";
-import { Button, OverlayPanel, DataTable, Column, Toast } from 'primereact';
-import { Badge } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Toast } from 'primereact/toast';
 import CarouselHeader from './home/CarouselHeader';
+import { Menubar } from 'primereact/menubar';
+import { useGetServicesQuery } from '../features/services/ServicesApiSlice';
+import { useGetCategoriasQuery } from '../features/categorias/CategoriasApiSlice';
+import { motion } from 'framer-motion';
 
 export default function Header() {
   const navigate = useNavigate();
   const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
-
   const toast = useRef(null);
-  const op = useRef(null);
 
   const updateServicesFromStorage = () => {
     const storedServices = JSON.parse(localStorage.getItem('serviceRequests')) || [];
     setUpdatedServicesDetails(storedServices);
   };
 
-  // Function to handle the deletion of a service
   const handleDelete = (id_servicio) => {
     try {
-      // Get existing services from localStorage
       let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
-
-      // Filter out the service to be deleted
       serviceRequests = serviceRequests.filter(service => service.id_servicio !== id_servicio);
-
-      // Update the localStorage with the new list
       localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
-
-      // Update the local state
       updateServicesFromStorage();
-
-      // Show success message
       toast.current.show({ severity: 'success', summary: 'Servicio eliminado', detail: 'El servicio ha sido eliminado correctamente', life: 2000 });
     } catch (error) {
-      // Show error message
       toast.current.show({ severity: 'error', summary: 'Error al eliminar', detail: 'Error al eliminar el servicio', life: 2000 });
     }
   };
 
-  // Fetch services from localStorage on component mount and listen for storage changes
   useEffect(() => {
     updateServicesFromStorage();
-
-    // Listen for storage changes
     const handleStorageChange = () => updateServicesFromStorage();
     window.addEventListener('storage', handleStorageChange);
-
-    // Listen for custom event when a service is added
     const handleServiceAdded = () => updateServicesFromStorage();
     window.addEventListener('serviceAdded', handleServiceAdded);
-
-    // Cleanup listeners on component unmount
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('serviceAdded', handleServiceAdded);
     };
   }, []);
 
+  const { data: services, isLoading: isLoadingServices, isError: isErrorServices, error: errorServices } = useGetServicesQuery();
+  const { data: categories, isLoading: isLoadingCategories, isError: isErrorCategories, error: errorCategories } = useGetCategoriasQuery();
 
+  if (isLoadingServices || isLoadingCategories) return <div>Loading...</div>;
+  if (isErrorServices || isErrorCategories) return <div>Error: {(errorServices || errorCategories).toString()}</div>;
 
-  const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
-  const toggleMenu = () => setIsMenuCollapsed(!isMenuCollapsed);
+  const servicesByCategory = categories.reduce((acc, category) => {
+    acc[category.id_categoria] = services.filter(service => service.id_categoria === category.id_categoria);
+    return acc;
+  }, {});
+
+  const menuItems = [
+    { label: 'Inicio', command: () => navigate('/') },
+    { label: 'Sobre Nosotros', command: () => navigate('/About') },
+    {
+      label: 'Servicios',
+      items: categories.map(category => ({
+        label: category.nombre,
+        items: servicesByCategory[category.id_categoria]?.map(service => ({
+          label: service.nombre,
+          command: () => navigate(`/Services/${service.id_servicio}`)
+        })) || [],
+      }))
+    },
+    { label: 'Contacto', command: () => navigate('/Contact') }
+  ];
 
   return (
     <div>
-      <header>
-        <nav className="navbar navbar-expand-lg">
-          <div className="container">
-            <button
-              className="navbar-toggler"
-              type="button"
-              onClick={toggleMenu}
-              aria-controls="navbarResponsive"
-              aria-expanded={!isMenuCollapsed}
-              aria-label="Toggle navigation"
-            >
-              <span className="navbar-toggler-icon"><i className="bi bi-list"></i></span>
-            </button>
-
-            <div className={`collapse navbar-collapse ${!isMenuCollapsed ? 'show' : ''}`} id="navbarResponsive">
-              <ul className="navbar-nav ml-auto" style={{ backgroundColor: "rgba(255, 255, 255, 0)", textAlign: "center" }}>
-                <li className="nav-item">
-                  <NavLink to="/" className="nav-link">
-                    Inicio
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink to="/Proceso_Solicitud" className="nav-link">
-                    Proceso de Solicitud
-                  </NavLink>
-                </li>
-
-                <li style={{ padding: "10px" }}>
-                  <Button icon="pi pi-shopping-cart" style={{ backgroundColor: "rgba(255, 255, 255, 0)", borderRadius: "10px", border: "2px solid #FF8E03" }} onClick={(e) => op.current.toggle(e)} />
-                  <Badge count={updatedServicesDetails?.length || 0} overflowCount={99} style={{ backgroundColor: '#52c41a' }}>
-
-                    <OverlayPanel ref={op} showCloseIcon id="overlay_panel" style={{ width: '450px', zIndex: 1000, position: 'relative' }}>
-                      <Toast ref={toast} />
-                      {(updatedServicesDetails && updatedServicesDetails.length > 0) ? (
-                        <DataTable value={updatedServicesDetails} selectionMode="single" paginator rows={5}>
-                          <Column field="nombre" header="Nombre" sortable style={{ minWidth: '12rem' }} />
-                          <Column
-                            body={(rowData) => (
-                              <Button
-                                shape="circle"
-                                style={{
-                                  backgroundColor: 'transparent',
-                                  border: '1px solid white',
-                                  boxShadow: 'none',
-                                  color: "black",
-                                  borderRadius: '10px'
-                                }} icon={<DeleteOutlined />} type="link" className="text-danger shadow-sm" onClick={() => handleDelete(rowData.id_servicio)} />
-                            )}
-                            header="Acciones"
-                            style={{ minWidth: '8rem' }}
-                          />
-                        </DataTable>
-                      ) : (
-                        <div>No hay servicios para mostrar</div>
-                      )}
-                    </OverlayPanel>
-
-                  </Badge>
-                </li>
-              </ul>
-            </div>
+      <div className="site-navbar-wrap">
+        <motion.div
+          className="site-navbar-top container py-3"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="contact-info">
+            <a href="tel:22396042" className="d-flex align-items-center">
+              <i className="bi bi-telephone"></i>
+              <span className="d-none d-md-inline-block ml-2">2239-6042</span>
+            </a>
+            <a href="https://wa.me/50686096382" target='_blank' className="d-flex align-items-center">
+              <i className="bi bi-phone"></i>
+              <span className="d-none d-md-inline-block ml-2">8820-6326</span>
+            </a>
           </div>
-        </nav>
-      </header>
+          <div className="social-icons">
+            <a href="https://wa.me/50686096382" target='_blank'><i className="bi bi-whatsapp"></i></a>
+            <a href="https://www.tiktok.com/@davidsalazarcr" target='_blank'><i className="bi bi-tiktok"></i></a>
+            <a href="https://www.instagram.com/davidsalazar_cr" target='_blank'><i className="bi bi-instagram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=100037466996673" target='_blank'><i className="bi bi-facebook"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=100011746801863&mibextid=2JQ9oc" target='_blank'><i className="bi bi-droplet"></i></a>
+          </div>
+        </motion.div>
+        <div className="mt-3">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Menubar model={menuItems} className="custom-menubar" />
+            
+          </motion.div>
+        </div>
+
+        <div className="mt-3">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5 }}
+          >
+         <motion.div 
+      className="fixed-text-content mt-5"
+      initial={{ y: '20vh', opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 50, damping: 20 }}
+    >
+      <h6>Invierta solo una vez</h6>
+      <h4>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
+      <a href="contact.html" className="filled-button">Contáctanos</a>
+    </motion.div>
+            
+          </motion.div>
+        </div>
+      </div>
 
       <CarouselHeader />
     </div>

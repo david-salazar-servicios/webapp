@@ -9,7 +9,9 @@ export default function MainLayout() {
   return (
    <>
    <Header/>
-   <Outlet/>
+   <div className="outlet-background">
+        <Outlet />
+      </div>
    <Footer/>
    </>
   )

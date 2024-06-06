@@ -32,12 +32,6 @@ export default function CarouselHeader() {
   return (
    
       <div className="main-banner header-text" id="top">
-        <div className="fixed-text-content">
-          <h6>Soluciones rápidas y efectivas</h6>
-          <h4>Servicios de Fontanería &amp; Reparaciones</h4>
-          <a href="contact.html" className="filled-button">Contáctanos</a>
-        </div>
-
         <div className="Modern-Slider">
           <Slider {...settings} ref={sliderRef}>
             <div className="item item-1">
