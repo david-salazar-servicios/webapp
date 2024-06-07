@@ -6,7 +6,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         sendResetPasswordEmail: builder.mutation({
             query: ({ email }) => ({
-                url: "/send-reset-password-email",
+                url: "/sendEmail/resetPassword",
                 method: "POST",
                 body: { email },
             }),
@@ -21,6 +21,7 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: (result, error, { id }) => [{ type: 'Usuario', id: 'LIST' }, { type: 'Usuario', id: id }],
         }),
     }),
+    
 });
 
 export const {

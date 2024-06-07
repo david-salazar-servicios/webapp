@@ -28,7 +28,7 @@ app.use("/usuarios", require("./Routes/usersRoutes"));
 app.use("/categorias", require("./Routes/categoriaRoutes"));
 app.use("/servicios", require("./Routes/servicioRoutes"));
 app.use("/roles", require("./Routes/rolesRoutes"));
-app.use("/send-reset-password-email", require("./Routes/emailRoutes"));
+app.use("/sendEmail", require("./Routes/emailRoutes"));
 app.use("/change-password", require("./Routes/usersRoutes"));
 app.use("/solicitudes", require("./Routes/solicitudRoutes"));
 app.use("/citas", require("./Routes/citaRoutes"));

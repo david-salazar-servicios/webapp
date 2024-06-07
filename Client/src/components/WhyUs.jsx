@@ -1,7 +1,6 @@
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import image from '../../src/assets/images/why-us-bg.jpg';
-// Import Swiper styles
 
 export default () => {
     return (
@@ -15,10 +14,14 @@ export default () => {
                     <div className="col-xl-7 slides ">
 
                         <Swiper
-                            modules={[Navigation, Pagination, Scrollbar, A11y]}
+                            modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]} // Add Autoplay module
                             spaceBetween={2}
                             slidesPerView={1}
                             pagination={{ clickable: true }}
+                            autoplay={{  // Configure autoplay
+                                delay: 2500,  // Time between slides in milliseconds
+                                disableOnInteraction: false,  // Continue autoplay after user interactions
+                            }}
                         >
                             <SwiperSlide>
                                 <div className="item">

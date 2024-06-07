@@ -3,7 +3,9 @@ const router = express.Router()
 const emailController = require('../controllers/emailController')
 
 
-router.route("/").post(emailController.sendEmail);
+router.route("/resetPassword").post(emailController.sendEmail);
+
+router.route("/emailContacto").post(emailController.sendEmailContacto);
 
 
 module.exports = router

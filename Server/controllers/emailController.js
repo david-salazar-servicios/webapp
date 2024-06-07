@@ -49,6 +49,47 @@ const sendEmail = async (req, res) => {
     }
 };
 
-module.exports= {
-    sendEmail
+const sendEmailContacto = async (req, res) => {
+    console.log("Received body:", req.body);  // Log the received body
+
+    const { nombre, correo, asunto, mensaje } = req.body; // Ensure these keys match your form fields
+
+    if (!nombre || !correo || !asunto || !mensaje) {
+        console.error("Missing fields in request body:", req.body);
+        return res.status(400).json({ message: 'Missing fields' });
+    }
+
+    try {
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.GMAIL_USERNAME,
+                pass: process.env.GMAIL_PASSWORD,
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
+
+        const mailOptions = {
+            from: 'davidsalazarservicios@gmail.com', // Reemplaza con tu correo
+            to: email.correo, // El destinatario del correo
+            subject: email.asunto,
+            text: email.mensaje,
+        };
+
+        let info = await transporter.sendMail(mailOptions);
+
+        res.json({ message: email.nombre + ' su correo fue enviado con éxito', info });
+    } catch (error) {
+        console.error('Error en la operación:', error);
+        res.status(500).send('Error al procesar la solicitud');
+    }
+};
+
+module.exports = {
+    sendEmail,
+    sendEmailContacto
 }

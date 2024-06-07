@@ -1,69 +1,124 @@
 import React from 'react';
+import { Form, Input, Button, Card, Row, Col, Typography, message } from 'antd';
+import { motion } from 'framer-motion';
 import '../../vendor/bootstrap/css/contacto.css';
+import WhyUs from '../../components/WhyUs';
+import { useSendEmailContactoMutation } from '../../features/contacto/sendEmailContactoApiSlice';
 
 const Contactenos = () => {
+  const [form] = Form.useForm();
+  const [sendEmailContacto, { isLoading }] = useSendEmailContactoMutation();
+
+  // Define the animation variants
+  const boxVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const onFinish = async (values) => {
+    try {
+      await sendEmailContacto(values).unwrap();
+      message.success('Correo enviado exitosamente');
+      //form.resetFields();
+    } catch (error) {
+      message.error('Error al enviar el correo');
+    }
+  };
+
   return (
     <>
-     {/* Contact Start */}
+      {/* Contact Start */}
       <div className="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
         <div className="container py-5">
-        
           <div className="row g-5 mb-5">
-            <div className="col-lg-4">
-              <div className="d-flex align-items-center wow fadeIn" data-wow-delay="0.1s">
-                <div className="bg-primary d-flex align-items-center justify-content-center rounded" style={{ width: '60px', height: '60px' }}>
-                  <i className="fa fa-phone-alt text-white"></i>
-                </div>
-                <div className="ps-4">
-                  <h5 className="mb-2">Call to ask any question</h5>
-                  <h4 className="text-primary mb-0">+012 345 6789</h4>
+            {[
+              {
+                key: 'linea-directa',
+                href: 'tel:22396042',
+                icon: 'fa-phone-alt',
+                title: 'Línea directa',
+                contact: '2239-6042'
+              },
+              {
+                key: 'telefono-movil',
+                href: 'https://wa.me/50686096382',
+                icon: 'fa-mobile-alt',
+                title: 'Teléfono móvil',
+                contact: '8820-6326'
+              },
+              {
+                key: 'direccion',
+                href: 'https://www.google.com/maps/place/C.+Escobal,+Heredia,+San+Antonio/@9.9760037,-84.1982826,17z',
+                icon: 'fa-map-marker-alt',
+                title: 'Dirección',
+                contact: 'C. Escobal, Heredia, Belén'
+              }
+            ].map(({ key, href, icon, title, contact }) => (
+              <div key={key} className="col-lg-4">
+                <div className="d-flex align-items-center wow fadeIn" data-wow-delay="0.1s">
+                  <a href={href} className="text-white text-decoration-none" target={key === 'direccion' ? '_blank' : '_self'} rel="noopener noreferrer">
+                    <div className="bg-primary d-flex align-items-center justify-content-center rounded" style={{ width: '60px', height: '60px' }}>
+                      <i className={`fa ${icon} text-white`}></i>
+                    </div>
+                  </a>
+                  <div className="ps-4">
+                    <h5 className="mb-2">{title}</h5>
+                    <h4 className="text-primary mb-0">
+                      <a href={href} className="text-primary text-decoration-none" target={key === 'direccion' ? '_blank' : '_self'} rel="noopener noreferrer">
+                        {contact}
+                      </a>
+                    </h4>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="col-lg-4">
-              <div className="d-flex align-items-center wow fadeIn" data-wow-delay="0.4s">
-                <div className="bg-primary d-flex align-items-center justify-content-center rounded" style={{ width: '60px', height: '60px' }}>
-                  <i className="fa fa-envelope-open text-white"></i>
-                </div>
-                <div className="ps-4">
-                  <h5 className="mb-2">Email to get free quote</h5>
-                  <h4 className="text-primary mb-0">info@example.com</h4>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-4">
-              <div className="d-flex align-items-center wow fadeIn" data-wow-delay="0.8s">
-                <div className="bg-primary d-flex align-items-center justify-content-center rounded" style={{ width: '60px', height: '60px' }}>
-                  <i className="fa fa-map-marker-alt text-white"></i>
-                </div>
-                <div className="ps-4">
-                  <h5 className="mb-2">Estamos ubicados en Heredia</h5>
-                  <h4 className="text-primary mb-0">C. Escobal, Heredia, Belén</h4>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
           <div className="row g-5">
             <div className="col-lg-6 wow slideInUp" data-wow-delay="0.3s">
-              <form>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <input type="text" className="form-control border-0 bg-light px-4" placeholder="Your Name" style={{ height: '55px' }} />
-                  </div>
-                  <div className="col-md-6">
-                    <input type="email" className="form-control border-0 bg-light px-4" placeholder="Your Email" style={{ height: '55px' }} />
-                  </div>
-                  <div className="col-12">
-                    <input type="text" className="form-control border-0 bg-light px-4" placeholder="Subject" style={{ height: '55px' }} />
-                  </div>
-                  <div className="col-12">
-                    <textarea className="form-control border-0 bg-light px-4 py-3" rows="4" placeholder="Message"></textarea>
-                  </div>
-                  <div className="col-12">
-                    <button className="btn btn-primary w-100 py-3" type="submit">Send Message</button>
-                  </div>
-                </div>
-              </form>
+              <Form form={form} onFinish={onFinish} layout="vertical">
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="nombre"
+                      label="Nombre"
+                      rules={[{ required: true, message: 'Por favor ingrese su nombre' }]}
+                    >
+                      <Input placeholder="Nombre" />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="correo"
+                      label="Correo"
+                      rules={[
+                        { required: true, message: 'Por favor ingrese su correo' },
+                        { type: 'email', message: 'Ingrese un correo válido' }
+                      ]}
+                    >
+                      <Input placeholder="Correo" />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Form.Item
+                  name="asunto"
+                  label="Asunto"
+                  rules={[{ required: true, message: 'Por favor ingrese el asunto' }]}
+                >
+                  <Input placeholder="Asunto" />
+                </Form.Item>
+                <Form.Item
+                  name="mensaje"
+                  label="Mensaje"
+                  rules={[{ required: true, message: 'Por favor ingrese su mensaje' }]}
+                >
+                  <Input.TextArea rows={4} placeholder="Mensaje" />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" loading={isLoading} block>
+                    Enviar Correo
+                  </Button>
+                </Form.Item>
+              </Form>
             </div>
             <div className="col-lg-6 wow slideInUp" data-wow-delay="0.6s">
               <iframe className="position-relative rounded w-100 h-100"
@@ -73,8 +128,12 @@ const Contactenos = () => {
           </div>
         </div>
       </div>
+
+      <motion.div initial="hidden" animate="visible" variants={boxVariants}>
+        <WhyUs />
+      </motion.div>
       {/* Contact End */}
-     </>
+    </>
   );
 };
 
