@@ -50,14 +50,14 @@ const sendEmail = async (req, res) => {
 };
 
 const sendEmailContacto = async (req, res) => {
+
     console.log("Received body:", req.body);  // Log the received body
-
     const { nombre, correo, asunto, mensaje } = req.body; // Ensure these keys match your form fields
-
     if (!nombre || !correo || !asunto || !mensaje) {
         console.error("Missing fields in request body:", req.body);
         return res.status(400).json({ message: 'Missing fields' });
     }
+    
 
     try {
         const transporter = nodemailer.createTransport({
@@ -75,9 +75,9 @@ const sendEmailContacto = async (req, res) => {
 
         const mailOptions = {
             from: 'davidsalazarservicios@gmail.com', // Reemplaza con tu correo
-            to: email.correo, // El destinatario del correo
-            subject: email.asunto,
-            text: email.mensaje,
+            to: correo, // El destinatario del correo
+            subject: asunto,
+            text: mensaje,
         };
 
         let info = await transporter.sendMail(mailOptions);
