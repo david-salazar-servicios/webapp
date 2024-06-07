@@ -9,7 +9,6 @@ const Contactenos = () => {
       <div className="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
         <div className="container py-5">
           <div className="section-title text-center position-relative pb-3 mb-5 mx-auto" style={{ maxWidth: '600px' }}>
-            <h5 className="fw-bold text-primary text-uppercase">Contact Us</h5>
             <h1 className="mb-0">If You Have Any Query, Feel Free To Contact Us</h1>
           </div>
           <div className="row g-5 mb-5">
@@ -71,8 +70,8 @@ const Contactenos = () => {
             </div>
             <div className="col-lg-6 wow slideInUp" data-wow-delay="0.6s">
               <iframe className="position-relative rounded w-100 h-100"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3001156.4288297426!2d-78.01371936852176!3d42.72876761954724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4ccc4bf0f123a5a9%3A0xddcfc6c1de189567!2sNew%20York%2C%20USA!5e0!3m2!1sen!2sbd!4v1603794290143!5m2!1sen!2sbd"
-                frameBorder="0" style={{ minHeight: '350px', border: 0 }} allowFullScreen="" aria-hidden="false" tabIndex="0"></iframe>
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.830963295064!2d-84.1872796847453!3d9.979365792906634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0fa3a13b80b07%3A0x5f3e8f0f1c6f0de6!2sC.%20Escobal%2C%20Heredia%2C%20Bel%C3%A9n%2C%20Costa%20Rica!5e0!3m2!1sen!2sus!4v1686087000000!5m2!1sen!2sus"
+                style={{ minHeight: '350px', border: 0 }} allowFullScreen="" aria-hidden="false" tabIndex="0"></iframe>
             </div>
           </div>
         </div>
