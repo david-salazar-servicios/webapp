@@ -65,7 +65,7 @@ export default function Header() {
         })) || [],
       }))
     },
-    { label: 'Contacto', command: () => navigate('/Contact') }
+    { label: 'Contacto', command: () => navigate('/contacto') }
   ];
 
   return (
@@ -102,7 +102,7 @@ export default function Header() {
             transition={{ duration: 0.5 }}
           >
             <Menubar model={menuItems} className="custom-menubar" />
-            
+
           </motion.div>
         </div>
 
@@ -112,17 +112,26 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5 }}
           >
-         <motion.div 
-      className="fixed-text-content mt-5"
-      initial={{ y: '20vh', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 50, damping: 20 }}
-    >
-      <h6>Invierta solo una vez</h6>
-      <h4>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
-      <a href="contact.html" className="filled-button">Contáctanos</a>
-    </motion.div>
-            
+            <motion.div
+              className="fixed-text-content mt-5"
+              initial={{ y: '20vh', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 50, damping: 20 }}
+            >
+              <h6>Invierta solo una vez</h6>
+              <h4>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
+              <a
+                href="#"
+                className="filled-button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/contacto');
+                }}
+              >
+                Contáctanos
+              </a>
+            </motion.div>
+
           </motion.div>
         </div>
       </div>

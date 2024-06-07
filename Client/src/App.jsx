@@ -19,6 +19,7 @@ import RequestServices from './components/requests/RequestServices';
 import ProfileDetails from './components/Profile/ProfileDetails';
 import ProcessCalendar from './components/calendar/ProcessCalendar';
 import Requests from './features/RequestService/Requests';
+import Contactenos from './components/contacto/contacto';
 function App() {
     return (
         <div>
@@ -33,6 +34,7 @@ function App() {
                     <Route path="Services/:id" element={<ServicesDetails />} />
                     <Route path="/Proceso_Solicitud" element={<RequestServices />} />
                     <Route path="/Mi_Perfil" element={<ProfileDetails />} />
+                    <Route path="/contacto" element={<Contactenos />} />
                 </Route>
 
                 <Route element={<PersistLogin />}>
