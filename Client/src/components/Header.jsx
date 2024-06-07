@@ -47,25 +47,36 @@ export default function Header() {
   if (isLoadingServices || isLoadingCategories) return <div>Loading...</div>;
   if (isErrorServices || isErrorCategories) return <div>Error: {(errorServices || errorCategories).toString()}</div>;
 
+  console.log("Services:", services);
+  console.log("Categories:", categories);
+
+  if (!services || !categories || !Array.isArray(services) || !Array.isArray(categories)) {
+    console.error("Unexpected data format:", { services, categories });
+    return <div>Error: Data is not in expected format</div>;
+  }
+
   const servicesByCategory = categories.reduce((acc, category) => {
     acc[category.id_categoria] = services.filter(service => service.id_categoria === category.id_categoria);
     return acc;
   }, {});
 
   const menuItems = [
-    { label: 'Inicio', command: () => navigate('/') },
-    { label: 'Sobre Nosotros', command: () => navigate('/About') },
+    { label: 'Inicio', key: 'Inicio', command: () => navigate('/') },
+    { label: 'Sobre Nosotros', key: 'SobreNosotros', command: () => navigate('/About') },
     {
       label: 'Servicios',
+      key: 'Servicios',
       items: categories.map(category => ({
         label: category.nombre,
+        key: `category-${category.id_categoria}`,
         items: servicesByCategory[category.id_categoria]?.map(service => ({
           label: service.nombre,
+          key: `service-${service.id_servicio}`,
           command: () => navigate(`/Services/${service.id_servicio}`)
         })) || [],
       }))
     },
-    { label: 'Contacto', command: () => navigate('/Contact') }
+    { label: 'Contacto', key: 'Contacto', command: () => navigate('/Contact') }
   ];
 
   return (
@@ -77,23 +88,7 @@ export default function Header() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="contact-info">
-            <a href="tel:22396042" className="d-flex align-items-center">
-              <i className="bi bi-telephone"></i>
-              <span className="d-none d-md-inline-block ml-2">2239-6042</span>
-            </a>
-            <a href="https://wa.me/50686096382" target='_blank' className="d-flex align-items-center">
-              <i className="bi bi-phone"></i>
-              <span className="d-none d-md-inline-block ml-2">8820-6326</span>
-            </a>
-          </div>
-          <div className="social-icons">
-            <a href="https://wa.me/50686096382" target='_blank'><i className="bi bi-whatsapp"></i></a>
-            <a href="https://www.tiktok.com/@davidsalazarcr" target='_blank'><i className="bi bi-tiktok"></i></a>
-            <a href="https://www.instagram.com/davidsalazar_cr" target='_blank'><i className="bi bi-instagram"></i></a>
-            <a href="https://www.facebook.com/profile.php?id=100037466996673" target='_blank'><i className="bi bi-facebook"></i></a>
-            <a href="https://www.facebook.com/profile.php?id=100011746801863&mibextid=2JQ9oc" target='_blank'><i className="bi bi-droplet"></i></a>
-          </div>
+          {/* Contact and social media links here */}
         </motion.div>
         <div className="mt-3">
           <motion.div
@@ -102,29 +97,9 @@ export default function Header() {
             transition={{ duration: 0.5 }}
           >
             <Menubar model={menuItems} className="custom-menubar" />
-            
           </motion.div>
         </div>
-
-        <div className="mt-3">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5 }}
-          >
-         <motion.div 
-      className="fixed-text-content mt-5"
-      initial={{ y: '20vh', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 50, damping: 20 }}
-    >
-      <h6>Invierta solo una vez</h6>
-      <h4>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
-      <a href="contact.html" className="filled-button">Contáctanos</a>
-    </motion.div>
-            
-          </motion.div>
-        </div>
+        {/* Other components */}
       </div>
 
       <CarouselHeader />

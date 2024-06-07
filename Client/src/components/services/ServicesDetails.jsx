@@ -1,35 +1,33 @@
-// ServicesDetails.js
 import React, { useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Accordion } from 'react-bootstrap';
 import { useGetServiceByIdQuery } from '../../features/services/ServicesApiSlice';
-import { Button } from 'antd';
+import { Button, Skeleton, Tag, Timeline } from 'antd';
 import { Toast } from 'primereact/toast';
 import ServicesCarousel from './ServicesCarousel'; // Import the new Carousel component
+import { CheckCircleOutlined } from '@ant-design/icons';
 
 export default function ServicesDetails() {
   const { id: serviceId } = useParams();
   const { data: service, isError, isLoading } = useGetServiceByIdQuery(serviceId);
   const toast = useRef(null);
 
-
-  console.log(service)
   // Function to handle the storage of the service request
   const handleServiceRequest = () => {
-    if (serviceId && service?.servicio) {
+    if (serviceId) {
       try {
         // Retrieve the existing services from localStorage or initialize with an empty array
         let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
-        
+
         // Check if the service is already in the localStorage
         const serviceExists = serviceRequests.some(req => req.id_servicio === serviceId);
-        
+
         if (serviceExists) {
           // Show a message indicating that the service is already added
           toast.current.show({ severity: 'info', summary: 'Servicio ya agregado', detail: 'Este servicio ya ha sido agregado a la lista de solicitudes', life: 2000 });
         } else {
           // Add the new service request to the list
-          serviceRequests.push({ id_servicio: serviceId, nombre: service.servicio.nombre });
+          serviceRequests.push({ id_servicio: serviceId, nombre: service.nombre });
 
           // Update localStorage with the new list
           localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
@@ -48,56 +46,76 @@ export default function ServicesDetails() {
     }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError || !service?.servicio) {
-    return <div>Service not found</div>;
-  }
-
   return (
     <>
       <section id="serviceDetail" className="serviceDetail section-bg">
         <div className="container-fluid">
           <div className="row">
             <div className="col-lg-7 d-flex flex-column justify-content-center align-items-stretch order-2 order-lg-1">
-              <div className="content">
-                <h3><strong>{service.servicio.nombre}</strong></h3>
-                <p>{service.servicio.descripcion}</p>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', padding: '10px' }}>
+                {service?.categorias.map(categoria => (
+                  <Tag
+                    key={categoria.nombre}
+                    style={{
+                      padding: "10px 20px",
+                      fontSize: "16px",
+                      borderRadius: "12px",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#eaffea",
+                      color: "#52c41a"
+                    }}
+                    icon={<CheckCircleOutlined />}
+                  >
+                    {categoria.nombre}
+                  </Tag>
+                ))}
               </div>
 
-              <div className="accordion-list">
-                <Toast ref={toast} />
-                <Accordion defaultActiveKey="0">
-                  <Accordion.Item eventKey="0" className="accordionItem">
-                    <Accordion.Header className="accordionHeader"><span> Lo que ofrecemos</span></Accordion.Header>
-                    <Accordion.Body className="accordionBody">
-                      {service.offerData[0]}
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
-                <Accordion defaultActiveKey="1">
-                  <Accordion.Item eventKey="1" className="accordionItem">
-                    <Accordion.Header className="accordionHeader"><span>Tipo de servicio</span></Accordion.Header>
-                    <Accordion.Body className="accordionBody">
-                      Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.
-                    </Accordion.Body>
-                  </Accordion.Item>
-                </Accordion>
-              </div>
-              <div className="row">
-                <div className="col text-right pt-5">
-                  <Button type="primary" size="large" onClick={handleServiceRequest}>Solicitar Servicios</Button>
+              <Skeleton loading={isLoading} active>
+                <div className="content pt-3">
+                  <h3><strong>{service?.nombre}</strong></h3>
                 </div>
-              </div>
+
+                <div className="accordion-list">
+                  <Toast ref={toast} />
+                  <Accordion defaultActiveKey="1" style={{paddingTop:"10px"}}>
+                    <Accordion.Item eventKey="1" className="accordionItem">
+                      <Accordion.Header className="accordionHeader"><span>Qué es este servicio?</span></Accordion.Header>
+                      <Accordion.Body className="accordionBody">
+                        <p>{service?.descripcion}</p>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                  <Accordion defaultActiveKey="0" style={{paddingTop:"10px"}}>
+                    <Accordion.Item eventKey="0" className="accordionItem">
+                      <Accordion.Header className="accordionHeader"><span> Lo que ofrecemos</span></Accordion.Header>
+                      <Accordion.Body className="accordionBody">
+                        <Timeline>
+                          {service?.offers?.map((offer, index) => (
+                            <Timeline.Item key={index}>{offer}</Timeline.Item>
+                          ))}
+                        </Timeline>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                </div>
+                <div className="row">
+                  <div className="col text-right pt-5">
+                    <Button type="primary" size="large" onClick={handleServiceRequest}>Solicitar Servicios</Button>
+                  </div>
+                </div>
+              </Skeleton>
             </div>
 
             <div className="col-lg-5 align-items-stretch order-1 order-lg-2">
-              <ServicesCarousel images={service.imgurImages.images} /> 
+              <Skeleton loading={isLoading} active>
+                <ServicesCarousel images={service?.imagenes} />
+              </Skeleton>
             </div>
           </div>
-
         </div>
       </section>
     </>

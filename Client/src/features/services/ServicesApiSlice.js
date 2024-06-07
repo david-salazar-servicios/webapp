@@ -104,29 +104,6 @@ export const servicesApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: [{ type: 'DetalleSolicitud', id: 'LIST' }],
         }),
 
-        getServicesByIds: builder.query({
-            query: (serviceIds) => ({
-                url: '/servicios/usuarios_servicios/by-ids', // Asume que este es el endpoint correcto en tu backend.
-                method: 'POST', // Usamos POST porque estamos enviando datos (los IDs).
-                body: { ids: serviceIds }, // Enviamos los IDs como un objeto dentro del cuerpo de la solicitud.
-            }),
-            transformResponse: (responseData, meta, arg) => {
-                // Asume que responseData es un array de tus servicios.
-                // Puedes transformar la respuesta si es necesario o devolverla directamente.
-                return responseData;
-            },
-            providesTags: (result, error, arg) => {
-                // Asume que result es un array de servicios. Actualiza tags para revalidación si es necesario.
-                if (result?.length) {
-                    return [
-                        { type: 'Servicio', id: 'LIST' },
-                        ...result.map(({ id_servicio }) => ({ type: 'Servicio', id: id_servicio })),
-                    ];
-                } else {
-                    return [{ type: 'Servicio', id: 'LIST' }];
-                }
-            },
-        }),
 
         // Continúan los otros endpoints...
     }),
@@ -141,7 +118,6 @@ export const {
     useGetServiceByIdQuery,
     useAddUserServiceMutation,
     useGetUserServicesQuery,
-    useGetServicesByIdsQuery,
     useDeleteUserServiceMutation,
     useAddSolicitudDetailsMutation,
     useDeleteAllUserServiceMutation

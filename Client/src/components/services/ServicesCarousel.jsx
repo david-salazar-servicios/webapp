@@ -8,7 +8,7 @@ const ServicesCarousel = ({ images }) => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    autoplay: true,
+    autoplay: false,
     autoplaySpeed: 3000,
     arrows: false,
   };
@@ -18,15 +18,16 @@ const ServicesCarousel = ({ images }) => {
     <Slider {...settings}>
       {images.map((image, index) => (
         <div key={index}>
-          <div
+          <img
+            src={image.link}
+            alt={`Slide ${index}`}
             className="d-block w-100"
             style={{
-              backgroundImage: `url(${image.link})`,
               height: '500px',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
+              objectFit: 'cover'
             }}
-          ></div>
+            referrerPolicy="no-referrer" // Adding the referrer policy here
+          />
         </div>
       ))}
     </Slider>

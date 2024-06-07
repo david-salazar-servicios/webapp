@@ -1,23 +1,34 @@
 // Asegúrate de que el archivo de conexión a la base de datos esté configurado correctamente.
 const pool = require('../db');
-
+const fetch = require('node-fetch'); // Importar node-fetch
 // @desc Get all services
 // @route GET /services
 // @access Private
 const getAllServicios = async (req, res) => {
     try {
         // Execute the SQL query to fetch all services
-        const queryResult = await pool.query('SELECT * FROM Servicios');
-
+        var queryResult = (await pool.query('SELECT * FROM Servicios'));
+        var queryIdServiceCategoria = (await pool.query('SELECT * FROM servicio_categoria'));
         // Extract the service data from the query result
-        const servicios = queryResult.rows; 
-
         // Return the list of services
-        res.json(servicios);
+        
+        servicios = queryResult.rows
+        categorias= queryIdServiceCategoria.rows
+
+        const finalServiceList =({
+            servicios,    
+            categorias
+        })
+        console.log(finalServiceList)
+        
+        res.json(finalServiceList);
+
     } catch (error) {
         console.error("Error retrieving services:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
+
+
 };
 
 // @desc Create a new service
@@ -44,6 +55,7 @@ const createNewServicio = async (req, res) => {
 const deleteServicio = async (req, res) => {
     try {
         const { id } = req.params;
+        await pool.query('DELETE FROM servicio_categoria WHERE id_servicio = $1', [id]);
         await pool.query('DELETE FROM Servicios WHERE id_servicio = $1', [id]);
 
         res.json({ message: 'Service deleted successfully' });
@@ -60,7 +72,13 @@ const getServicioById = async (req, res) => {
     try {
         const { id } = req.params;
         const resServicio = await pool.query('SELECT * FROM Servicios WHERE id_servicio = $1', [id]);
+        const list_category = await pool.query('SELECT Categoria.id_categoria, Categoria.nombre FROM Categoria JOIN servicio_categoria ON ' +
+            'servicio_categoria.id_categoria = categoria.id_categoria ' +
+            'JOIN Servicios ON servicio_categoria.id_servicio = servicios.id_servicio ' +
+            'WHERE servicios.id_servicio = $1', [id]);
+        
 
+        
         if (resServicio.rows.length === 0) {
             return res.status(404).json({ message: 'Service not found' });
         }
@@ -97,18 +115,15 @@ const getServicioById = async (req, res) => {
             throw new Error('Failed to fetch images from Imgur');
         }
 
-        // Extract images from the Imgur response
-        const imgurImages = imgurData.data;
-        const servicio = resServicio.rows[0];
-        res.json({servicio,
-            offerData,
-            imgurImages
-        });
-       
+        const servicioObject =({
+            ...resServicio.rows[0],
+            categorias:list_category.rows,
+            imagenes:imgurData.data.images,
+            offers:offerData
+        })
 
-
-    
-
+            res.json(servicioObject);
+           
     } catch (error) {
         console.error("Error retrieving service:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -121,10 +136,10 @@ const getServicioById = async (req, res) => {
 const updateServicio = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, descripcion, id_categoria } = req.body;
+        const { nombre, descripcion } = req.body;
         const updatedService = await pool.query(
-            'UPDATE Servicios SET nombre = $1, descripcion = $2, id_categoria = $3 WHERE id_servicio = $4 RETURNING *',
-            [nombre, descripcion, id_categoria, id]
+            'UPDATE Servicios SET nombre = $1, descripcion = $2 WHERE id_servicio = $3 RETURNING *',
+            [nombre, descripcion, id]
         );
 
         if (updatedService.rows.length === 0) {

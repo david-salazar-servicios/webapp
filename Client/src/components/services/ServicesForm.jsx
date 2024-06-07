@@ -45,7 +45,6 @@ const ServicesForm = () => {
             form.setFieldsValue({
                 nombre: service.nombre,
                 descripcion: service.descripcion,
-                categoria: service.id_categoria,
             });
         } else {
             form.resetFields(); // Esto limpiará el formulario si se sale del modo de edición
