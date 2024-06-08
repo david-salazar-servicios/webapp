@@ -1978,7 +1978,6 @@ footer .contact-form button.filled-button:hover {
 /* Global Accordion Styles */
 .serviceDetail {
   padding-top: 60px;
-  margin-bottom: 20px;
   
 }
 
@@ -1994,10 +1993,6 @@ footer .contact-form button.filled-button:hover {
   color: #666; /* Softer color for the body text */
 }
 
-/* Accordion Specific Styles */
-.serviceDetail .accordion-list {
-  padding-left: 20px; /* Adjust padding as needed */
-}
 
 .serviceDetail .accordion-list .accordionItem {
   border-bottom: 2px solid #e7e7e7; /* Light grey border for each item */
@@ -2761,4 +2756,14 @@ footer .contact-form button.filled-button:hover {
   background-position: center;
   background-attachment: fixed; 
   min-height: 100vh; /* ensures the background covers the full height of the outlet */
+}
+
+/* Custom styles for the Menubar component */
+.custom-menubar .p-menubar-root-list > .p-menuitem > .p-submenu-list > .p-menuitem > .p-submenu-list {
+  width: 300px; /* Adjust this value as needed */
+}
+
+/* Custom styles for the Menubar component */
+.custom-menubar .p-menubar-root-list > .p-menuitem > .p-submenu-list > .p-menuitem > .p-submenu-list {
+  width: 300px; /* Adjust this value as needed */
 }

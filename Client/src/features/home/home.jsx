@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import useAuth from "../../hooks/useAuth";
@@ -15,6 +15,13 @@ export default function Home() {
   const boxVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0 },
+    fromLeftToCenter: { opacity: 1, x: [-300, 0] }, // Move from left to center
+  };
+
+  const textVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    fromRightToCenter: { opacity: 1, x: [300, 0] }, // Move from right to center
   };
 
   // Create a component for each specialization box to reuse the animation logic
@@ -42,8 +49,8 @@ export default function Home() {
   };
 
   // Component to handle the animation of the title-box
-  const TitleBox = () => {
-    const [ref, inView] = useInView({ });
+  const TextBox = () => {
+    const [ref, inView] = useInView({});
 
     return (
       <motion.div
@@ -60,23 +67,67 @@ export default function Home() {
     );
   };
 
-  const Logobox = () => {
-    const [ref, inView] = useInView({ });
+  const Logo = () => {
+    const [ref, inView] = useInView({});
 
     return (
       <motion.div
         ref={ref}
         variants={boxVariants}
         initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        transition={{ duration: 0.5 }}
-        className="inner-column"
+        animate={inView ? "fromLeftToCenter" : "hidden"} // Use the new variant
+        transition={{ duration: 0.8 }}
+        className="logo"
       >
         <div className="image">
-                  <img src={experienceImage} alt="" />
-                </div>
-                <h2>Compromiso y Calidad <br /> Garantizada</h2>
-                <div className="text">Soluciones de confianza para cada necesidad.</div>
+          <img src={experienceImage} alt="Logo" />
+        </div>
+      </motion.div>
+    );
+  };
+
+  const LogoText = () => {
+    const [ref, inView] = useInView({});
+
+    return (
+      <motion.div
+        ref={ref}
+        variants={textVariants}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        transition={{ duration: 0.5, delay: 0.5 }} // Add delay for text
+        className="logo-text"
+      >
+        <h2>Compromiso y Calidad <br /> Garantizada</h2>
+        <div className="text">Soluciones de confianza para cada necesidad.</div>
+      </motion.div>
+    );
+  };
+
+  const Logobox = () => {
+    return (
+      <div className="inner-column">
+        <Logo />
+        <LogoText />
+      </div>
+    );
+  };
+
+  // Title component with animation
+  const AnimatedTitle = ({ title }) => {
+    const [ref, inView] = useInView({});
+
+    return (
+      <motion.div
+        ref={ref}
+        variants={textVariants}
+        initial="hidden"
+        animate={inView ? "fromRightToCenter" : "hidden"}
+        transition={{ duration: 0.5 }}
+        className="title-box"
+        data-aos="fade-up"
+      >
+        <h2>{title}</h2>
       </motion.div>
     );
   };
@@ -87,31 +138,25 @@ export default function Home() {
         <div className="auto-container">
           <div className="row clearfix">
             <div className="title-column col-lg-5 col-md-12 col-sm-12">
-            <Logobox/>
+              <Logobox />
             </div>
             <div className="content-column col-lg-7 col-md-12 col-sm-12">
-              <div className='title-box'>
-                <h2>Profesionalismo en Fontanería</h2>
-              </div>
-
-              <TitleBox />
+              <AnimatedTitle title="Profesionalismo en Fontanería" />
+              <TextBox />
               <div className="specialization-box">
-                <h2>Lo que nos Distingue</h2>
-
+                <AnimatedTitle title="Lo que nos Distingue" />
                 <SpecializationBox
                   delay={0}
                   iconClass="trust-icon"
                   title="Confianza y Transparencia"
                   text="La base de nuestro éxito reside en la confianza y transparencia con nuestros clientes, asegurando una comunicación clara y honesta desde el inicio."
                 />
-
                 <SpecializationBox
                   delay={0.2}
                   iconClass="protect-icon"
                   title="Seguridad en Cada Proyecto"
                   text="Implementamos rigurosas medidas de seguridad en cada proyecto, protegiendo tanto a nuestro equipo como a nuestros clientes y sus propiedades."
                 />
-
                 <SpecializationBox
                   delay={0.4}
                   iconClass="handshake-icon"
