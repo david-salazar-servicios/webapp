@@ -19,7 +19,7 @@ const Contactenos = () => {
     try {
       await sendEmailContacto(values).unwrap();
       message.success('Correo enviado exitosamente');
-      //form.resetFields();
+      form.resetFields();
     } catch (error) {
       message.error('Error al enviar el correo');
     }
