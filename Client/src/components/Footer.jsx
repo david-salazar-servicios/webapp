@@ -10,21 +10,11 @@ export default function Footer() {
               <h4>Profesionalismo en Fontanería</h4>
               <p>Compromiso y calidad garantizada en cada servicio.</p>
               <ul className="social-icons">
-                <li>
-                  <a href="https://www.facebook.com/tuempresa">
-                    <i className="bi bi-facebook"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://www.instagram.com/tuempresa">
-                    <i className="bi bi-instagram"></i>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://wa.me/numerodetuempresa">
-                    <i className="bi bi-whatsapp"></i>
-                  </a>
-                </li>
+                <li><a href="https://wa.me/50686096382" target='_blank'><i className="bi bi-whatsapp"></i></a></li>
+                <li><a href="https://www.tiktok.com/@davidsalazarcr" target='_blank'><i className="bi bi-tiktok"></i></a></li>
+                <li><a href="https://www.instagram.com/davidsalazar_cr" target='_blank'><i className="bi bi-instagram"></i></a></li>
+                <li><a href="https://www.facebook.com/profile.php?id=100037466996673" target='_blank'><i className="bi bi-facebook"></i></a></li>
+                <li><a href="https://www.facebook.com/profile.php?id=100011746801863&mibextid=2JQ9oc" target='_blank'><i className="bi bi-droplet"></i></a></li>
               </ul>
             </div>
             <div className="col-md-4 footer-item">

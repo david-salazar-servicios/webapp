@@ -131,7 +131,7 @@ const Contactenos = () => {
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={isLoading} block>
-                    Enviar Correo
+                    Enviar Mensaje
                   </Button>
                 </Form.Item>
               </Form>
