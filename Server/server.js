@@ -22,23 +22,23 @@
   const io = socketManager.init(server);
 
 
-  // Routes
-  app.use("/auth", require("./Routes/authRoutes"));
-  app.use("/usuarios", require("./Routes/usersRoutes"));
-  app.use("/categorias", require("./Routes/categoriaRoutes"));
-  app.use("/servicios", require("./Routes/servicioRoutes"));
-  app.use("/roles", require("./Routes/rolesRoutes"));
-  app.use("/send-reset-password-email", require("./Routes/emailRoutes"));
-  app.use("/change-password", require("./Routes/usersRoutes"));
-  app.use("/solicitudes", require("./Routes/solicitudRoutes"));
-  app.use("/citas", require("./Routes/citaRoutes"));
-  // Socket.IO connection handler
-  io.on('connection', (socket) => {
-    console.log('Socket Server successfully connected');
-    socket.on('disconnect', () => {
-      console.log('Socket Server disconnected');
-    });
+// Routes
+app.use("/auth", require("./Routes/authRoutes"));
+app.use("/usuarios", require("./Routes/usersRoutes"));
+app.use("/categorias", require("./Routes/categoriaRoutes"));
+app.use("/servicios", require("./Routes/servicioRoutes"));
+app.use("/roles", require("./Routes/rolesRoutes"));
+app.use("/send-reset-password-email", require("./Routes/emailRoutes"));
+app.use("/change-password", require("./Routes/usersRoutes"));
+app.use("/solicitudes", require("./Routes/solicitudRoutes"));
+app.use("/citas", require("./Routes/citaRoutes"));
+// Socket.IO connection handler
+io.on('connection', (socket) => {
+  console.log('Socket Server successfully connected');
+  socket.on('disconnect', () => {
+    console.log('Socket Server disconnected');
   });
+});
 
   // Default route for undefined paths
   app.all("*", (req, res) => {
