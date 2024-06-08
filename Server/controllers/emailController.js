@@ -52,8 +52,8 @@ const sendEmail = async (req, res) => {
 const sendEmailContacto = async (req, res) => {
 
     console.log("Received body:", req.body);  // Log the received body
-    const { nombre, correo, asunto, mensaje, whatsapp } = req.body; // Ensure these keys match your form fields
-    if (!nombre || !correo || !asunto || !mensaje || !whatsapp) {
+    const { nombre, correo, mensaje, whatsapp } = req.body; // Ensure these keys match your form fields
+    if (!nombre || !correo || !mensaje || !whatsapp) {
         console.error("Missing fields in request body:", req.body);
         return res.status(400).json({ message: 'Missing fields' });
     }
@@ -76,9 +76,9 @@ const sendEmailContacto = async (req, res) => {
         const mailOptions = {
             from: 'davidsalazarservicios@gmail.com', // Reemplaza con tu correo
             to: correo, // El destinatario del correo, pendiente cambiar el sender por el correo davidsalazarservicios@gmail.com
-            subject: asunto,
+            subject: `El cliente ${nombre} envió un mensaje.`,
             //text: `Hola, tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo}.\n\nMensaje del cliente:\n${mensaje}`
-            html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo} y el número de WhatsApp es <a href="https://wa.me/${whatsapp}">${whatsapp}</a><br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
+            html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre} enviado desde la página web, su correo de contacto es ${correo} y el número de WhatsApp es <a href="https://wa.me/${whatsapp}">${whatsapp}.</a><br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
         };
 
         let info = await transporter.sendMail(mailOptions);

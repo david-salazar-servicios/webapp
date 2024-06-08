@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Card, Row, Col, Typography, message } from 'antd';
+import { Form, Input, Button, Row, Col, message } from 'antd';
 import { motion } from 'framer-motion';
 import '../../vendor/bootstrap/css/contacto.css';
 import WhyUs from '../../components/WhyUs';
@@ -106,25 +106,17 @@ const Contactenos = () => {
                       label="Número de WhatsApp"
                       rules={[
                         { required: true, message: 'Por favor ingrese su número de WhatsApp' },
-                        { pattern: /^\d{8}$/, message: 'Ingrese un número de WhatsApp válido' }                    
+                        { pattern: /^\d{8}$/, message: 'Ingrese un número de WhatsApp válido' }
                       ]}
                     >
-                      <Input minLength={8} maxLength={8}/>
+                      <Input minLength={8} maxLength={8} />
                     </Form.Item>
                   </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      name="asunto"
-                      label="Asunto"
-                      rules={[{ required: true, message: 'Por favor ingrese el asunto' }]}
-                    >
-                      <Input />
-                    </Form.Item>
-                  </Col>
+
                 </Row>
                 <Form.Item
                   name="mensaje"
-                  label="Mensaje"
+                  label="¿Cómo podemos ayudarte?"
                   rules={[{ required: true, message: 'Por favor ingrese su mensaje' }]}
                 >
                   <Input.TextArea rows={4} />

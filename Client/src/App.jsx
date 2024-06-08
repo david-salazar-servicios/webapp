@@ -20,6 +20,7 @@ import ProfileDetails from './components/Profile/ProfileDetails';
 import ProcessCalendar from './components/calendar/ProcessCalendar';
 import Requests from './features/RequestService/Requests';
 import Contactenos from './components/contacto/contacto';
+import AboutUs from './components/about/about';
 function App() {
     return (
         <div>
@@ -35,6 +36,7 @@ function App() {
                     <Route path="/Proceso_Solicitud" element={<RequestServices />} />
                     <Route path="/Mi_Perfil" element={<ProfileDetails />} />
                     <Route path="/contacto" element={<Contactenos />} />
+                    <Route path="/About" element={<AboutUs />} />
                 </Route>
 
                 <Route element={<PersistLogin />}>
