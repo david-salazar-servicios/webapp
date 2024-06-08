@@ -103,7 +103,8 @@ export default function CardServices() {
   const tabItems = [
     allServicesTab,
     ...Object.entries(servicesByCategory).map(([categoryId, services]) => {
-      const categoryName = categories.find(category => category.id_categoria.toString() === categoryId)?.nombre || 'Unknown Category';
+      const category = categories.find(category => category.id_categoria.toString() === categoryId);
+      const categoryName = category ? category.nombre : 'Unknown Category';
       return {
         label: categoryName,
         key: categoryId,
