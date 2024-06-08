@@ -83,7 +83,7 @@ const Contactenos = () => {
                       label="Nombre"
                       rules={[{ required: true, message: 'Por favor ingrese su nombre' }]}
                     >
-                      <Input placeholder="Nombre" />
+                      <Input />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
@@ -95,23 +95,39 @@ const Contactenos = () => {
                         { type: 'email', message: 'Ingrese un correo válido' }
                       ]}
                     >
-                      <Input placeholder="Correo" />
+                      <Input />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Form.Item
-                  name="asunto"
-                  label="Asunto"
-                  rules={[{ required: true, message: 'Por favor ingrese el asunto' }]}
-                >
-                  <Input placeholder="Asunto" />
-                </Form.Item>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="whatsapp"
+                      label="Número de WhatsApp"
+                      rules={[
+                        { required: true, message: 'Por favor ingrese su número de WhatsApp' },
+                        { pattern: /^\d{8}$/, message: 'Ingrese un número de WhatsApp válido' }                    
+                      ]}
+                    >
+                      <Input minLength={8} maxLength={8}/>
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="asunto"
+                      label="Asunto"
+                      rules={[{ required: true, message: 'Por favor ingrese el asunto' }]}
+                    >
+                      <Input />
+                    </Form.Item>
+                  </Col>
+                </Row>
                 <Form.Item
                   name="mensaje"
                   label="Mensaje"
                   rules={[{ required: true, message: 'Por favor ingrese su mensaje' }]}
                 >
-                  <Input.TextArea rows={4} placeholder="Mensaje" />
+                  <Input.TextArea rows={4} />
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={isLoading} block>

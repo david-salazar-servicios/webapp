@@ -52,12 +52,12 @@ const sendEmail = async (req, res) => {
 const sendEmailContacto = async (req, res) => {
 
     console.log("Received body:", req.body);  // Log the received body
-    const { nombre, correo, asunto, mensaje } = req.body; // Ensure these keys match your form fields
-    if (!nombre || !correo || !asunto || !mensaje) {
+    const { nombre, correo, asunto, mensaje, whatsapp } = req.body; // Ensure these keys match your form fields
+    if (!nombre || !correo || !asunto || !mensaje || !whatsapp) {
         console.error("Missing fields in request body:", req.body);
         return res.status(400).json({ message: 'Missing fields' });
     }
-    
+
 
     try {
         const transporter = nodemailer.createTransport({
@@ -78,12 +78,12 @@ const sendEmailContacto = async (req, res) => {
             to: correo, // El destinatario del correo, pendiente cambiar el sender por el correo davidsalazarservicios@gmail.com
             subject: asunto,
             //text: `Hola, tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo}.\n\nMensaje del cliente:\n${mensaje}`
-            html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo}<br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
+            html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo} y el número de WhatsApp es <a href="https://wa.me/${whatsapp}">${whatsapp}</a><br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
         };
 
         let info = await transporter.sendMail(mailOptions);
 
-        res.json({ message:'correo fue enviado con éxito', info });
+        res.json({ message: 'correo fue enviado con éxito', info });
     } catch (error) {
         console.error('Error en la operación:', error);
         res.status(500).send('Error al procesar la solicitud');
