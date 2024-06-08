@@ -75,14 +75,15 @@ const sendEmailContacto = async (req, res) => {
 
         const mailOptions = {
             from: 'davidsalazarservicios@gmail.com', // Reemplaza con tu correo
-            to: correo, // El destinatario del correo
+            to: correo, // El destinatario del correo, pendiente cambiar el sender por el correo davidsalazarservicios@gmail.com
             subject: asunto,
-            text: mensaje,
+            //text: `Hola, tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo}.\n\nMensaje del cliente:\n${mensaje}`
+            html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo}<br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
         };
 
         let info = await transporter.sendMail(mailOptions);
 
-        res.json({ message: email.nombre + ' su correo fue enviado con éxito', info });
+        res.json({ message:'correo fue enviado con éxito', info });
     } catch (error) {
         console.error('Error en la operación:', error);
         res.status(500).send('Error al procesar la solicitud');
