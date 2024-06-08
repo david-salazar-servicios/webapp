@@ -7,6 +7,7 @@ import { useGetServicesQuery } from '../features/services/ServicesApiSlice';
 import { useGetCategoriasQuery } from '../features/categorias/CategoriasApiSlice';
 import { motion } from 'framer-motion';
 import { Space, Spin, Switch } from 'antd';
+import { NavLink } from 'react-router-dom';
 
 const Loader = () => {
   const [auto, setAuto] = useState(false);
@@ -122,7 +123,7 @@ export default function Header() {
         };
       })
     },
-    { label: 'Contacto', command: () => navigate('/Contact') }
+    { label: 'Contacto', command: () => navigate('/contacto') }
   ];
 
   return (
@@ -176,7 +177,9 @@ export default function Header() {
     >
       <h6>Invierta solo una vez</h6>
       <h4>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
-      <a href="contact.html" className="filled-button">Contáctanos</a>
+      <NavLink to="/contacto" className="filled-button">
+            Contáctanos
+        </NavLink>
     </motion.div>
             
           </motion.div>

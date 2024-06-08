@@ -50,14 +50,13 @@ const sendEmail = async (req, res) => {
 };
 
 const sendEmailContacto = async (req, res) => {
-
     console.log("Received body:", req.body);  // Log the received body
     const { nombre, correo, mensaje, whatsapp } = req.body; // Ensure these keys match your form fields
+
     if (!nombre || !correo || !mensaje || !whatsapp) {
         console.error("Missing fields in request body:", req.body);
         return res.status(400).json({ message: 'Missing fields' });
     }
-
 
     try {
         const transporter = nodemailer.createTransport({
@@ -73,22 +72,30 @@ const sendEmailContacto = async (req, res) => {
             }
         });
 
-        const mailOptions = {
-            from: 'davidsalazarservicios@gmail.com', // Reemplaza con tu correo
-            to: correo, // El destinatario del correo, pendiente cambiar el sender por el correo davidsalazarservicios@gmail.com
+        const mailAdminOptions = {
+            from: correo,
+            to: 'davidsalazarservicios@gmail.com', // Primary recipient
             subject: `El cliente ${nombre} envió un mensaje.`,
-            //text: `Hola, tienes un nuevo mensaje del cliente ${nombre}, el correo de contacto es ${correo}.\n\nMensaje del cliente:\n${mensaje}`
             html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre} enviado desde la página web, su correo de contacto es ${correo} y el número de WhatsApp es <a href="https://wa.me/${whatsapp}">${whatsapp}.</a><br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
         };
 
-        let info = await transporter.sendMail(mailOptions);
+        const mailClientOptions = {
+            from: 'davidsalazarservicios@gmail.com', // Business email as the sender
+            to: correo, // Customer email as the recipient
+            subject: `Confirmación de mensaje enviado`,
+            html: `Hola ${nombre},<br><br>Gracias por contactarnos. Hemos recibido tu mensaje y nos pondremos en contacto contigo pronto.<br><br>Detalles de tu mensaje:<br><b>Nombre:</b> ${nombre}<br><b>Correo:</b> ${correo}<br><b>WhatsApp:</b> <a href="https://wa.me/${whatsapp}">${whatsapp}</a><br><b>Mensaje:</b><br><i>"${mensaje}"</i><br><br>Saludos,<br>Equipo Soporte David Salazar`
+        };
 
-        res.json({ message: 'correo fue enviado con éxito', info });
+        await transporter.sendMail(mailAdminOptions);
+        await transporter.sendMail(mailClientOptions);
+
+        res.json({ message: 'correo fue enviado con éxito'});
     } catch (error) {
         console.error('Error en la operación:', error);
         res.status(500).send('Error al procesar la solicitud');
     }
 };
+
 
 module.exports = {
     sendEmail,

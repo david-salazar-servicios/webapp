@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useRef } from "react";
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { motion } from 'framer-motion';
 import '../../vendor/bootstrap/css/contacto.css';
 import WhyUs from '../../components/WhyUs';
 import { useSendEmailContactoMutation } from '../../features/contacto/sendEmailContactoApiSlice';
+import { Toast } from 'primereact/toast';
 
 const Contactenos = () => {
   const [form] = Form.useForm();
   const [sendEmailContacto, { isLoading }] = useSendEmailContactoMutation();
-
+  const toast = useRef(null);
   // Define the animation variants
   const boxVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -18,15 +19,17 @@ const Contactenos = () => {
   const onFinish = async (values) => {
     try {
       await sendEmailContacto(values).unwrap();
-      message.success('Correo enviado exitosamente');
+      toast.current.show({ severity: 'success', summary: 'Correo enviado exitosamente', life: 2000 });
       form.resetFields();
     } catch (error) {
-      message.error('Error al enviar el correo');
+      toast.current.show({ severity: 'error', summary: 'Error al enviar el correo', life: 2000 });
+    
     }
   };
 
   return (
     <>
+      <Toast ref={toast} />
       <motion.div initial="hidden" animate="visible" variants={boxVariants}>
         {/* Contact Start */}
         <div className="container-fluid py-5 wow fadeInUp" data-wow-delay="0.1s">
