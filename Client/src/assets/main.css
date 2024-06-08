@@ -2767,3 +2767,11 @@ footer .contact-form button.filled-button:hover {
 .custom-menubar .p-menubar-root-list > .p-menuitem > .p-submenu-list > .p-menuitem > .p-submenu-list {
   width: 300px; /* Adjust this value as needed */
 }
+
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Make sure the loader covers the full viewport height */
+}

@@ -6,6 +6,33 @@ import { Menubar } from 'primereact/menubar';
 import { useGetServicesQuery } from '../features/services/ServicesApiSlice';
 import { useGetCategoriasQuery } from '../features/categorias/CategoriasApiSlice';
 import { motion } from 'framer-motion';
+import { Space, Spin, Switch } from 'antd';
+
+const Loader = () => {
+  const [auto, setAuto] = useState(false);
+  const [percent, setPercent] = useState(-50);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setPercent((v) => {
+        const nextPercent = v + 5;
+        return nextPercent > 150 ? -50 : nextPercent;
+      });
+    }, 100);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [percent]);
+
+  const mergedPercent = auto ? 'auto' : percent;
+  return (
+    <div className="loader-container">
+      <Space>
+        <Spin percent={mergedPercent} size="large" />
+      </Space>
+    </div>
+  );
+};
 
 export default function Header() {
   const navigate = useNavigate();
@@ -46,7 +73,7 @@ export default function Header() {
   const { data: servicesResponse, isLoading: isLoadingServices, isError: isErrorServices, error: errorServices } = useGetServicesQuery();
   const { data: categoriesResponse, isLoading: isLoadingCategories, isError: isErrorCategories, error: errorCategories } = useGetCategoriasQuery();
 
-  if (isLoadingServices || isLoadingCategories) return <div>Loading...</div>;
+  if (isLoadingServices || isLoadingCategories) return <Loader />;
   if (isErrorServices || isErrorCategories) return <div>Error: {(errorServices || errorCategories).toString()}</div>;
 
   if (!servicesResponse || !categoriesResponse) return <div>No data available</div>;
