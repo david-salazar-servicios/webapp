@@ -47,7 +47,7 @@ const Contactenos = () => {
                   key: 'telefono-movil',
                   href: 'https://wa.me/50686096382',
                   icon: 'fa-mobile-alt',
-                  title: 'Teléfono móvil',
+                  title: 'Teléfonos móvil',
                   contact: '8820-6326'
                 },
                 {

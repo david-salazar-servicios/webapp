@@ -35,19 +35,19 @@ export default function Footer() {
               <h4>Páginas Adicionales</h4>
               <ul className="menu-list">
                 <li>
-                  <a href="/About">Acerca De Nosotros</a>
+                  <a href="/About">Acerca de Nosotros</a>
                 </li>
                 <li>
                   <a href="/contacto">Contáctanos</a>
                 </li>
                 <li>
-                  <a href="/politica-de-privacidad">Política de Privacidad</a>
+                  <a href="/privacidad">Política de Privacidad</a>
                 </li>
               </ul>
             </div>
             <div className="pt-5">
               <p>
-              All rights reserved. Copyright © David Salazar Servicios 2024
+              All rights reserved. Copyright © 2024 David Salazar Servicios, Costa Rica.
               </p>
             </div>
           </div>

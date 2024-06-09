@@ -21,6 +21,11 @@ import ProcessCalendar from './components/calendar/ProcessCalendar';
 import Requests from './features/RequestService/Requests';
 import Contactenos from './components/contacto/contacto';
 import AboutUs from './components/about/about';
+import Testimonials from './components/testimonials/testimonials';
+import CardServices from './components/services/CardServices';
+import Privacidad from './components/privacidad/privacidad';
+import Proyectos from './components/proyectos/proyectos';
+
 function App() {
     return (
         <div>
@@ -37,6 +42,10 @@ function App() {
                     <Route path="/Mi_Perfil" element={<ProfileDetails />} />
                     <Route path="/contacto" element={<Contactenos />} />
                     <Route path="/About" element={<AboutUs />} />
+                    <Route path="/testimonios" element={<Testimonials />} />
+                    <Route path="/servicios" element={<CardServices />} />
+                    <Route path="/privacidad" element={<Privacidad />} />
+                    <Route path="/proyectos" element={<Proyectos />} />
                 </Route>
 
                 <Route element={<PersistLogin />}>
