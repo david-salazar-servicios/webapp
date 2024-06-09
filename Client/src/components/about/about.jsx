@@ -24,7 +24,6 @@ const Testimonials = () => {
                     src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2F1733439073592957%2Fvideos%2F707488043079014%2F&show_text=false&width=560&t=0"
                     width="560"
                     height="314"
-                    style={{ border: 'none', overflow: 'hidden' }}
                     allowFullScreen
                     allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 ></iframe>
@@ -34,17 +33,16 @@ const Testimonials = () => {
                     src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2F100011746801863%2Fvideos%2F1394278528188274%2F&show_text=false&width=560&t=0"
                     width="560"
                     height="314"
-                    style={{ border: 'none', overflow: 'hidden' }}
                     allowFullScreen
                     allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 ></iframe>
             </div>
-            {/*  <div className="video-wrapper">
+            {/* <div className="video-wrapper">
                 <blockquote
                     className="tiktok-embed"
                     cite="https://www.tiktok.com/@davidsalazarcr/video/7229746512471936262"
                     data-video-id="7229746512471936262"
-                    style={{ maxWidth: '605px', minWidth: '325px' }}
+                    style={{ maxWidth: '605px', minWidth: '325px', width: '100%' }}
                 >
                     <section>
                         <a
@@ -69,9 +67,16 @@ const Testimonials = () => {
                     </section>
                 </blockquote>
             </div> */}
+          {/*   <div className="video-wrapper">
+                <img
+                    src="https://www.facebook.com/photo/?fbid=1130935287308021&set=pob.100011746801863"
+                    alt="Customer Testimonial"
+                />
+            </div> */}
         </div>
     );
 };
+
 
 const AboutUs = () => {
     // Define the animation variants
