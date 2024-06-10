@@ -136,19 +136,18 @@ const getServicioById = async (req, res) => {
         if (!imgurData.success) {
             throw new Error('Failed to fetch images from Imgur');
         }
-
         const offerResponse = await fetch(resServicio.rows[0].id_ofrecemos, {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
             }
         });
-
+        console.log(offerResponse)
         // Parse the response as JSON
         const offerData = await offerResponse.json();
         
         // Check if the response contains images
-        if (!offerData.success) {
+        if (!offerData.status === 200) {
             throw new Error('Failed to fetch offer data');
         }
 

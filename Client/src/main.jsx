@@ -22,10 +22,9 @@ import 'react-toastify/dist/ReactToastify.css'; // Importa el CSS para react-toa
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';  // Tema
-import 'primereact/resources/primereact.min.css';                 // core css
-import 'primeicons/primeicons.css';   
+
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

@@ -1322,62 +1322,6 @@ footer .contact-form button.filled-button:hover {
   }
 }
 
-.card-container {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap; /* Wrap cards onto the next line on smaller screens */
-  align-items: center; /* Align items vertically */
-}
-
-.card {
-  background-color: #ffffff;
-  padding: 20px;
-  width: 100%; /* Start with full width */
-  max-width: 400px; /* Maximum width of the card */
-  min-height: 250px; /* Minimum height of the card */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  transition: all 0.3s ease-in-out;
-  position: relative; /* Needed for stacking */
-  overflow: hidden; /* Prevents text from spilling out */
-  color:#092F5C;
-}
-
-
-/* Responsive adjustments with media queries */
-@media (min-width: 768px) { /* Adjust breakpoint as needed */
-  .card {
-    width: calc(50% - 10px); /* Adjust width for 2 cards in a row, considering gap */
-  }
-  
-  .card.central {
-    transform: translateY(-20px); /* Move the central card up */   
-  }
-}
-
-@media (min-width: 992px) { /* Adjust breakpoint as needed */
-  .card {
-    width: calc(33.333% - 20px); /* Adjust width for 3 cards in a row, considering gap */
-  }
-}
-.card p {
-  color: #666666;
-  font-size: 16px;
-  overflow: hidden; /* Hide overflow text */
-  text-overflow: ellipsis; /* Add an ellipsis to text that overflows */
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* Number of lines allowed */
-  -webkit-box-orient: vertical;
-}
-.card.central{
-  background-color: #ff7f15;
-  color: white;
-}
-.card.central p{
-  color: white;
-}
-/* You can add more media queries for larger screens if needed */
-
 
 
 
@@ -2791,4 +2735,83 @@ footer .contact-form button.filled-button:hover {
   justify-content: center;
   align-items: center;
   height: 100vh; /* Make sure the loader covers the full viewport height */
+}
+
+.container {
+  padding: 20px;
+}
+
+.custom-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column; /* Align text and image vertically */
+  align-items: flex-start;
+  width: 100%;
+}
+
+.card-new {
+  color: red;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.card-title {
+  color: black;
+  font-weight: bold;
+  margin-bottom: 10px; /* Space between title and image */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.card-image {
+  width: 100%;
+  max-width: 150px; /* Limiting maximum width */
+  height: auto; /* Maintain aspect ratio */
+  margin-bottom: 10px; /* Space between image and button */
+}
+
+.card-button {
+  color: red;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+}
+
+.card-button:hover {
+  color: red;
+}
+
+.arrow {
+  transition: transform 0.3s;
+}
+
+.card-button:hover .arrow {
+  transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+  .custom-card {
+    flex-direction: column; /* Stack elements vertically on smaller screens */
+  }
+  .card-image {
+    margin-bottom: 10px; /* Extra space between image and text */
+    width: 100%; /* Adjust image width for smaller screens */
+  }
 }

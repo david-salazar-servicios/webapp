@@ -1,9 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useGetServicesQuery, useGetAlbumsMutation } from '../../features/services/ServicesApiSlice';
-import { Galleria } from 'primereact/galleria';
-import 'primereact/resources/themes/saga-blue/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
+import { Card, Button, Row, Col, Typography, Image } from 'antd';
+import { RightOutlined } from '@ant-design/icons';
+
+const { Meta } = Card;
+
+const cardStyle = {
+  margin: '20px auto', // Center the card horizontally
+};
+
+const imgStyle = {
+  display: 'block',
+  width: '100%',
+  objectFit: 'cover', // Ensure the image covers the area
+  maxHeight: '200px',
+};
+
+const textStyle = {
+  padding: '16px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  height: '100%',
+};
 
 export default function CardServices() {
   const { data: response, isLoading, isError, error } = useGetServicesQuery();
@@ -40,9 +59,9 @@ export default function CardServices() {
       if (album && album.data.images.length > 0) {
         return {
           itemImageSrc: album.data.images[0].link,
-          thumbnailImageSrc: album.data.images[0].link,
           alt: service.nombre,
-          title: service.nombre
+          title: service.nombre,
+          description: service.descripcion // Assuming `descripcion` is a field in the service
         };
       }
       return null;
@@ -61,41 +80,32 @@ export default function CardServices() {
     }
   }, [response]);
 
-  const responsiveOptions = [
-    {
-      breakpoint: '1024px',
-      numVisible: 5
-    },
-    {
-      breakpoint: '960px',
-      numVisible: 4
-    },
-    {
-      breakpoint: '768px',
-      numVisible: 3
-    },
-    {
-      breakpoint: '560px',
-      numVisible: 1
-    }
-  ];
-
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.toString()}</div>;
   if (!response || !response.servicios) return <div>No data available</div>;
 
-  const itemTemplate = (item) => {
-    return <img src={item.itemImageSrc} alt={item.alt} style={{ width: '100%', display: 'block' }} />;
-  };
-
-  const thumbnailTemplate = (item) => {
-    return <img src={item.thumbnailImageSrc} alt={item.alt} style={{ display: 'block' }} />;
-  };
-
   return (
-    <div>
-      <Galleria value={images} responsiveOptions={responsiveOptions} numVisible={7} circular style={{ maxWidth: '800px' }}
-        item={itemTemplate} thumbnail={thumbnailTemplate} />
+    <div className="container">
+      <Row gutter={[16, 16]} justify="center">
+        <Image.PreviewGroup>
+          {images.map((image, index) => (
+            <Col key={index} xs={24} sm={12} md={8} lg={6}>
+              <Card hoverable style={cardStyle} bodyStyle={{ padding: 0, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <Image alt={image.alt} src={image.itemImageSrc} style={imgStyle} />
+                  <div style={textStyle}>
+                    <Typography.Title level={4}>{image.title}</Typography.Title>
+                    <Typography.Text>{image.description}</Typography.Text>
+                    <Button type="primary" href="#">
+                      COMPRAR <RightOutlined />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Image.PreviewGroup>
+      </Row>
     </div>
   );
 }

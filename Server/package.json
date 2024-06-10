@@ -1,7 +1,7 @@
 {
-  "name": "MultitaskPlatform",
+  "name": "DavidSalazarServicios",
   "version": "1.0.0",
-  "description": "MultitaskPlatform",
+  "description": "INVIERTA SOLO UNA VEZ, SERVICIOS RESIDENCIALES & COMERCIALES CRLTDA",
   "main": "server.js",
   "scripts": {
     "start": "node server",
