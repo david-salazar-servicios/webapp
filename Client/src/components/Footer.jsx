@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -20,29 +21,29 @@ export default function Footer() {
             <div className="col-md-4 footer-item">
               <h4>Enlaces Útiles</h4>
               <ul className="menu-list">
-                <li>
-                  <a href="/servicios">Nuestros Servicios</a>
-                </li>
-                <li>
-                  <a href="/proyectos">Proyectos Recientes</a>
-                </li>
-                <li>
-                  <a href="/testimonios">Testimonios de Clientes</a>
-                </li>
-              </ul>
+  <li>
+    <NavLink to="/servicios">Nuestros Servicios</NavLink>
+  </li>
+  <li>
+    <NavLink to="/proyectos">Proyectos Recientes</NavLink>
+  </li>
+  <li>
+    <NavLink to="/testimonios">Testimonios de Clientes</NavLink>
+  </li>
+</ul>
             </div>
             <div className="col-md-4 footer-item">
               <h4>Páginas Adicionales</h4>
               <ul className="menu-list">
-                <li>
-                  <a href="/About">Acerca de Nosotros</a>
-                </li>
-                <li>
-                  <a href="/contacto">Contáctanos</a>
-                </li>
-                <li>
-                  <a href="/privacidad">Política de Privacidad</a>
-                </li>
+              <li>
+    <NavLink to="/About">Acerca de Nosotros</NavLink>
+  </li>
+  <li>
+    <NavLink to="/contacto">Contáctanos</NavLink>
+  </li>
+  <li>
+    <NavLink to="/privacidad">Política de Privacidad</NavLink>
+  </li>
               </ul>
             </div>
             <div className="pt-5">

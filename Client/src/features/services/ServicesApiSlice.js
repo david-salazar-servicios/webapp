@@ -104,6 +104,14 @@ export const servicesApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: [{ type: 'DetalleSolicitud', id: 'LIST' }],
         }),
 
+        getAlbums: builder.mutation({
+            query: (servicios) => ({
+                url: '/servicios/album/all',
+                method: 'POST',
+                body: servicios,
+            }),
+            invalidatesTags: [{ type: 'Servicio', id: 'LIST' }],
+        }),
 
         // Continúan los otros endpoints...
     }),
@@ -120,6 +128,6 @@ export const {
     useGetUserServicesQuery,
     useDeleteUserServiceMutation,
     useAddSolicitudDetailsMutation,
-    useDeleteAllUserServiceMutation
-
+    useDeleteAllUserServiceMutation,
+    useGetAlbumsMutation
 } = servicesApiSlice;

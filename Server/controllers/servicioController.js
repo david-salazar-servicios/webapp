@@ -19,7 +19,6 @@ const getAllServicios = async (req, res) => {
             servicios,    
             categorias
         })
-        console.log(finalServiceList)
         
         res.json(finalServiceList);
 
@@ -64,6 +63,44 @@ const deleteServicio = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+const getAlbums = async (req, res) => {
+    try {
+       const servicios = req.body;
+        // Validate that servicios is an array and not empty
+        if (!Array.isArray(servicios) || servicios.length === 0) {
+            return res.status(400).json({ message: 'Invalid servicios array' });
+        }
+       
+
+        const albumPromises = servicios.map(async (servicio) => {
+            if (!servicio.album) {
+                return null; // Skip if album is not defined
+            }
+            const albumRes = await fetch(`https://api.imgur.com/3/album/${servicio.album}`, {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: `Client-ID ${process.env.CLIENT_ID}`,
+                }
+            });
+
+            const album = await albumRes.json();
+
+            if (!album.success) {
+                throw new Error(`Failed to fetch images from Imgur for album ${servicio.album}`);
+            }
+            return album;
+        });
+
+        const albums = (await Promise.all(albumPromises)).filter(album => album !== null);
+        res.json(albums);
+    } catch (error) {
+        console.error("Error retrieving albums:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
 
 // @desc Get a single service by ID
 // @route GET /services/:id
@@ -111,8 +148,8 @@ const getServicioById = async (req, res) => {
         const offerData = await offerResponse.json();
         
         // Check if the response contains images
-        if (!imgurData.success) {
-            throw new Error('Failed to fetch images from Imgur');
+        if (!offerData.success) {
+            throw new Error('Failed to fetch offer data');
         }
 
         const servicioObject =({
@@ -287,5 +324,6 @@ module.exports = {
     getUsuarioServicioById,
     getDetalleServiciosByIds,
     deleteUsuarioServicioById,
-    deleteAllUsuarioServicio
+    deleteAllUsuarioServicio,
+    getAlbums
 };
