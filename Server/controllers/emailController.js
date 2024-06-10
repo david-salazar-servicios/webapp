@@ -75,6 +75,7 @@ const sendEmailContacto = async (req, res) => {
         const mailAdminOptions = {
             from: correo,
             to: 'davidsalazarservicios@gmail.com', // Primary recipient
+            cc: 'davidsalazarservicios@gmail.com', // CC servicios.rc.cr@gmail.com
             subject: `El cliente ${nombre} envió un mensaje.`,
             html: `Hola,<br>Tienes un nuevo mensaje del cliente ${nombre} enviado desde la página web, su correo de contacto es ${correo} y el número de WhatsApp es <a href="https://wa.me/${whatsapp}">${whatsapp}.</a><br><br>Mensaje del cliente:<br><i>"${mensaje}"</i>`
         };
