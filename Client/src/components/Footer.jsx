@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 export default function Footer() {
   return (
     <>
-      <footer  style={{ backgroundColor: '#002347' }}>
+      <footer style={{ backgroundColor: '#002347' }}>
         <div className="container">
           <div className="row d-flex justify-content-center">
             <div className="col-md-4 footer-item">
@@ -21,34 +21,34 @@ export default function Footer() {
             <div className="col-md-4 footer-item">
               <h4>Enlaces Útiles</h4>
               <ul className="menu-list">
-  <li>
-    <NavLink to="/servicios">Nuestros Servicios</NavLink>
-  </li>
-  <li>
-    <NavLink to="/proyectos">Proyectos Recientes</NavLink>
-  </li>
-  <li>
-    <NavLink to="/testimonios">Testimonios de Clientes</NavLink>
-  </li>
-</ul>
+                <li>
+                  <NavLink to="/servicios">Nuestros Servicios</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/proyectos">Proyectos Recientes</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/testimonios">Testimonios de Clientes</NavLink>
+                </li>
+              </ul>
             </div>
             <div className="col-md-4 footer-item">
               <h4>Páginas Adicionales</h4>
               <ul className="menu-list">
-              <li>
-    <NavLink to="/About">Acerca de Nosotros</NavLink>
-  </li>
-  <li>
-    <NavLink to="/contacto">Contáctanos</NavLink>
-  </li>
-  <li>
-    <NavLink to="/privacidad">Política de Privacidad</NavLink>
-  </li>
+                <li>
+                  <NavLink to="/About">Acerca de Nosotros</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/contacto">Contáctanos</NavLink>
+                </li>
+                <li>
+                  <NavLink to="/privacidad">Política de Privacidad</NavLink>
+                </li>
               </ul>
             </div>
             <div className="pt-5">
               <p>
-              All rights reserved. Copyright © 2024 David Salazar Servicios, Costa Rica.
+                All rights reserved. Copyright © 2024 David Salazar Servicios, Costa Rica.
               </p>
             </div>
           </div>

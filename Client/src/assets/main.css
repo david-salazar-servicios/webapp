@@ -1755,15 +1755,12 @@ footer .contact-form button.filled-button:hover {
 }
 
 .why-us h3 {
-  font-size: 24px;
   font-weight: 700;
   color: var(--color-secondary);
 }
 
 .why-us h4 {
-  font-size: 18px;
   font-weight: 400;
-  color: #29486a;
   font-family: var(--font-secondary);
 }
 
