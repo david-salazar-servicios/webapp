@@ -25,11 +25,14 @@ import Testimonials from './components/testimonials/testimonials';
 import CardServices from './components/services/CardServices';
 import Privacidad from './components/privacidad/privacidad';
 import Proyectos from './components/proyectos/proyectos';
+import GlobalStyle from './components/GlobalStyle';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
     return (
         <div>
-
+            <GlobalStyle />
+            <ScrollToTop />
             <Routes>
                 <Route path="/Login" element={<Login />} />
                 <Route path="/Registrar" element={<SignUp />} />
@@ -58,7 +61,6 @@ function App() {
                             <Route path="perfiles" element={<Users />} />
                             <Route path="roles" element={<Roles />} />
                         </Route>
-
                     </Route>
                 </Route>
 
