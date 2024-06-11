@@ -206,53 +206,53 @@ a.border-button:hover {
 /* Sub Header Style */
 
 .sub-header {
-	border-bottom: #ffffff27 solid 1px;
-	height: 46px;
-	line-height: 46px;
-	background-color: #272727;
+  border-bottom: #ffffff27 solid 1px;
+  height: 46px;
+  line-height: 46px;
+  background-color: #272727;
 }
 
 
 .sub-header ul li {
-	display: inline-block;
+  display: inline-block;
 }
 
 .sub-header ul.left-info li {
-	padding: 0px 20px;
+  padding: 0px 20px;
 }
 
 
 .sub-header ul.left-info li i {
-	margin-right: 10px;
-	font-size: 18px;
+  margin-right: 10px;
+  font-size: 18px;
 }
 
 .sub-header ul.left-info li a {
-	color: #fff;
-	font-size: 14px;
-	font-weight: 600;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .sub-header ul.right-icons {
-	float: right;
+  float: right;
 }
 
 .sub-header ul.right-icons li {
-	margin-right: -4px;
-	width: 46px;
-	display: inline-block;
-	text-align: center;
+  margin-right: -4px;
+  width: 46px;
+  display: inline-block;
+  text-align: center;
 }
 
 
 
 .sub-header ul.right-icons li a {
-	color: #fff;
-	transition: all 0.3s;
+  color: #fff;
+  transition: all 0.3s;
 }
 
 .sub-header ul.right-icons li a:hover {
-	opacity: 0.75;
+  opacity: 0.75;
 }
 
 
@@ -527,7 +527,7 @@ header .navbar {
 
 
 .Modern-Slider {
-	background-color: #ff8e00;
+  background-color: #ff8e00;
   font-family: "Poppins", sans-serif;
   margin-bottom: 0 !important;
 }
@@ -1322,6 +1322,62 @@ footer .contact-form button.filled-button:hover {
   }
 }
 
+.card-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap; /* Wrap cards onto the next line on smaller screens */
+  align-items: center; /* Align items vertically */
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 20px;
+  width: 100%; /* Start with full width */
+  max-width: 400px; /* Maximum width of the card */
+  min-height: 250px; /* Minimum height of the card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  transition: all 0.3s ease-in-out;
+  position: relative; /* Needed for stacking */
+  overflow: hidden; /* Prevents text from spilling out */
+  color:#092F5C;
+}
+
+
+/* Responsive adjustments with media queries */
+@media (min-width: 768px) { /* Adjust breakpoint as needed */
+  .card {
+    width: calc(50% - 10px); /* Adjust width for 2 cards in a row, considering gap */
+  }
+  
+  .card.central {
+    transform: translateY(-20px); /* Move the central card up */   
+  }
+}
+
+@media (min-width: 992px) { /* Adjust breakpoint as needed */
+  .card {
+    width: calc(33.333% - 20px); /* Adjust width for 3 cards in a row, considering gap */
+  }
+}
+.card p {
+  color: #666666;
+  font-size: 16px;
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Add an ellipsis to text that overflows */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Number of lines allowed */
+  -webkit-box-orient: vertical;
+}
+.card.central{
+  background-color: #ff7f15;
+  color: white;
+}
+.card.central p{
+  color: white;
+}
+/* You can add more media queries for larger screens if needed */
+
 
 
 
@@ -1477,12 +1533,12 @@ footer .contact-form button.filled-button:hover {
 }
 
 .icon-boxes .title a {
-	position:relative;
-	font-size:30px;
-	color:#05579e;
-	font-weight:600;
-	margin-bottom:12px;
-	text-transform:uppercase;
+  position:relative;
+  font-size:30px;
+  color:#05579e;
+  font-weight:600;
+  margin-bottom:12px;
+  text-transform:uppercase;
 
 }
 
@@ -1737,160 +1793,160 @@ footer .contact-form button.filled-button:hover {
 
 
 .experiance-section{
-	position:relative;
-	padding-top:150px;
+  position:relative;
+  padding-top:150px;
 }
 
 .experiance-section.style-two{
-	padding-bottom:60px;
+  padding-bottom:60px;
 }
 
 .experiance-section .title-column{
-	position:relative;
-	margin-bottom:40px;
+  position:relative;
+  margin-bottom:40px;
 }
 
 .experiance-section .title-column .inner-column{
-	position:relative;
+  position:relative;
 }
 
 .experiance-section .title-column .image{
-	position:relative;
-	margin-bottom:60px;
+  position:relative;
+  margin-bottom:60px;
 }
 
 .experiance-section .title-column h2{
-	position:relative;
-	color:#05579e;
-	font-size:56px;
-	font-weight:600;
-	line-height:1.1em;
-	margin-bottom:20px;
+  position:relative;
+  color:#05579e;
+  font-size:56px;
+  font-weight:600;
+  line-height:1.1em;
+  margin-bottom:20px;
 }
 
 .experiance-section .title-column .text{
-	position:relative;
-	color:#666666;
-	font-size:20px;
-	line-height:1.8em;
-	margin-top:35px;
+  position:relative;
+  color:#666666;
+  font-size:20px;
+  line-height:1.8em;
+  margin-top:35px;
 }
 
 .experiance-section .content-column{
-	position:relative;
-	margin-bottom:40px;
+  position:relative;
+  margin-bottom:40px;
 }
 
 .experiance-section .content-column .inner-column{
-	position:relative;
+  position:relative;
 }
 
 .experiance-section .content-column .title-box h2{
-	position:relative;
-	font-size:30px;
-	color:#05579e;
-	font-weight:600;
-	margin-bottom:12px;
-	text-transform:uppercase;
+  position:relative;
+  font-size:30px;
+  color:#05579e;
+  font-weight:600;
+  margin-bottom:12px;
+  text-transform:uppercase;
 }
 
 .experiance-section .content-column .title-box p{
-	position:relative;
-	color:#666666;
-	font-size:14px;
-	line-height:1.9em;
-	margin-bottom:12px;
+  position:relative;
+  color:#666666;
+  font-size:14px;
+  line-height:1.9em;
+  margin-bottom:12px;
 }
 
 .experiance-section .content-column .specialization-box{
-	position:relative;
-	margin-top:50px;
+  position:relative;
+  margin-top:50px;
 }
 
 .experiance-section .content-column .specialization-box h2{
-	margin-bottom:28px;
-	position:relative;
-	font-size:30px;
-	color:#05579e;
-	font-weight:600;
-	text-transform:uppercase;
+  margin-bottom:28px;
+  position:relative;
+  font-size:30px;
+  color:#05579e;
+  font-weight:600;
+  text-transform:uppercase;
 }
 
 .experiance-section .description{ 
-	padding-top:10px;
+  padding-top:10px;
 }
 
 .experiance-section .description p{ 
-	font-size: 14px;
+  font-size: 14px;
 }
 
 
 .specialise-box{
-	position:relative;
-	margin-bottom:30px;
+  position:relative;
+  margin-bottom:30px;
 }
 
 .specialise-box .inner-box{
-	position:relative;
-	padding:26px 50px;
-	border:1px solid #d9d9d9;
+  position:relative;
+  padding:26px 50px;
+  border:1px solid #d9d9d9;
   background-color: white;
-	transition:all 500ms ease;
-	-moz-transition:all 500ms ease;
-	-webkit-transition:all 500ms ease;
-	-ms-transition:all 500ms ease;
-	-o-transition:all 500ms ease;
+  transition:all 500ms ease;
+  -moz-transition:all 500ms ease;
+  -webkit-transition:all 500ms ease;
+  -ms-transition:all 500ms ease;
+  -o-transition:all 500ms ease;
 }
 
 .specialise-box .inner-box:before{
-	position:absolute;
-	content:'';
-	left:-1px;
-	top:0px;
-	bottom:0px;
-	width:3px;
-	opacity:0;
-	background-color:#ff8e00;
-	transform:scale(1,0.2);
-	transition:all 500ms ease;
-	-moz-transition:all 500ms ease;
-	-webkit-transition:all 500ms ease;
-	-ms-transition:all 500ms ease;
-	-o-transition:all 500ms ease;
+  position:absolute;
+  content:'';
+  left:-1px;
+  top:0px;
+  bottom:0px;
+  width:3px;
+  opacity:0;
+  background-color:#ff8e00;
+  transform:scale(1,0.2);
+  transition:all 500ms ease;
+  -moz-transition:all 500ms ease;
+  -webkit-transition:all 500ms ease;
+  -ms-transition:all 500ms ease;
+  -o-transition:all 500ms ease;
 }
 
 .specialise-box .inner-box:hover::before{
-	opacity:1;
-	transform:scale(1,1);
+  opacity:1;
+  transform:scale(1,1);
 }
 
 .specialise-box .inner-box:hover{
-	box-shadow:0px 10px 20px rgba(0,0,0,0.10);
+  box-shadow:0px 10px 20px rgba(0,0,0,0.10);
 }
 
 .specialise-box .inner-box .content{
-	position:relative;
-	padding-left:120px;
+  position:relative;
+  padding-left:120px;
 }
 
 .specialise-box .inner-box .content .icon{
-	position:absolute;
-	left:0px;
-	top:15px;
-	color:#999999;
-	font-size:72px;
-	line-height:1em;
-	display:inline-block;
-	transition:all 500ms ease;
-	-moz-transition:all 500ms ease;
-	-webkit-transition:all 500ms ease;
-	-ms-transition:all 500ms ease;
-	-o-transition:all 500ms ease;
+  position:absolute;
+  left:0px;
+  top:15px;
+  color:#999999;
+  font-size:72px;
+  line-height:1em;
+  display:inline-block;
+  transition:all 500ms ease;
+  -moz-transition:all 500ms ease;
+  -webkit-transition:all 500ms ease;
+  -ms-transition:all 500ms ease;
+  -o-transition:all 500ms ease;
 }
 
 .specialise-box .inner-box:hover .content .icon{
-	color:#05579e;
-	-webkit-transform: scale(-1) rotate(180deg);
+  color:#05579e;
+  -webkit-transform: scale(-1) rotate(180deg);
     -moz-transform: scale(-1) rotate(180deg);
     -ms-transform: scale(-1) rotate(180deg);
     -o-transform: scale(-1) rotate(180deg);
@@ -1898,38 +1954,38 @@ footer .contact-form button.filled-button:hover {
 }
 
 .specialise-box .inner-box .content h5{
-	position:relative;
-	font-weight:600;
-	line-height:1.3em;
+  position:relative;
+  font-weight:600;
+  line-height:1.3em;
 }
 
 .specialise-box .inner-box .content h5 a{
-	position:relative;
-	color:#05579e;
-	transition:all 500ms ease;
-	-moz-transition:all 500ms ease;
-	-webkit-transition:all 500ms ease;
-	-ms-transition:all 500ms ease;
-	-o-transition:all 500ms ease;
+  position:relative;
+  color:#05579e;
+  transition:all 500ms ease;
+  -moz-transition:all 500ms ease;
+  -webkit-transition:all 500ms ease;
+  -ms-transition:all 500ms ease;
+  -o-transition:all 500ms ease;
 }
 
 .specialise-box .inner-box:hover .content h5 a{
-	color:#05579e;
+  color:#05579e;
 }
 
 .specialise-box .inner-box .content p{
-	position:relative;
-	color:#666666;
-	line-height:1.9em;
-	margin-top:14px;
-	font-size:14px;
+  position:relative;
+  color:#666666;
+  line-height:1.9em;
+  margin-top:14px;
+  font-size:14px;
 }
 
 .auto-container{
-	position:static;
-	max-width:1200px;
-	padding:0px 15px;
-	margin:0 auto;
+  position:static;
+  max-width:1200px;
+  padding:0px 15px;
+  margin:0 auto;
 }
 
 .blog_details_content {
@@ -2737,81 +2793,70 @@ footer .contact-form button.filled-button:hover {
   height: 100vh; /* Make sure the loader covers the full viewport height */
 }
 
-.container {
-  padding: 20px;
+
+
+.product-card {
+  margin-top: 10px;
+  display: flex;
+  background: white;
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: auto;
 }
 
-.custom-card {
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: #fff;
-  border: none;
+.product-image {
+  flex: 1;
   overflow: hidden;
   display: flex;
   align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  max-width: 100%;
+  max-height: 100%;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.product-info {
+  flex: 1;
   padding: 20px;
-}
-
-.card-content {
   display: flex;
-  flex-direction: column; /* Align text and image vertically */
-  align-items: flex-start;
-  width: 100%;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.card-new {
+.new-label {
   color: red;
-  font-weight: bold;
-  margin-right: 10px;
+  font-size: 1.2em;
+  margin-bottom: 10px;
 }
 
-.card-title {
-  color: black;
-  font-weight: bold;
-  margin-bottom: 10px; /* Space between title and image */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
+.product-title {
+  font-size: 2em;
+  margin-bottom: 10px;
 }
 
-.card-image {
-  width: 100%;
-  max-width: 150px; /* Limiting maximum width */
-  height: auto; /* Maintain aspect ratio */
-  margin-bottom: 10px; /* Space between image and button */
+.product-description {
+  font-size: 1em;
+  margin-bottom: 20px;
 }
 
-.card-button {
-  color: red;
-  font-weight: bold;
-  background: none;
+.learn-more-button {
+  padding: 10px 20px;
+  background: black;
+  color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
+  font-size: 1em;
+  align-self: start;
 }
 
-.card-button:hover {
-  color: red;
+.learn-more-button:hover {
+  background: gray;
 }
 
-.arrow {
-  transition: transform 0.3s;
-}
-
-.card-button:hover .arrow {
-  transform: translateX(5px);
-}
-
-@media (max-width: 768px) {
-  .custom-card {
-    flex-direction: column; /* Stack elements vertically on smaller screens */
-  }
-  .card-image {
-    margin-bottom: 10px; /* Extra space between image and text */
-    width: 100%; /* Adjust image width for smaller screens */
-  }
-}

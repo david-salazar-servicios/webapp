@@ -1,28 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGetServicesQuery, useGetAlbumsMutation } from '../../features/services/ServicesApiSlice';
-import { Card, Button, Row, Col, Typography, Image } from 'antd';
-import { RightOutlined } from '@ant-design/icons';
-
-const { Meta } = Card;
-
-const cardStyle = {
-  margin: '20px auto', // Center the card horizontally
-};
-
-const imgStyle = {
-  display: 'block',
-  width: '100%',
-  objectFit: 'cover', // Ensure the image covers the area
-  maxHeight: '200px',
-};
-
-const textStyle = {
-  padding: '16px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-  height: '100%',
-};
+import { motion } from 'framer-motion';
 
 export default function CardServices() {
   const { data: response, isLoading, isError, error } = useGetServicesQuery();
@@ -61,7 +39,7 @@ export default function CardServices() {
           itemImageSrc: album.data.images[0].link,
           alt: service.nombre,
           title: service.nombre,
-          description: service.descripcion // Assuming `descripcion` is a field in the service
+          description: service.descripcion
         };
       }
       return null;
@@ -85,27 +63,27 @@ export default function CardServices() {
   if (!response || !response.servicios) return <div>No data available</div>;
 
   return (
-    <div className="container">
-      <Row gutter={[16, 16]} justify="center">
-        <Image.PreviewGroup>
-          {images.map((image, index) => (
-            <Col key={index} xs={24} sm={12} md={8} lg={6}>
-              <Card hoverable style={cardStyle} bodyStyle={{ padding: 0, overflow: 'hidden' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                  <Image alt={image.alt} src={image.itemImageSrc} style={imgStyle} />
-                  <div style={textStyle}>
-                    <Typography.Title level={4}>{image.title}</Typography.Title>
-                    <Typography.Text>{image.description}</Typography.Text>
-                    <Button type="primary" href="#">
-                      COMPRAR <RightOutlined />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          ))}
-        </Image.PreviewGroup>
-      </Row>
+    <div>
+      {images.map((image, index) => (
+        <motion.div
+          className="product-card"
+          key={index}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{ marginBottom: '20px' }} // Add space between cards
+        >
+          <div className="product-image">
+            <img src={image.itemImageSrc} alt={image.alt} />
+          </div>
+          <div className="product-info">
+            <h2 className="new-label">NUEVO</h2>
+            <h1 className="product-title">{image.title}</h1>
+            <p className="product-description">{image.description}</p>
+            <button className="learn-more-button">Conoce más</button>
+          </div>
+        </motion.div>
+      ))}
     </div>
   );
 }
+
