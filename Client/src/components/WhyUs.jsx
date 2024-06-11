@@ -1,10 +1,11 @@
 import React from 'react';
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules';
+import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import image from '../../src/assets/images/why-us-bg.jpg';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import 'swiper/swiper-bundle.css'; // Ensure Swiper styles are imported
+import '../vendor/bootstrap/css/estiloAdicional.css';
 
 // Animation variants
 const textVariants = {
@@ -59,21 +60,19 @@ export default () => {
     <section id="why-us" className="why-us">
       <div className="container" data-aos="fade-up">
         <AnimatedTitle title="Por Qué Elegirnos" />
-
         <AnimatedCarousel>
-
-       
-        <div className="row" data-aos="fade-up" data-aos-delay="200">
-          <div className="col-xl-5 img-bg" style={{ backgroundImage: `url(${image})` }}></div>
-          <div className="col-xl-7 slides">
+          <div className="row" data-aos="fade-up" data-aos-delay="200">
+            <div className="col-xl-5 img-bg" style={{ backgroundImage: `url(${image})` }}></div>
+            <div className="col-xl-7 slides">
               <Swiper
-                modules={[Navigation, Pagination, Scrollbar, A11y]}
-                spaceBetween={2}
+                modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}
+                spaceBetween={10}
                 slidesPerView={1}
                 pagination={{ clickable: true }}
+                autoplay={{ delay: 4000, disableOnInteraction: false }}
               >
                 <SwiperSlide>
-                  <div className="item">
+                  <div className="whyUsItem">
                     <h3 className="mb-3">Compromiso con la Excelencia</h3>
                     <h4 className="mb-3">Garantía de satisfacción y atención personalizada.</h4>
                     <p>
@@ -82,7 +81,7 @@ export default () => {
                   </div>
                 </SwiperSlide>
                 <SwiperSlide>
-                  <div className="item">
+                  <div className="whyUsItem">
                     <h3 className="mb-3">Innovación y Tecnología</h3>
                     <h4 className="mb-3">Adoptamos las últimas tecnologías para ofrecer los mejores resultados.</h4>
                     <p>
@@ -91,7 +90,7 @@ export default () => {
                   </div>
                 </SwiperSlide>
                 <SwiperSlide>
-                  <div className="item">
+                  <div className="whyUsItem">
                     <h3 className="mb-3">Experiencia Comprobada</h3>
                     <h4 className="mb-3">Años de servicio confiable en el mercado.</h4>
                     <p>
@@ -100,7 +99,7 @@ export default () => {
                   </div>
                 </SwiperSlide>
                 <SwiperSlide>
-                  <div className="item">
+                  <div className="whyUsItem">
                     <h3 className="mb-3">Servicio Integral</h3>
                     <h4 className="mb-3">Desde la consulta inicial hasta la finalización del proyecto.</h4>
                     <p>
@@ -109,11 +108,10 @@ export default () => {
                   </div>
                 </SwiperSlide>
               </Swiper>
+            </div>
           </div>
-        </div>
         </AnimatedCarousel>
       </div>
-      
     </section>
   );
 };
