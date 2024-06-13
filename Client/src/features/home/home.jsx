@@ -61,8 +61,8 @@ export default function Home() {
         transition={{ duration: 0.5 }}
         className="description"
       >
-        <p>Con décadas de experiencia, nuestra empresa se ha consolidado como líder en el sector de la fontanería, ofreciendo servicios fiables y de calidad a nuestros clientes.</p>
-        <p>Nos dedicamos a asegurar la completa satisfacción de nuestros clientes a través de un trabajo seguro, eficiente y con garantía de durabilidad.</p>
+        <div className="text">Con décadas de experiencia, nuestra empresa se ha consolidado como líder en el sector de la fontanería, ofreciendo servicios fiables y de calidad a nuestros clientes.<br /><br /></div>
+        <div className="text">Nos dedicamos a asegurar la completa satisfacción de nuestros clientes a través de un trabajo seguro, eficiente y con garantía de durabilidad.</div>
       </motion.div>
     );
   };
