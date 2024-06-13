@@ -407,10 +407,10 @@ header .navbar {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  left: 0;  
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Oscurecimiento del 50% */
+  background: rgba(0, 0, 0, 0.253); /* Oscurecimiento del 50% */
   z-index: 1;
   pointer-events: none; 
 }
@@ -2893,7 +2893,7 @@ footer .contact-form button.filled-button:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Add a semi-transparent black overlay */
+  background: rgba(0, 0, 0, 0.233); /* Add a semi-transparent black overlay */
   z-index: 1; /* Ensure the overlay is above the image but below the text */
 }
 

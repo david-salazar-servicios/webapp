@@ -175,9 +175,13 @@ export default function Header() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 50, damping: 20 }}
     >
-      <h6>Invierta solo una vez</h6>
-      <h4>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
-      <NavLink to="/contacto" className="filled-button">
+      <h6 style={{
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
+      }}>Invierta solo una vez</h6>
+      <h4 style={{
+        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
+      }}>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
+      <NavLink to="/contacto" className="filled-button" >
             Contáctanos
         </NavLink>
     </motion.div>
