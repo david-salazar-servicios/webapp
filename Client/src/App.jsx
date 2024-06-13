@@ -23,15 +23,15 @@ import Contactenos from './components/contacto/contacto';
 import AboutUs from './components/about/about';
 import Testimonials from './components/testimonials/testimonials';
 import CardServices from './components/services/CardServices';
-import Privacidad from './components/privacidad/privacidad';
+//import Privacidad from './components/privacidad/privacidad';
 import Proyectos from './components/proyectos/proyectos';
-import GlobalStyle from './components/GlobalStyle';
+//import GlobalStyle from './components/GlobalStyle';
 import ScrollToTop from './components/ScrollToTop';
 
 function App() {
     return (
         <div>
-            <GlobalStyle />
+            {/*<GlobalStyle />*/}
             <ScrollToTop />
             <Routes>
                 <Route path="/Login" element={<Login />} />
@@ -47,7 +47,7 @@ function App() {
                     <Route path="/About" element={<AboutUs />} />
                     <Route path="/testimonios" element={<Testimonials />} />
                     <Route path="/servicios" element={<CardServices />} />
-                    <Route path="/privacidad" element={<Privacidad />} />
+                    {/*<Route path="/privacidad" element={<Privacidad />} />*/}
                     <Route path="/proyectos" element={<Proyectos />} />
                 </Route>
 
