@@ -4,8 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import image from '../../src/assets/images/why-us-bg.jpg';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import 'swiper/swiper-bundle.css'; // Ensure Swiper styles are imported
-import '../vendor/bootstrap/css/estiloAdicional.css';
+
 
 // Animation variants
 const textVariants = {

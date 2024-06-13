@@ -1743,6 +1743,7 @@ footer .contact-form button.filled-button:hover {
 --------------------------------------------------------------*/
 .why-us {
   padding-bottom: 60px;
+  background: none; /* Remove background color */
 }
 
 .why-us .img-bg {
@@ -1751,7 +1752,7 @@ footer .contact-form button.filled-button:hover {
 }
 
 .why-us .slides {
-  background-color: #f7f9fc;
+  background-color: transparent; /* Make slides container transparent */
 }
 
 .why-us h3 {
@@ -1770,6 +1771,7 @@ footer .contact-form button.filled-button:hover {
 .why-us .swiper {
   margin: 140px 80px 120px 80px;
   overflow: hidden;
+  background-color: transparent; /* Make swiper container transparent */
 }
 
 .why-us .swiper-button-prev:after,
@@ -1789,6 +1791,10 @@ footer .contact-form button.filled-button:hover {
 .why-us .swiper-pagination {
   margin-top: 30px;
   position: relative;
+}
+
+.why-us .whyUsItem {
+  background-color: transparent; /* Make each slide transparent */
 }
 
 
@@ -2861,12 +2867,22 @@ footer .contact-form button.filled-button:hover {
 }
 
 
+.carousel-container {
+  width: 80%; /* Adjust this value to your desired width */
+  max-width: 1200px; /* Ensure a maximum width for larger screens */
+  margin: 0 auto; /* Center the carousel */
+  box-shadow: 0 4px 8px rgb(5, 87, 158); /* Add box shadow with the specified color */
+  background: white; /* Add a background color if needed */
+  border-radius: 10px; /* Optional: Add border radius for rounded corners */
+  overflow: hidden; /* Ensure content stays within the container */
+}
 .carousel-item {
   position: relative; /* Ensure the overlay is positioned relative to the carousel item */
 }
 
 .carousel-image {
-  height: 400px; /* Set a fixed height for all images */
+  height: 500px; /* Set a fixed height for all images */
+  width: 100%; /* Ensure the image covers the whole width */
   object-fit: cover; /* Ensure the image covers the whole area */
 }
 
@@ -2885,7 +2901,35 @@ footer .contact-form button.filled-button:hover {
   z-index: 2; /* Ensure the caption text is above the overlay */
 }
 
-.carousel-caption h5, .carousel-caption p {
-  color: white; /* Set text color to white */
+.carousel-caption h5 {
+  color: orange; /* Set title color to orange */
+  font-size: 2rem; /* Increase font size of the title */
+  font-weight: bold; /* Make the title bold */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add text shadow for better readability */
+  margin-bottom: 15px; /* Add some space below the title */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.411); /* Add bottom border */
+  padding-bottom: 10px; /* Add padding below the title */
+
+}
+
+.carousel-caption p {
+  color: white; /* Set text color to white */
+  font-size: 1.25rem; /* Increase font size of the description */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add text shadow for better readability */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: transparent; /* Ensure the background is transparent */
+  background-image: none; /* Remove any default background image */
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  filter: none; /* Remove any filter effects */
+}
+
+.carousel-control-prev-icon::after,
+.carousel-control-next-icon::after {
+  content: none;
 }

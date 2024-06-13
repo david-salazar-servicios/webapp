@@ -11,7 +11,7 @@ export default function MainLayout() {
    <Header/>
    <div className="outlet-background">
         <Outlet />
-      </div>
+    </div>
    <Footer/>
    </>
   )

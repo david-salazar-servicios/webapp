@@ -23,7 +23,8 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';  // Tema
-
+import './vendor/bootstrap/css/estiloAdicional.css';
+import 'swiper/swiper-bundle.css'; // Ensure Swiper styles are imported
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

@@ -1,10 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { useGetServicesQuery, useGetAlbumsMutation } from '../../features/services/ServicesApiSlice';
+import { motion, useAnimation, useTime, useTransform } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+import { NavLink } from 'react-router-dom';
 
 export default function CardServices() {
   const { data: response, isLoading, isError, error } = useGetServicesQuery();
   const [getAllAlbums] = useGetAlbumsMutation();
   const [images, setImages] = useState([]);
+
+  // Animation variants
+  const textVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    fromRightToCenter: { opacity: 1, x: [300, 0] },
+  };
+
+  const time = useTime();
+  const rotate = useTransform(time, [0, 4000], [0, 360], { clamp: false });
+
+  // Title component with animation
+  const AnimatedTitle = ({ title }) => {
+    const controls = useAnimation();
+    const [ref, inView] = useInView();
+
+    useEffect(() => {
+      if (inView) {
+        controls.start("visible");
+      }
+    }, [controls, inView]);
+
+    return (
+      <motion.div
+        ref={ref}
+        animate={controls}
+        initial="hidden"
+        variants={textVariants}
+        transition={{ duration: 0.5 }}
+        className="section-title"
+        data-aos="fade-up"
+      >
+        <h2>{title}</h2>
+      </motion.div>
+    );
+  };
 
   const saveAlbumsToLocalStorage = (albums) => {
     localStorage.setItem('albums', JSON.stringify(albums));
@@ -38,7 +77,8 @@ export default function CardServices() {
           itemImageSrc: album.data.images[0].link,
           alt: service.nombre,
           title: service.nombre,
-          description: service.descripcion.substring(0, 100) // Show a portion of the description
+          description: service.descripcion,
+          id: service.id_servicio
         };
       }
       return null;
@@ -62,31 +102,49 @@ export default function CardServices() {
   if (!response || !response.servicios) return <div>No data available</div>;
 
   return (
-    <div id="carouselExampleCaptions" className="carousel slide" data-bs-ride="carousel">
-      <div className="carousel-indicators">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            type="button"
-            data-bs-target="#carouselExampleCaptions"
-            data-bs-slide-to={index}
-            className={index === 0 ? "active" : ""}
-            aria-current={index === 0 ? "true" : "false"}
-            aria-label={`Slide ${index + 1}`}
-          ></button>
-        ))}
-      </div>
-      <div className="carousel-inner">
-        {images.map((image, index) => (
-          <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-            <img src={image.itemImageSrc} className="d-block w-100 carousel-image" alt={image.alt} />
-            <div className="carousel-caption d-none d-md-block">
-              <h5>{image.title}</h5>
-              <p>{image.description}</p>
-            </div>
+    <>
+      <AnimatedTitle title="SERVICIOS" />
+
+      <div className="carousel-container">
+        <div id="carouselExampleCaptions" data-bs-interval="2000" data-bs-ride="carousel" className="carousel slide carousel-fade">
+          <div className="carousel-indicators">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                data-bs-target="#carouselExampleCaptions"
+                data-bs-slide-to={index}
+                className={index === 0 ? "active" : ""}
+                aria-current={index === 0 ? "true" : "false"}
+                aria-label={`Slide ${index + 1}`}
+              ></button>
+            ))}
           </div>
-        ))}
+          <div className="carousel-inner">
+            {images.map((image, index) => (
+              <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
+                <img src={image.itemImageSrc} className="carousel-image" alt={image.alt} />
+                <div className="carousel-caption">
+                  <h5>{image.title}</h5>
+
+                    <NavLink to={`/Services/${image.id}`} className="filled-button mb-5">
+                      Leer más
+                    </NavLink>
+
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span className="visually-hidden">Previous</span>
+          </button>
+          <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+            <span className="carousel-control-next-icon" aria-hidden="true"></span>
+            <span className="visually-hidden">Next</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
