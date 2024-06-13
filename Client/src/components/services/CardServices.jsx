@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useGetServicesQuery, useGetAlbumsMutation } from '../../features/services/ServicesApiSlice';
-import { motion } from 'framer-motion';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function CardServices() {
   const { data: response, isLoading, isError, error } = useGetServicesQuery();
@@ -37,10 +35,10 @@ export default function CardServices() {
       const album = albums.find(album => album.data.id === service.album);
       if (album && album.data.images.length > 0) {
         return {
-          // itemImageSrc: album.data.images[0].link, // Remove image URL
+          itemImageSrc: album.data.images[0].link,
           alt: service.nombre,
           title: service.nombre,
-          description: service.descripcion
+          description: service.descripcion.substring(0, 100) // Show a portion of the description
         };
       }
       return null;
@@ -64,22 +62,28 @@ export default function CardServices() {
   if (!response || !response.servicios) return <div>No data available</div>;
 
   return (
-    <div className="container">
-      <div className="row">
+    <div id="carouselExampleCaptions" className="carousel slide" data-bs-ride="carousel">
+      <div className="carousel-indicators">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            type="button"
+            data-bs-target="#carouselExampleCaptions"
+            data-bs-slide-to={index}
+            className={index === 0 ? "active" : ""}
+            aria-current={index === 0 ? "true" : "false"}
+            aria-label={`Slide ${index + 1}`}
+          ></button>
+        ))}
+      </div>
+      <div className="carousel-inner">
         {images.map((image, index) => (
-          <div className="col-md-6" key={index}>
-            <motion.div
-              className="product-card"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              style={{ marginBottom: '20px' }} // Add space between cards
-            >
-              <div className="product-info">
-                <h1 className="product-title">{image.title}</h1>
-                <p className="product-description">{image.description}</p>
-                <button className="learn-more-button">Conoce más</button>
-              </div>
-            </motion.div>
+          <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
+            <img src={image.itemImageSrc} className="d-block w-100 carousel-image" alt={image.alt} />
+            <div className="carousel-caption d-none d-md-block">
+              <h5>{image.title}</h5>
+              <p>{image.description}</p>
+            </div>
           </div>
         ))}
       </div>

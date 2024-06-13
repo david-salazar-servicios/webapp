@@ -2860,3 +2860,32 @@ footer .contact-form button.filled-button:hover {
   background: gray;
 }
 
+
+.carousel-item {
+  position: relative; /* Ensure the overlay is positioned relative to the carousel item */
+}
+
+.carousel-image {
+  height: 400px; /* Set a fixed height for all images */
+  object-fit: cover; /* Ensure the image covers the whole area */
+}
+
+.carousel-item::before {
+  content: ''; /* Required for a pseudo-element */
+  position: absolute; /* Position it absolutely within the carousel item */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Add a semi-transparent black overlay */
+  z-index: 1; /* Ensure the overlay is above the image but below the text */
+}
+
+.carousel-caption {
+  z-index: 2; /* Ensure the caption text is above the overlay */
+}
+
+.carousel-caption h5, .carousel-caption p {
+  color: white; /* Set text color to white */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Add text shadow for better readability */
+}
