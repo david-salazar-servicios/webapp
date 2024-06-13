@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGetServicesQuery, useGetAlbumsMutation } from '../../features/services/ServicesApiSlice';
 import { motion } from 'framer-motion';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function CardServices() {
   const { data: response, isLoading, isError, error } = useGetServicesQuery();
@@ -36,7 +37,7 @@ export default function CardServices() {
       const album = albums.find(album => album.data.id === service.album);
       if (album && album.data.images.length > 0) {
         return {
-          itemImageSrc: album.data.images[0].link,
+          // itemImageSrc: album.data.images[0].link, // Remove image URL
           alt: service.nombre,
           title: service.nombre,
           description: service.descripcion
@@ -63,27 +64,25 @@ export default function CardServices() {
   if (!response || !response.servicios) return <div>No data available</div>;
 
   return (
-    <div>
-      {images.map((image, index) => (
-        <motion.div
-          className="product-card"
-          key={index}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{ marginBottom: '20px' }} // Add space between cards
-        >
-          <div className="product-image">
-            <img src={image.itemImageSrc} alt={image.alt} />
+    <div className="container">
+      <div className="row">
+        {images.map((image, index) => (
+          <div className="col-md-6" key={index}>
+            <motion.div
+              className="product-card"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{ marginBottom: '20px' }} // Add space between cards
+            >
+              <div className="product-info">
+                <h1 className="product-title">{image.title}</h1>
+                <p className="product-description">{image.description}</p>
+                <button className="learn-more-button">Conoce más</button>
+              </div>
+            </motion.div>
           </div>
-          <div className="product-info">
-            <h2 className="new-label">NUEVO</h2>
-            <h1 className="product-title">{image.title}</h1>
-            <p className="product-description">{image.description}</p>
-            <button className="learn-more-button">Conoce más</button>
-          </div>
-        </motion.div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
-

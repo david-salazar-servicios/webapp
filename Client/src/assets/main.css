@@ -1755,12 +1755,15 @@ footer .contact-form button.filled-button:hover {
 }
 
 .why-us h3 {
+  font-size: 24px;
   font-weight: 700;
   color: var(--color-secondary);
 }
 
 .why-us h4 {
+  font-size: 18px;
   font-weight: 400;
+  color: #29486a;
   font-family: var(--font-secondary);
 }
 
@@ -2796,7 +2799,7 @@ footer .contact-form button.filled-button:hover {
   margin-top: 10px;
   display: flex;
   background: white;
-  border-radius: 50px;
+  border-radius: 30px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 1000px;
