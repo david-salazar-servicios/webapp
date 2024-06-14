@@ -85,13 +85,30 @@ export default function CardServices() {
     }).filter(image => image !== null);
   };
 
+  const sortServices = (services) => {
+    const desiredOrder = [
+      "Riego automático residencial y comercial",
+      "Detección de fugas de agua",
+      "Sistema de bombeo",
+      "Servicios Integrales de Fontanería",
+      "Destaqueo e Inspección de Tuberías de Desagüe",
+      "Equipos de filtrado",
+      "Limpieza a presión de superficies"
+    ];
+
+    return [...services].sort((a, b) => {
+      return desiredOrder.indexOf(a.nombre) - desiredOrder.indexOf(b.nombre);
+    });
+  };
+
   useEffect(() => {
     if (response && response.servicios) {
+      const sortedServices = sortServices(response.servicios);
       const storedAlbums = getAlbumsFromLocalStorage();
-      if (!storedAlbums || !validateAlbums(response.servicios, storedAlbums)) {
-        fetchAndSaveAlbums(response.servicios);
+      if (!storedAlbums || !validateAlbums(sortedServices, storedAlbums)) {
+        fetchAndSaveAlbums(sortedServices);
       } else {
-        const images = getServiceImages(response.servicios, storedAlbums);
+        const images = getServiceImages(sortedServices, storedAlbums);
         setImages(images);
       }
     }
