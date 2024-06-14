@@ -71,3 +71,38 @@
 .swiper-pagination-bullet {
     background: #007bff;
 }
+
+/* Custom Styles for the new layout */
+header .container {
+    max-width: 900px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+.team-members .col {
+    margin-bottom: 2rem;
+}
+
+.team-members img {
+    max-width: 150px;
+    border-radius: 50%;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
