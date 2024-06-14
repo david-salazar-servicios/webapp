@@ -25,7 +25,7 @@ const Testimonials = () => {
                 <div className="container px-5 my-5">
                     <div className="text-center">
                         <h2 className="fw-bolder">Testimonios de Clientes</h2>
-                        <p className="lead fw-normal text-muted mb-5">Los testimonios de nuestros clientes destacan la calidad y compromiso de nuestro trabajo. En los videos, expresan su satisfacción por nuestros servicios, desde la reparación de fugas hasta la instalación de sistemas de filtración. Estos testimonios reflejan nuestra profesionalidad y la confianza que hemos construido con nuestros clientes. Cada servicio realizado busca superar sus expectativas, y estos videos son prueba de nuestro éxito en lograrlo.</p>
+                        <p className="lead fw-normal text-muted mb-5">Nuestros clientes destacan la calidad y compromiso de nuestro trabajo. En los videos, expresan satisfacción con servicios como la reparación de fugas e instalación de sistemas de filtración, reflejando nuestra profesionalidad y confianza.</p>
                     </div>
                     <div className="video-gallery">
                         <div className="video-wrapper">
