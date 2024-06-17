@@ -48,25 +48,6 @@ export default function Home() {
     );
   };
 
-  // Component to handle the animation of the title-box
-  const TextBox = () => {
-    const [ref, inView] = useInView({});
-
-    return (
-      <motion.div
-        ref={ref}
-        variants={boxVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        transition={{ duration: 0.5 }}
-        className="description"
-      >
-        <div className="text">Con décadas de experiencia, nuestra empresa se ha consolidado como líder en el sector de la fontanería, ofreciendo servicios fiables y de calidad a nuestros clientes.<br /><br /></div>
-        <div className="text">Nos dedicamos a asegurar la completa satisfacción de nuestros clientes a través de un trabajo seguro, eficiente y con garantía de durabilidad.</div>
-      </motion.div>
-    );
-  };
-
   const Logo = () => {
     const [ref, inView] = useInView({});
 
@@ -86,51 +67,22 @@ export default function Home() {
     );
   };
 
-  const LogoText = () => {
-    const [ref, inView] = useInView({});
-
-    return (
-      <motion.div
-        ref={ref}
-        variants={textVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        transition={{ duration: 0.5, delay: 0.5 }} // Add delay for text
-        className="logo-text"
-      >
-        <h2>Compromiso y Calidad <br /> Garantizada</h2>
-        <div className="text">Soluciones de confianza para cada necesidad.</div>
-      </motion.div>
-    );
-  };
 
   const Logobox = () => {
     return (
       <div className="inner-column">
         <Logo />
-        <LogoText />
+        <div
+          className="logo-text"
+        >
+          <h2>Compromiso y Calidad <br /> Garantizada</h2>
+          <div className="text">Soluciones de confianza para cada necesidad.</div>
+        </div>
       </div>
     );
   };
 
-  // Title component with animation
-  const AnimatedTitle = ({ title }) => {
-    const [ref, inView] = useInView({});
 
-    return (
-      <motion.div
-        ref={ref}
-        variants={textVariants}
-        initial="hidden"
-        animate={inView ? "fromRightToCenter" : "hidden"}
-        transition={{ duration: 0.5 }}
-        className="title-box"
-        data-aos="fade-up"
-      >
-        <h2>{title}</h2>
-      </motion.div>
-    );
-  };
 
   return (
     <motion.div initial="hidden" animate="visible" variants={boxVariants}>
@@ -141,10 +93,26 @@ export default function Home() {
               <Logobox />
             </div>
             <div className="content-column col-lg-7 col-md-12 col-sm-12">
-              <AnimatedTitle title="Profesionalismo en Fontanería" />
-              <TextBox />
+              <div
+                className="title-box"
+              >
+                <h2>Profesionalismo en Fontanería</h2>
+              </div>
+
+              <div
+
+                className="description"
+              >
+                <div className="text">Con décadas de experiencia, nuestra empresa se ha consolidado como líder en el sector de la fontanería, ofreciendo servicios fiables y de calidad a nuestros clientes.<br /><br /></div>
+                <div className="text">Nos dedicamos a asegurar la completa satisfacción de nuestros clientes a través de un trabajo seguro, eficiente y con garantía de durabilidad.</div>
+              </div>
               <div className="specialization-box">
-                <AnimatedTitle title="Lo que nos Distingue" />
+                <div
+                  className="title-box"
+                >
+                  <h2>Lo que nos Distingue </h2>
+                </div>
+
                 <SpecializationBox
                   delay={0}
                   iconClass="trust-icon"

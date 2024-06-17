@@ -19,31 +19,6 @@ export default function CardServices() {
   const time = useTime();
   const rotate = useTransform(time, [0, 4000], [0, 360], { clamp: false });
 
-  // Title component with animation
-  const AnimatedTitle = ({ title }) => {
-    const controls = useAnimation();
-    const [ref, inView] = useInView();
-
-    useEffect(() => {
-      if (inView) {
-        controls.start("visible");
-      }
-    }, [controls, inView]);
-
-    return (
-      <motion.div
-        ref={ref}
-        animate={controls}
-        initial="hidden"
-        variants={textVariants}
-        transition={{ duration: 0.5 }}
-        className="section-title"
-        data-aos="fade-up"
-      >
-        <h2>{title}</h2>
-      </motion.div>
-    );
-  };
 
   const saveAlbumsToLocalStorage = (albums) => {
     localStorage.setItem('albums', JSON.stringify(albums));
@@ -120,8 +95,13 @@ export default function CardServices() {
 
   return (
     <>
-      <AnimatedTitle title="SERVICIOS" />
 
+      <div
+
+        className="section-title"
+      >
+        <h2>Servicios</h2>
+      </div>
       <div className="carousel-container">
         <div id="carouselExampleCaptions" data-bs-interval="2000" data-bs-ride="carousel" className="carousel slide carousel-fade">
           <div className="carousel-indicators">
@@ -144,9 +124,9 @@ export default function CardServices() {
                 <div className="carousel-caption">
                   <h5>{image.title}</h5>
 
-                    <NavLink to={`/Services/${image.id}`} className="filled-button mb-5">
-                      Leer más
-                    </NavLink>
+                  <NavLink to={`/Services/${image.id}`} className="filled-button mb-5">
+                    Leer más
+                  </NavLink>
 
                 </div>
               </div>
