@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-
+import image from '../../src/assets/images/why-us-bg.jpg';
 
 
 export default () => {
