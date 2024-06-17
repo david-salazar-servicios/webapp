@@ -1,0 +1,31 @@
+  .mission-icon {
+    background-image: url('images/confiar.png');
+    width: 64px;
+    height: 64px;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  
+  .vision-icon {
+    background-image: url('images/proteger.png');
+    width: 64px;
+    height: 64px;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .mission-icon, .vision-icon {
+    width: 80px;  
+    height: 80px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: auto; 
+    display: block; 
+  }
+  .inner-box .content .icon {
+    margin-bottom: 10px;
+  }
+  
+  .inner-box .content h5 {
+    margin-top: 10px; 
+    margin-bottom: 5px; 
+  }
