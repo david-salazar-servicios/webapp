@@ -48,25 +48,6 @@ export default function Home() {
     );
   };
 
-  // Component to handle the animation of the title-box
-  const TextBox = () => {
-    const [ref, inView] = useInView({});
-
-    return (
-      <motion.div
-        ref={ref}
-        variants={boxVariants}
-        initial="hidden"
-        animate={inView ? "visible" : "hidden"}
-        transition={{ duration: 0.5 }}
-        className="description"
-      >
-        <div className="text">Con décadas de experiencia, nuestra empresa se ha consolidado como líder en el sector de la fontanería, ofreciendo servicios fiables y de calidad a nuestros clientes.<br /><br /></div>
-        <div className="text">Nos dedicamos a asegurar la completa satisfacción de nuestros clientes a través de un trabajo seguro, eficiente y con garantía de durabilidad.</div>
-      </motion.div>
-    );
-  };
-
   const Logo = () => {
     const [ref, inView] = useInView({});
 
