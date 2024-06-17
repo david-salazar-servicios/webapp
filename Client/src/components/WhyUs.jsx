@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+
 export default () => {
   return (
     <section id="why-us" className="why-us">
