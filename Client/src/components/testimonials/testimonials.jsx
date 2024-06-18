@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import '../../vendor/bootstrap/css/estiloAdicional.css';
-import { motion } from 'framer-motion';
 
 const Testimonials = () => {
 
@@ -45,7 +44,7 @@ const Testimonials = () => {
                             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                         ></iframe>
                     </div>
-                    <div className="video-wrapper">
+                    <div className="video-wrapper vertical">
                         <iframe
                             src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2F100011746801863%2Fvideos%2F827868275105534%2F&show_text=false&width=267&t=0"
                             allowFullScreen
