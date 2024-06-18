@@ -97,7 +97,6 @@ export default function Header() {
 
   const menuItems = [
     { label: 'Inicio', key: 'Inicio', command: () => navigate('/') },
-    { label: 'Sobre Nosotros', key: 'SobreNosotros', command: () => navigate('/About') },
     {
       label: 'Servicios',
       key: 'Servicios',
@@ -123,6 +122,8 @@ export default function Header() {
         };
       })
     },
+    { label: 'Sobre Nosotros', key: 'SobreNosotros', command: () => navigate('/About') },
+    { label: 'Proyectos', command: () => navigate('/proyectos') },
     { label: 'Contacto', command: () => navigate('/contacto') }
   ];
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import '../../vendor/bootstrap/css/estiloAdicional.css';
+import '../../vendor/bootstrap/css/testimonials.css';
 
 const Testimonials = () => {
 
