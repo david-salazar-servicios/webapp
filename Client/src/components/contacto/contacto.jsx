@@ -140,9 +140,6 @@ const Contactenos = () => {
             </div>
           </div>
         </div>
-
-        <WhyUs />
-        
       </motion.div>
       {/* Contact End */}
     </>

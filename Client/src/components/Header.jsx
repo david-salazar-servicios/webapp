@@ -160,7 +160,7 @@ export default function Header() {
             transition={{ duration: 0.5 }}
           >
             <Menubar model={menuItems} className="custom-menubar" />
-            
+
           </motion.div>
         </div>
         <div className="mt-3">
@@ -169,28 +169,30 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.5 }}
           >
-         <motion.div 
-      className="fixed-text-content mt-5"
-      initial={{ y: '20vh', opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 50, damping: 20 }}
-    >
-      <h6 style={{
-        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
-      }}>Invierta solo una vez</h6>
-      <h4 style={{
-        textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
-      }}>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
-      <NavLink to="/contacto" className="filled-button" >
-            Contáctanos
-        </NavLink>
-    </motion.div>
-            
+            <motion.div
+              className="fixed-text-content mt-5"
+              initial={{ y: '20vh', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 50, damping: 20 }}
+            >
+              <h6 style={{
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
+              }}>Invierta solo una vez</h6>
+              <h4 style={{
+                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
+              }}>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
+              <NavLink to="/contacto" className="filled-button" >
+                Contáctanos
+              </NavLink>
+            </motion.div>
+
           </motion.div>
         </div>
       </div>
 
       <CarouselHeader />
+      <div style={{ height: '5px', backgroundColor: '#ff8e00' }}>
+      </div>
     </div>
   );
 }

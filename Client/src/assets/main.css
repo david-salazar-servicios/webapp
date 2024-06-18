@@ -525,13 +525,10 @@ header .navbar {
   position: relative;
 }
 
-
 .Modern-Slider {
-  background-color: #ff8e00;
   font-family: "Poppins", sans-serif;
-  margin-bottom: 0 !important;
+  margin-bottom: -10px;
 }
-
 
 .Modern-Slider .item .img-fill {
   background-size: cover;

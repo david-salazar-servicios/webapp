@@ -25,7 +25,7 @@ export default function Footer() {
                   <NavLink to="/servicios">Nuestros Servicios</NavLink>
                 </li>
                 <li>
-                  <NavLink to="/proyectos">Proyectos Recientes</NavLink>
+            {/*       <NavLink to="/proyectos">Proyectos Recientes</NavLink> */}
                 </li>
                 <li>
                   <NavLink to="/testimonios">Testimonios de Clientes</NavLink>

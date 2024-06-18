@@ -20,18 +20,17 @@ export default function CarouselHeader() {
 
   var settings = {
     infinite: true,
-    speed: 500,
+    speed: 350,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 4000,
     pauseOnFocus: false,
     pauseOnHover: false,
+    fade: true
   };
 
-  return (
-   
-      <div className="main-banner header-text" id="top">
+  return (   
         <div className="Modern-Slider">
           <Slider {...settings} ref={sliderRef}>
             <div className="item item-1">
@@ -45,7 +44,5 @@ export default function CarouselHeader() {
             </div>
           </Slider>
         </div>
-      </div>
-
   );
 }
