@@ -1,24 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useGetServicesQuery, useGetAlbumsMutation } from '../../features/services/ServicesApiSlice';
-import { motion, useAnimation, useTime, useTransform } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
+import { motion, useAnimation } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
+const ServiceCard = ({ service }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ triggerOnce: false });
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.5 },
+      });
+    } else {
+      controls.start({
+        opacity: 0,
+        y: 50,
+      });
+    }
+  }, [inView, controls]);
+
+  return (
+    <motion.div
+      ref={ref}
+      className='col-12 col-md-6 col-lg-6'
+      initial={{ opacity: 0, y: 50 }}
+      animate={controls}
+    >
+      <article className="postcard light blue">
+        <a className="postcard__img_link" href="#">
+          <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
+        </a>
+        <div className="postcard__text t-dark">
+          <h1 className="postcard__title blue"><a href="#">{service.title}</a></h1>
+          <div className="postcard__subtitle small">
+            {/* Optional subtitle */}
+          </div>
+          <div className="postcard__bar"></div>
+          <ul className="postcard__tagbox">
+            <li className="tag__item">
+              <NavLink to={`/Services/${service.id}`}><i className="fas fa-link mr-2"></i>Leer más</NavLink>
+            </li>
+          </ul>
+        </div>
+      </article>
+    </motion.div>
+  );
+};
 
 export default function CardServices() {
   const { data: response, isLoading, isError, error } = useGetServicesQuery();
   const [getAllAlbums] = useGetAlbumsMutation();
   const [images, setImages] = useState([]);
-
-  // Animation variants
-  const textVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    fromRightToCenter: { opacity: 1, x: [300, 0] },
-  };
-
-  const time = useTime();
-  const rotate = useTransform(time, [0, 4000], [0, 360], { clamp: false });
-
 
   const saveAlbumsToLocalStorage = (albums) => {
     localStorage.setItem('albums', JSON.stringify(albums));
@@ -95,53 +131,18 @@ export default function CardServices() {
 
   return (
     <>
-
-      <div
-
-        className="section-title"
-      >
-        <h2>Servicios</h2>
-      </div>
-      <div className="carousel-container">
-        <div id="carouselExampleCaptions" data-bs-interval="2000" data-bs-ride="carousel" className="carousel slide carousel-fade">
-          <div className="carousel-indicators">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                data-bs-target="#carouselExampleCaptions"
-                data-bs-slide-to={index}
-                className={index === 0 ? "active" : ""}
-                aria-current={index === 0 ? "true" : "false"}
-                aria-label={`Slide ${index + 1}`}
-              ></button>
+      <section className="light">
+        <div className="container-fluid py-4">
+          <div className="section-title text-center">
+            <h2>Servicios</h2>
+          </div>
+          <div className="row">
+            {images.map((service) => (
+              <ServiceCard key={service.id} service={service} />
             ))}
           </div>
-          <div className="carousel-inner">
-            {images.map((image, index) => (
-              <div key={index} className={`carousel-item ${index === 0 ? "active" : ""}`}>
-                <img src={image.itemImageSrc} className="carousel-image" alt={image.alt} />
-                <div className="carousel-caption">
-                  <h5>{image.title}</h5>
-
-                  <NavLink to={`/Services/${image.id}`} className="filled-button mb-5">
-                    Leer más
-                  </NavLink>
-
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Previous</span>
-          </button>
-          <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Next</span>
-          </button>
         </div>
-      </div>
+      </section>
     </>
   );
 }
