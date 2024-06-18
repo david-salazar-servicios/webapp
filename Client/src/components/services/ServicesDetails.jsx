@@ -90,7 +90,7 @@ export default function ServicesDetails() {
                   <div className="content pt-3">
                     <h3><strong>{service?.nombre}</strong></h3>
                   </div>
-                  <div className="accordion-list">
+                  <div className="accordion-list mb-5">
                     <Toast ref={toast} />
                     <Accordion defaultActiveKey={activeKeys} activeKey={activeKeys} alwaysOpen className="pt-3">
                       <Accordion.Item eventKey="0">
@@ -111,9 +111,9 @@ export default function ServicesDetails() {
                       </Accordion.Item>
                     </Accordion>
                   </div>
-                  <div className="text-right pt-5">
+                 {/*  <div className="text-right pt-5">
                     <Button type="primary" size="large" onClick={handleServiceRequest}>Solicitar Servicios</Button>
-                  </div>
+                  </div> */}
                 </div>
               </motion.div>
 
