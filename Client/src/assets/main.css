@@ -2938,12 +2938,12 @@ footer .contact-form button.filled-button:hover {
   flex-wrap: wrap;
   display: flex;
   box-shadow: 0 4px 21px -12px rgba(0, 0, 0, 0.66);
-  border-radius: 10px;
+  border-radius: 30px;
   margin: 0 0 2rem 0;
   overflow: hidden;
   position: relative;
   color: #ffffff;
-  height: 250px;
+  height: 100%;
 }
 
 .postcard.light {
@@ -3066,7 +3066,7 @@ footer .contact-form button.filled-button:hover {
     display: block;
     background: #18151f;
     top: -20%;
-    height: 130%;
+    height: 100%;
     width: 55px;
   }
 
