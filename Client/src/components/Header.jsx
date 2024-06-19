@@ -137,6 +137,12 @@ export default function Header() {
           transition={{ duration: 0.5 }}
         >
           <div className="contact-info">
+
+            {/* Add icon for home */}
+            <a href="/" className="d-flex align-items-center">
+              <i className="bi bi-house"></i>
+              <span className="d-none d-md-inline-block ml-2">Inicio</span>
+            </a>
             <a href="tel:22396042" className="d-flex align-items-center">
               <i className="bi bi-telephone"></i>
               <span className="d-none d-md-inline-block ml-2">2239-6042</span>
