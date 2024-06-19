@@ -1,16 +1,17 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, lazy, Suspense } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import '../../vendor/bootstrap/css/proyectos.css';
 
-import Fontanería_1 from '../../assets/images/Proyectos/Fontanería_1.jpg';
-import Fontanería_2 from '../../assets/images/Proyectos/Fontanería_2.jpg';
-import Fugas_1 from '../../assets/images/Proyectos/Fugas_1.jpg';
-import Fugas_2 from '../../assets/images/Proyectos/Fugas_2.jpg';
-import Riego_1 from '../../assets/images/Proyectos/Riego_1.jpg';
-import Riego_2 from '../../assets/images/Proyectos/Riego_2.jpg';
+// Import optimized images
+import Fontanería_1 from '../../assets/images/Proyectos/Fontanería_1.webp';
+import Fontanería_2 from '../../assets/images/Proyectos/Fontanería_2.webp';
+import Fugas_1 from '../../assets/images/Proyectos/Fugas_1.webp';
+import Fugas_2 from '../../assets/images/Proyectos/Fugas_2.webp';
+import Riego_1 from '../../assets/images/Proyectos/Riego_1.webp';
+import Riego_2 from '../../assets/images/Proyectos/Riego_2.webp';
 
 // Throttle function to limit the frequency of function execution
 function throttle(func, limit) {
@@ -31,6 +32,8 @@ function throttle(func, limit) {
         }
     };
 }
+
+const LazyLoadImage = lazy(() => import('react-lazy-load-image-component').then(module => ({ default: module.LazyLoadImage })));
 
 const Proyectos = React.memo(() => {
     const images = useMemo(() => [
@@ -99,15 +102,19 @@ const Proyectos = React.memo(() => {
                         {images.map((column, colIndex) => (
                             <div className={`col-lg-4 col-md-12 mb-4 mb-lg-0`} key={colIndex}>
                                 {column.map((image, imgIndex) => (
-                                    <LazyLoadImage
-                                        key={imgIndex}
-                                        src={image.src}
-                                        className={image.className}
-                                        alt={image.alt}
-                                        onClick={() => handleShow(image)}
-                                        effect="blur"
-                                        style={{ cursor: 'pointer' }}
-                                    />
+                                    <div key={imgIndex} style={{ position: 'relative' }}>
+                                        <Suspense fallback={<Skeleton height={200} />}>
+                                            <LazyLoadImage
+                                                src={image.src}
+                                                className={image.className}
+                                                alt={image.alt}
+                                                onClick={() => handleShow(image)}
+                                                effect="blur"
+                                                style={{ cursor: 'pointer' }}
+                                                placeholder={<Skeleton height={200} />}
+                                            />
+                                        </Suspense>
+                                    </div>
                                 ))}
                             </div>
                         ))}
