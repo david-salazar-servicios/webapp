@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
@@ -12,59 +12,79 @@ import Fugas_2 from '../../assets/images/Proyectos/Fugas_2.jpg';
 import Riego_1 from '../../assets/images/Proyectos/Riego_1.jpg';
 import Riego_2 from '../../assets/images/Proyectos/Riego_2.jpg';
 
-const images = [
-    [
-        {
-            src: Fontanería_1,
-            alt: 'Trabajos de Fontanería',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-        {
-            src: Fugas_1,
-            alt: 'Detección de Fugas',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-    ],
-    [
-        {
-            src: Riego_1,
-            alt: 'Sistema de Riego',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-        {
-            src: Fontanería_2,
-            alt: 'Instalación de Tuberías',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-    ],
-    [
-        {
-            src: Fugas_2,
-            alt: 'Equipo de Detección de Fugas',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-        {
-            src: Riego_2,
-            alt: 'Sistema de Riego Automático',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-    ],
-];
+// Throttle function to limit the frequency of function execution
+function throttle(func, limit) {
+    let lastFunc;
+    let lastRan;
+    return function(...args) {
+        if (!lastRan) {
+            func.apply(this, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(function() {
+                if ((Date.now() - lastRan) >= limit) {
+                    func.apply(this, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
+    };
+}
 
 const Proyectos = React.memo(() => {
-    const boxVariants = {
+    const images = useMemo(() => [
+        [
+            {
+                src: Fontanería_1,
+                alt: 'Trabajos de Fontanería',
+                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
+            },
+            {
+                src: Fugas_1,
+                alt: 'Detección de Fugas',
+                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
+            },
+        ],
+        [
+            {
+                src: Riego_1,
+                alt: 'Sistema de Riego',
+                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
+            },
+            {
+                src: Fontanería_2,
+                alt: 'Instalación de Tuberías',
+                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
+            },
+        ],
+        [
+            {
+                src: Fugas_2,
+                alt: 'Equipo de Detección de Fugas',
+                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
+            },
+            {
+                src: Riego_2,
+                alt: 'Sistema de Riego Automático',
+                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
+            },
+        ],
+    ], []);
+
+    const boxVariants = useMemo(() => ({
         hidden: { opacity: 0, y: 50 },
         visible: { opacity: 1, y: 0 },
-    };
+    }), []);
 
     const [show, setShow] = useState(false);
     const [currentImage, setCurrentImage] = useState({ src: '', alt: '' });
 
     const handleClose = useCallback(() => setShow(false), []);
-    const handleShow = useCallback((image) => {
+    const handleShow = useCallback(throttle((image) => {
         setCurrentImage(image);
         setShow(true);
-    }, []);
+    }, 200), []);
 
     return (
         <>
@@ -113,7 +133,7 @@ const Proyectos = React.memo(() => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
-                        Cerrar
+                        Regresar
                     </Button>
                 </Modal.Footer>
             </Modal>
