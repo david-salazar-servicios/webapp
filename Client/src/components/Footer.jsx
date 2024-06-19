@@ -22,6 +22,9 @@ export default function Footer() {
               <h4>Enlaces Útiles</h4>
               <ul className="menu-list">
                 <li>
+                  <NavLink to="/">Inicio</NavLink>
+                </li>
+                <li>
                   <NavLink to="/servicios">Nuestros Servicios</NavLink>
                 </li>
                 <li>

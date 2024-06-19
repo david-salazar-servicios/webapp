@@ -1,10 +1,51 @@
 /* styles.css */
 .img-hover-effect {
     transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .img-hover-effect:hover {
+}
+
+.img-hover-effect:hover {
     transform: scale(1.05);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  }
-  
+}
+
+.custom-modal .modal-content {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.custom-modal .modal-header,
+.custom-modal .modal-footer {
+    border: none;
+}
+
+.custom-modal .modal-header {
+    background: linear-gradient(135deg, #002347, #FF8E00);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.custom-modal .modal-title {
+    margin: 0;
+    font-weight: bold;
+}
+
+.custom-modal .modal-body {
+    padding: 0;
+}
+
+.custom-modal .modal-footer {
+    background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+}
+
+.custom-modal .close {
+    color: white;
+    opacity: 1;
+}
+
+.custom-modal-backdrop {
+    backdrop-filter: blur(5px);
+}
