@@ -2061,7 +2061,8 @@ footer .contact-form button.filled-button:hover {
   }
 
   .serviceDetail .content h3 {
-    font-size: 24px; /* Smaller font size for headings */
+    font-size: 24px; /* 
+    .er font size for headings */
   }
 }
 .serviceDetail .accordion-list .accordionItem button{
@@ -2932,7 +2933,6 @@ footer .contact-form button.filled-button:hover {
 }
 
 
-
 /* Cards */
 .postcard {
   flex-wrap: wrap;
@@ -2943,7 +2943,7 @@ footer .contact-form button.filled-button:hover {
   overflow: hidden;
   position: relative;
   color: #ffffff;
-  height: 250px;
+  height: auto;
 }
 
 .postcard.light {
@@ -2952,6 +2952,7 @@ footer .contact-form button.filled-button:hover {
 
 .postcard .postcard__title {
   font-size: 1.75rem;
+  color: #05579e; /* Updated color */
 }
 
 .postcard .postcard__img {
@@ -2970,7 +2971,7 @@ footer .contact-form button.filled-button:hover {
   height: 10px;
   margin: 10px 0;
   border-radius: 5px;
-  background-color: #424242;
+  background-color: #ff8e00; /* Updated color */
   transition: width 0.2s ease;
 }
 
@@ -2999,7 +3000,7 @@ footer .contact-form button.filled-button:hover {
 
 .postcard .postcard__tagbox .tag__item {
   display: inline-block;
-  background: #0880e8;
+  background: #05579e; /* Updated color */
   border-radius: 3px;
   padding: 2.5px 10px;
   margin: 0 5px 5px 0;
@@ -3007,17 +3008,17 @@ footer .contact-form button.filled-button:hover {
   user-select: none;
   transition: background-color 0.3s;
 }
-.postcard .postcard__tagbox .tag__item a{
-  color: white;
+
+.postcard .postcard__tagbox .tag__item a {
+  color: white; /* Reaffirmed color */
 }
 
-.postcard .postcard__tagbox .tag__item i{
-  color: white;
+.postcard .postcard__tagbox .tag__item i {
+  color: white; /* Reaffirmed color */
 }
-
 
 .postcard .postcard__tagbox .tag__item:hover {
-  background: rgba(83, 83, 83, 0.8);
+  background: #ff8e00; /* Updated hover color */
 }
 
 .postcard:before {
@@ -3027,7 +3028,7 @@ footer .contact-form button.filled-button:hover {
   right: 0;
   bottom: 0;
   left: 0;
-  background-image: linear-gradient(-70deg, #424242, transparent 50%);
+  background-image: linear-gradient(-70deg, #05579e, transparent 50%); /* Updated color */
   opacity: 1;
   border-radius: 10px;
 }
@@ -3113,15 +3114,15 @@ footer .contact-form button.filled-button:hover {
 }
 
 .postcard .postcard__tagbox .blue.play:hover {
-  background: #0076bd;
+  background: #0076bd; /* Updated hover color for specific class */
 }
 
 .blue .postcard__title:hover {
-  color: #0076bd;
+  color: #092F5C; /* Updated hover color */
 }
 
 .blue .postcard__bar {
-  background-color: #0076bd;
+  background-color: #0076bd; /* Updated color */
 }
 
 .blue:before {
@@ -3130,4 +3131,8 @@ footer .contact-form button.filled-button:hover {
 
 .blue:nth-child(2n):before {
   background-image: linear-gradient(30deg, rgba(0, 118, 189, 0.1), transparent 50%);
+}
+
+.postcard__subtitle{
+  color: #092F5C;
 }

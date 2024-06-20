@@ -31,22 +31,22 @@ const ServiceCard = ({ service }) => {
       animate={controls}
     >
       <article className="postcard light blue">
-        <a className="postcard__img_link" href="#">
           <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
-        </a>
         <div className="postcard__text t-dark">
-          <h1 className="postcard__title blue"><a href="#">{service.title}</a></h1>
+          <h1 className="postcard__title">{service.title}</h1>
           <div className="postcard__subtitle small">
-            {/* Optional subtitle */}
+          {service.description}
+          
           </div>
           <div className="postcard__bar"></div>
-          <ul className="postcard__tagbox">
+                 <ul className="postcard__tagbox">
             <li className="tag__item">
               <NavLink to={`/Services/${service.id}`}><i className="fas fa-link mr-2"></i>Leer más</NavLink>
             </li>
           </ul>
         </div>
       </article>
+      
     </motion.div>
   );
 };
