@@ -17,13 +17,13 @@ import Riego_2 from '../../assets/images/Proyectos/Riego_2.webp';
 function throttle(func, limit) {
     let lastFunc;
     let lastRan;
-    return function(...args) {
+    return function (...args) {
         if (!lastRan) {
             func.apply(this, args);
             lastRan = Date.now();
         } else {
             clearTimeout(lastFunc);
-            lastFunc = setTimeout(function() {
+            lastFunc = setTimeout(function () {
                 if ((Date.now() - lastRan) >= limit) {
                     func.apply(this, args);
                     lastRan = Date.now();
@@ -111,7 +111,7 @@ const Proyectos = React.memo(() => {
                                                 onClick={() => handleShow(image)}
                                                 effect="blur"
                                                 style={{ cursor: 'pointer' }}
-                                                placeholder={<Skeleton height={200} />}
+                                                placeholderSrc={image.src.replace('.webp', '_lowres.webp')}
                                             />
                                         </Suspense>
                                     </div>
@@ -121,7 +121,6 @@ const Proyectos = React.memo(() => {
                     </div>
                 </section>
             </motion.div>
-
             <Modal
                 show={show}
                 onHide={handleClose}

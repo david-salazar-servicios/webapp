@@ -76,7 +76,7 @@ export default function Home() {
           className="logo-text"
         >
           <h2>Compromiso y Calidad <br /> Garantizada</h2>
-          <div className="text">Soluciones de confianza para cada necesidad.</div>
+          <div className="text fst-italic">Soluciones de confianza para cada necesidad.</div>
         </div>
       </div>
     );

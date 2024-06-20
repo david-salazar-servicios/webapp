@@ -59,7 +59,6 @@ export default function Home() {
         return (
             <div className="inner-column ">
                 <Pic src={Empresa} />
-                <Pic src={Empresa} />
             </div>
         );
     };
@@ -77,33 +76,33 @@ export default function Home() {
                                 Diseñamos proyectos para optimizar el uso del agua, reduciendo el consumo y los costos. Con el tiempo, ampliamos nuestros servicios para diversas necesidades.<br /><br />
                                 Hoy, ofrecemos más de 15 servicios, comprometidos con la calidad, innovación y sostenibilidad, asegurando un manejo responsable del agua y contribuyendo al bienestar del planeta.
                             </div>
-                            <div className="specialization-box">
-                                <div className="title-box">
-                                    <h2>Nuestra Misión y Visión</h2>
-                                </div>
-                                <SpecializationBox
-                                    delay={0}
-                                    iconClass="mission-icon"
-                                    title="Misión"
-                                    text="Nuestra misión es optimizar el uso del agua con soluciones sostenibles. Atendemos emergencias residenciales y comerciales, usando tecnologías avanzadas y prácticas responsables para conservar el recurso y promover el bienestar comunitario."
-                                />
-                                <SpecializationBox
-                                    delay={0.2}
-                                    iconClass="vision-icon"
-                                    title="Visión"
-                                    text="Nuestra visión es maximizar el aprovechamiento de los recursos naturales con soluciones hídricas eficientes y sostenibles. Aspiramos a liderar en el uso responsable del agua, resolviendo problemas y garantizando un futuro donde la eficiencia y la sostenibilidad sean la norma en cada hogar y negocio que servimos."
-                                />
-                            </div>
+
                         </div>
                         <div className="title-column col-lg-5 col-md-12 col-sm-12">
                             <HistoriaPics />
+                        </div>
+                        <div className="specialization-box">
+                            <div className="title-box">
+                                <h2>Nuestra Misión y Visión</h2>
+                            </div>
+                            <SpecializationBox
+                                delay={0}
+                                iconClass="mission-icon"
+                                title="Misión"
+                                text="Nuestra misión es optimizar el uso del agua con soluciones sostenibles. Atendemos emergencias residenciales y comerciales, usando tecnologías avanzadas y prácticas responsables para conservar el recurso y promover el bienestar comunitario."
+                            />
+                            <SpecializationBox
+                                delay={0.2}
+                                iconClass="vision-icon"
+                                title="Visión"
+                                text="Nuestra visión es maximizar el aprovechamiento de los recursos naturales con soluciones hídricas eficientes y sostenibles. Aspiramos a liderar en el uso responsable del agua, resolviendo problemas y garantizando un futuro donde la eficiencia y la sostenibilidad sean la norma en cada hogar y negocio que servimos."
+                            />
                         </div>
                     </div>
                 </div>
                 <div className="container px-5 my-5">
                     <div className="text-center">
                         <h2 className="fw-bolder">Fundadores</h2>
-                        <p className="lead fw-normal text-muted mb-5"></p>
                     </div>
                     <div className="row gx-5 row-cols-1 row-cols-sm-2 row-cols-xl-3 justify-content-center">
                         <div className="col mb-5 mb-5 mb-xl-0">

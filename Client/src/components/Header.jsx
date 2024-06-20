@@ -141,15 +141,15 @@ export default function Header() {
             {/* Add icon for home */}
             <a href="/" className="d-flex align-items-center">
               <i className="bi bi-house"></i>
-              <span className="d-none d-md-inline-block ml-2">Inicio</span>
+              <b><span className="d-none d-md-inline-block ml-2">Inicio</span></b>
             </a>
             <a href="tel:22396042" className="d-flex align-items-center">
               <i className="bi bi-telephone"></i>
-              <span className="d-none d-md-inline-block ml-2">2239-6042</span>
+              <b> <span className="d-none d-md-inline-block ml-2">2239-6042</span></b>
             </a>
             <a href="https://wa.me/50686096382" target='_blank' className="d-flex align-items-center">
               <i className="bi bi-phone"></i>
-              <span className="d-none d-md-inline-block ml-2">8609-6382</span>
+              <b> <span className="d-none d-md-inline-block ml-2">8609-6382</span></b>
             </a>
           </div>
           <div className="social-icons">
