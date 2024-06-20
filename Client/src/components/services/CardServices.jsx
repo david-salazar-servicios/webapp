@@ -26,32 +26,31 @@ const ServiceCard = ({ service }) => {
   return (
     <motion.div
       ref={ref}
-      className='col-12 col-md-6 col-lg-6 mb-3'
+      className='col-12 col-md-6 col-lg-6'
       initial={{ opacity: 0, y: 50 }}
       animate={controls}
     >
-      <NavLink to={`/Services/${service.id}`} className="postcard light blue">
-        <a className="postcard__img_link" >
-          <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
-        </a>
+      <article className="postcard light blue">
+        <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
         <div className="postcard__text t-dark">
-
-          
-          <h1 className="postcard__title blue"><a href="#">{service.title}</a></h1>
+          <h1 className="postcard__title">{service.title}</h1>
           <div className="postcard__subtitle small">
-            {/* Optional subtitle */}
+            {service.description}
           </div>
           <div className="postcard__bar"></div>
-          <ul className="postcard__tagbox">
-            <li className="tag__item">
-              <NavLink to={`/Services/${service.id}`}><i className="fas fa-link mr-2"></i>Leer más</NavLink>
-            </li>
-          </ul>
-         
+          <div className="postcard__tagbox">
+            <ul>
+              <li className="tag__item">
+                <NavLink to={`/Services/${service.id}`}>
+                  <i className="fas fa-link mr-2"></i>Leer más
+                </NavLink>
+              </li>
+            </ul>
           </div>
-          
-        
-      </NavLink>
+        </div>
+      </article>
+
+
     </motion.div>
   );
 };
