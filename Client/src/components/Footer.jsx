@@ -39,6 +39,9 @@ export default function Footer() {
               <h4>Páginas Adicionales</h4>
               <ul className="menu-list">
                 <li>
+                  <NavLink to="/About">Novedades</NavLink>
+                </li>
+                <li>
                   <NavLink to="/About">Acerca de Nosotros</NavLink>
                 </li>
                 <li>
