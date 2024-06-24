@@ -1,151 +1,121 @@
-import React, { useState, useCallback, useMemo, lazy, Suspense } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React from 'react';
 import { motion } from 'framer-motion';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { Gallery, Item } from 'react-photoswipe-gallery';
+import 'photoswipe/dist/photoswipe.css';
 import '../../vendor/bootstrap/css/proyectos.css';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import Fontanería_1_600x600 from '../../assets/images/Proyectos/Fontanería_1_600x600.jpg';
+import Fontanería_1_1200x1200 from '../../assets/images/Proyectos/Fontanería_1_1200x1200.jpg';
+import Fontanería_2_600x600 from '../../assets/images/Proyectos/Fontanería_2_600x600.jpg';
+import Fontanería_2_1200x1200 from '../../assets/images/Proyectos/Fontanería_2_1200x1200.jpg';
+import Fugas_1_600x600 from '../../assets/images/Proyectos/Fugas_1_600x600.jpg';
+import Fugas_1_1200x1200 from '../../assets/images/Proyectos/Fugas_1_1200x1200.jpg';
+import Fugas_2_600x600 from '../../assets/images/Proyectos/Fugas_2_600x600.jpg';
+import Fugas_2_1200x1200 from '../../assets/images/Proyectos/Fugas_2_1200x1200.jpg';
+import Riego_1_600x600 from '../../assets/images/Proyectos/Riego_1_600x600.jpg';
+import Riego_1_1200x1200 from '../../assets/images/Proyectos/Riego_1_1200x1200.jpg';
+import Riego_2_600x600 from '../../assets/images/Proyectos/Riego_2_600x600.jpg';
+import Riego_2_1200x1200 from '../../assets/images/Proyectos/Riego_2_1200x1200.jpg';
 
-// Import optimized images
-import Fontanería_1 from '../../assets/images/Proyectos/Fontanería_1.webp';
-import Fontanería_2 from '../../assets/images/Proyectos/Fontanería_2.webp';
-import Fugas_1 from '../../assets/images/Proyectos/Fugas_1.webp';
-import Fugas_2 from '../../assets/images/Proyectos/Fugas_2.webp';
-import Riego_1 from '../../assets/images/Proyectos/Riego_1.webp';
-import Riego_2 from '../../assets/images/Proyectos/Riego_2.webp';
+AOS.init();
 
-// Throttle function to limit the frequency of function execution
-function throttle(func, limit) {
-    let lastFunc;
-    let lastRan;
-    return function(...args) {
-        if (!lastRan) {
-            func.apply(this, args);
-            lastRan = Date.now();
-        } else {
-            clearTimeout(lastFunc);
-            lastFunc = setTimeout(function() {
-                if ((Date.now() - lastRan) >= limit) {
-                    func.apply(this, args);
-                    lastRan = Date.now();
-                }
-            }, limit - (Date.now() - lastRan));
-        }
-    };
-}
-
-const LazyLoadImage = lazy(() => import('react-lazy-load-image-component').then(module => ({ default: module.LazyLoadImage })));
-
-const Proyectos = React.memo(() => {
-    const images = useMemo(() => [
-        [
-            {
-                src: Fontanería_1,
-                alt: 'Trabajos de Fontanería',
-                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-            },
-            {
-                src: Fugas_1,
-                alt: 'Detección de Fugas',
-                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-            },
-        ],
-        [
-            {
-                src: Riego_1,
-                alt: 'Sistema de Riego',
-                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-            },
-            {
-                src: Fontanería_2,
-                alt: 'Instalación de Tuberías',
-                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-            },
-        ],
-        [
-            {
-                src: Fugas_2,
-                alt: 'Equipo de Detección de Fugas',
-                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-            },
-            {
-                src: Riego_2,
-                alt: 'Sistema de Riego Automático',
-                className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-            },
-        ],
-    ], []);
-
-    const boxVariants = useMemo(() => ({
+const Proyectos = () => {
+    const boxVariants = {
         hidden: { opacity: 0, y: 50 },
         visible: { opacity: 1, y: 0 },
-    }), []);
-
-    const [show, setShow] = useState(false);
-    const [currentImage, setCurrentImage] = useState({ src: '', alt: '' });
-
-    const handleClose = useCallback(() => setShow(false), []);
-    const handleShow = useCallback(throttle((image) => {
-        setCurrentImage(image);
-        setShow(true);
-    }, 200), []);
+        fromLeftToCenter: { opacity: 1, x: [-300, 0] },
+    };
 
     return (
-        <>
-            <motion.div initial="hidden" animate="visible" variants={boxVariants}>
-                <section className="experiance-section">
-                    <div className="content-column col-lg-7 col-md-12 col-sm-12">
-                        <div className="title-box">
-                            <h2>Galería de Proyectos</h2>
-                        </div>
-                    </div>
-                    <div className="row">
-                        {images.map((column, colIndex) => (
-                            <div className={`col-lg-4 col-md-12 mb-4 mb-lg-0`} key={colIndex}>
-                                {column.map((image, imgIndex) => (
-                                    <div key={imgIndex} style={{ position: 'relative' }}>
-                                        <Suspense fallback={<Skeleton height={200} />}>
-                                            <LazyLoadImage
-                                                src={image.src}
-                                                className={image.className}
-                                                alt={image.alt}
-                                                onClick={() => handleShow(image)}
-                                                effect="blur"
-                                                style={{ cursor: 'pointer' }}
-                                                placeholder={<Skeleton height={200} />}
-                                            />
-                                        </Suspense>
+        <motion.div initial="hidden" animate="visible" variants={boxVariants}>
+            <section id='works' className="s-works">
+                <div className="title-box">
+                    <h2>Galería de Proyectos</h2>
+                </div>
+                <div className="row works-content">
+                    <div className="masonry-wrap">
+                        <div className="masonry">
+                            <Gallery>
+                                {[{
+                                    original: Fontanería_1_600x600,
+                                    thumbnail: Fontanería_1_600x600,
+                                    srcSet: `${Fontanería_1_600x600} 1x, ${Fontanería_1_1200x1200} 2x`,
+                                    title: "Fontanería_1",
+                                    text: "Fontanería #1",
+                                    cat: "Heredia, Belén"
+                                },
+                                {
+                                    original: Fontanería_2_600x600,
+                                    thumbnail: Fontanería_2_600x600,
+                                    srcSet: `${Fontanería_2_600x600} 1x, ${Fontanería_2_1200x1200} 2x`,
+                                    title: "Fontanería_2",
+                                    text: "Fontanería #2",
+                                    cat: "Heredia, Belén"
+                                },
+                                {
+                                    original: Fugas_1_600x600,
+                                    thumbnail: Fugas_1_600x600,
+                                    srcSet: `${Fugas_1_600x600} 1x, ${Fugas_1_1200x1200} 2x`,
+                                    title: "Fugas_1",
+                                    text: "Fugas #1",
+                                    cat: "Alajuela, San Rafael"
+                                },
+                                {
+                                    original: Fugas_2_600x600,
+                                    thumbnail: Fugas_2_600x600,
+                                    srcSet: `${Fugas_2_600x600} 1x, ${Fugas_2_1200x1200} 2x`,
+                                    title: "Fugas_2",
+                                    text: "Fugas #2",
+                                    cat: "Alajuela, San Rafael"
+                                },
+                                {
+                                    original: Riego_1_600x600,
+                                    thumbnail: Riego_1_600x600,
+                                    srcSet: `${Riego_1_600x600} 1x, ${Riego_1_1200x1200} 2x`,
+                                    title: "Riego_1",
+                                    text: "Riego #1",
+                                    cat: "San José, Santa Ana"
+                                },
+                                {
+                                    original: Riego_2_600x600,
+                                    thumbnail: Riego_2_600x600,
+                                    srcSet: `${Riego_2_600x600} 1x, ${Riego_2_1200x1200} 2x`,
+                                    title: "Riego_2",
+                                    text: "Riego #2",
+                                    cat: "San José, Santa Ana"
+                                }].map((item, index) => (
+                                    <div className="masonry__brick" data-aos="fade" data-aos-easing="ease-in-out" key={index}>
+                                        <div className="item-folio">
+                                            <div className="item-folio__thumb">
+                                                <Item
+                                                    original={item.original}
+                                                    thumbnail={item.thumbnail}
+                                                    width="1050"
+                                                    height="700"
+                                                    title={item.title}
+                                                >
+                                                    {({ ref, open }) => (
+                                                        <a ref={ref} onClick={open} className="thumb-link" title={item.title}>
+                                                            <img src={item.thumbnail} srcSet={item.srcSet} alt={item.title} />
+                                                        </a>
+                                                    )}
+                                                </Item>
+                                            </div>
+                                            <div className="item-folio__text">
+                                                <h3 className="item-folio__title">{item.text}</h3>
+                                                <p className="item-folio__cat">{item.cat}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
-                            </div>
-                        ))}
+                            </Gallery>
+                        </div>
                     </div>
-                </section>
-            </motion.div>
-
-            <Modal
-                show={show}
-                onHide={handleClose}
-                dialogClassName="custom-modal"
-                backdropClassName="custom-modal-backdrop"
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>{currentImage.alt}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <img
-                        src={currentImage.src}
-                        alt={currentImage.alt}
-                        className="w-100"
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Regresar
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </>
+                </div>
+            </section>
+        </motion.div>
     );
-});
+};
 
 export default Proyectos;
