@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="row d-flex justify-content-center">
             <div className="col-md-4 footer-item">
               <h4>Profesionalismo en Fontanería</h4>
-              <p>Compromiso y calidad garantizada en cada servicio.</p>
+              <p className="fst-italic">Compromiso y calidad garantizada en cada servicio.</p>
               <ul className="social-icons">
                 <li><a href="https://wa.me/50686096382" target='_blank'><i className="bi bi-whatsapp"></i></a></li>
                 <li><a href="https://www.tiktok.com/@davidsalazarcr" target='_blank'><i className="bi bi-tiktok"></i></a></li>
@@ -39,7 +39,7 @@ export default function Footer() {
               <h4>Páginas Adicionales</h4>
               <ul className="menu-list">
                 <li>
-                  <NavLink to="/About">Novedades</NavLink>
+                  <NavLink to="/novedades">Novedades</NavLink>
                 </li>
                 <li>
                   <NavLink to="/About">Acerca de Nosotros</NavLink>

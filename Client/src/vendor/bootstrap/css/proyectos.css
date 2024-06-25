@@ -365,19 +365,19 @@
   * # grid
   *
   * ------------------------------------------------------------------- */
- .row {
+ .rows {
      width: 94%;
      max-width: 1200px;
      margin: 0 auto;
  }
  
- .row:after {
+ .rows:after {
      content: "";
      display: table;
      clear: both;
  }
  
- .row .row {
+ .rows {
      width: auto;
      max-width: none;
      margin-left: -20px;
