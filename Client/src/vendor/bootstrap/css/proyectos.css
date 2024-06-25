@@ -321,8 +321,16 @@
      height: auto;
  }
  
+ h2 {
+    position: relative;
+    font-size: 30px;
+    color: #05579e;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
  h1,
- h2,
  h3,
  h4,
  h5,
