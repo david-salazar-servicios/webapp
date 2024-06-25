@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import '../../vendor/bootstrap/css/testimonials.css';
+import 'aos/dist/aos.css';
 
 const Testimonials = () => {
 
@@ -23,28 +24,28 @@ const Testimonials = () => {
                     </p>
                 </div>
                 <div className="video-gallery">
-                    <div className="video-wrapper">
+                    <div className="video-wrapper" data-aos="fade-up">
                         <iframe
                             src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2F1733439073592957%2Fvideos%2F707488043079014%2F&show_text=false&width=560&t=0"
                             allowFullScreen
                             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                         ></iframe>
                     </div>
-                    <div className="video-wrapper">
+                    <div className="video-wrapper"  data-aos="fade-down" data-aos-easing="linear" >
                         <iframe
                             src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2F100011746801863%2Fvideos%2F1394278528188274%2F&show_text=false&width=560&t=0"
                             allowFullScreen
                             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                         ></iframe>
                     </div>
-                    <div className="video-wrapper">
+                    <div className="video-wrapper"  data-aos="fade-up" data-aos-easing="linear">
                         <iframe
                             src="https://www.facebook.com/plugins/video.php?height=314&href=https%3A%2F%2Fwww.facebook.com%2F100011746801863%2Fvideos%2F3376004669385005%2F&show_text=false&width=560&t=0"
                             allowFullScreen
                             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                         ></iframe>
                     </div>
-                    <div className="video-wrapper vertical">
+                    <div className="video-wrapper vertical" data-aos="fade-right" data-aos-easing="ease-in-sine">
                         <iframe
                             src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2F100011746801863%2Fvideos%2F827868275105534%2F&show_text=false&width=267&t=0"
                             allowFullScreen

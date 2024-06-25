@@ -33,7 +33,7 @@ const Proyectos = () => {
                 <div className="title-box">
                     <h2>Galería de Proyectos</h2>
                 </div>
-                <div className="row works-content">
+                <div className="rows works-content">
                     <div className="masonry-wrap">
                         <div className="masonry">
                             <Gallery>
