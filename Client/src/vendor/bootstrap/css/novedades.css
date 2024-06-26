@@ -1,3 +1,56 @@
+.text-container {
+  position: static;
+  max-width: 1200px;
+  padding: 0px 15px;
+  flex: 1;
+}
+
+.container-news {
+  position: relative;
+  max-width: 680px;
+  /* Adjust this value as needed */
+  margin: 0 auto;
+  flex: 1;
+  margin-right: 20px;
+  /* Center the container */
+  padding: 20px;
+  background: #f5f6f7ce;
+  /* White background */
+  border-radius: 50px;
+  /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 63, 125, 0.3);
+  /* Subtle shadow */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.news-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  padding-top: 150px;
+  flex: 0 0 340px;
+  /* Fixed width for the news container */
+}
+
+@media (max-width: 768px) {
+  .news-section {
+    flex-direction: column;
+  }
+
+  .text-container {
+    margin-right: 0;
+    margin-bottom: 20px;
+    /* Add some space between the containers */
+  }
+
+  .container-news {
+    width: 100%;
+  }
+}
+
 iframe {
   /* Ensure it adjusts to the container width */
   max-width: 340px;
@@ -10,17 +63,6 @@ iframe {
   /* Hide overflow */
 }
 
-
-.container-news {
-  position: relative;
-  height: 100vh;
-  width: 100%;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
 .pagination {
   position: relative;
   height: 50px;
@@ -29,14 +71,15 @@ iframe {
   align-items: center;
   justify-content: center;
   border-radius: 2px;
-  margin-top: 5px;
-  flex-wrap: wrap; /* Added to make items wrap on smaller screens */
+  flex-wrap: wrap;
+  /* Added to make items wrap on smaller screens */
 }
 
 .pagination li {
   list-style-type: none;
   display: inline-block;
-  margin: 0 1px; /* Added margin for spacing */
+  margin: 0 1px;
+  /* Added margin for spacing */
 }
 
 .pagination li button:hover,
@@ -46,37 +89,48 @@ iframe {
 
 .pagination li button {
   position: relative;
-  padding: 11px 20px; /* Adjusted padding for better responsiveness */
+  padding: 11px 20px;
+  /* Adjusted padding for better responsiveness */
   text-decoration: none;
-  background: none; /* Remove default button styles */
-  border: none; /* Remove default button styles */
-  cursor: pointer; /* Change cursor to pointer */
+  background: none;
+  /* Remove default button styles */
+  border: none;
+  /* Remove default button styles */
+  cursor: pointer;
+  /* Change cursor to pointer */
 }
-
 
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
   .pagination {
-    height: auto; /* Adjust height for smaller screens */
-    padding: 10px; /* Added padding for smaller screens */
+    height: auto;
+    /* Adjust height for smaller screens */
+    padding: 10px;
+    /* Added padding for smaller screens */
   }
 
   .pagination li button {
-    padding: 8px 12px; /* Adjusted padding for smaller screens */
-    font-size: 14px; /* Adjusted font size for smaller screens */
+    padding: 8px 12px;
+    /* Adjusted padding for smaller screens */
+    font-size: 14px;
+    /* Adjusted font size for smaller screens */
   }
 }
 
 @media (max-width: 480px) {
   .pagination li {
-    margin: 2px; /* Reduced margin for very small screens */
+    margin: 2px;
+    /* Reduced margin for very small screens */
   }
 
   .pagination li button {
-    padding: 5px 8px; /* Adjusted padding for very small screens */
-    font-size: 12px; /* Adjusted font size for very small screens */
+    padding: 5px 8px;
+    /* Adjusted padding for very small screens */
+    font-size: 12px;
+    /* Adjusted font size for very small screens */
   }
 }
+
 .fade-enter {
   opacity: 0;
 }
@@ -96,3 +150,85 @@ iframe {
 }
 
 
+.news-section.style-two {
+  padding-bottom: 60px;
+}
+
+.news-section .title-column {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.news-section .title-column .inner-column {
+  position: relative;
+}
+
+.news-section .title-column .image {
+  position: relative;
+  margin-bottom: 60px;
+}
+
+.news-section .title-column h2 {
+  position: relative;
+  color: #05579e;
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.1em;
+  margin-bottom: 20px;
+}
+
+.news-section .title-column .text {
+  position: relative;
+  color: #666666;
+  font-size: 20px;
+  line-height: 1.8em;
+  margin-top: 35px;
+}
+
+.news-section .content-column {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.news-section .content-column .inner-column {
+  position: relative;
+}
+
+.news-section .content-column .title-box h2 {
+  position: relative;
+  font-size: 30px;
+  color: #05579e;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.news-section .content-column .title-box p {
+  position: relative;
+  color: #666666;
+  font-size: 14px;
+  line-height: 1.9em;
+  margin-bottom: 12px;
+}
+
+.news-section .content-column .specialization-box {
+  position: relative;
+  margin-top: 50px;
+}
+
+.news-section .content-column .specialization-box h2 {
+  margin-bottom: 28px;
+  position: relative;
+  font-size: 30px;
+  color: #05579e;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.news-section .description {
+  padding-top: 10px;
+}
+
+.news-section .description p {
+  font-size: 14px;
+}

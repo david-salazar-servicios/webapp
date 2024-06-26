@@ -28,7 +28,7 @@ const GlobalStyle = createGlobalStyle`
     margin-top: 0;
     margin-bottom: 0.5em;
     line-height: 1.2;
-    color: var(--secondary-blue); /* Heading color */
+    color: #05579e; /* Heading color */
   }
 
   p, a, span, div, li, ul, ol, input, button, textarea {

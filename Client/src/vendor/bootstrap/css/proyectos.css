@@ -159,6 +159,14 @@
     -ms-transform: scale(1.05);
     transform: scale(1.05);
 }
+.item-folio__thumb.touch-active img {
+    filter: brightness(0.3); /* Darken the image */
+    transform: scale(1.05);
+}
+.item-folio__thumb.touch-active a::after {
+    visibility: visible;
+    transform: scale(1);
+}
 
 /* ------------------------------------------------------------------- 
  * responsive:
