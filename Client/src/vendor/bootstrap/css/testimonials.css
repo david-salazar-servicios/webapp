@@ -41,10 +41,6 @@
     /* 9:16 aspect ratio */
 }
 
-.why-us {
-    padding: 60px 0;
-    background: #f9f9f9;
-}
 
 .section-title {
     text-align: center;
@@ -61,12 +57,6 @@
     align-items: center;
 }
 
-.whyUsItem {
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
 
 .swiper-pagination-bullet {
     background: #007bff;
@@ -106,4 +96,3 @@ header .container {
     background-color: #0056b3;
     border-color: #0056b3;
 }
-

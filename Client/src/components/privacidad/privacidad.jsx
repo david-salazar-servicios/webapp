@@ -11,7 +11,9 @@ const Privacidad = () => {
     return (
         <motion.div initial="hidden" animate="visible" variants={boxVariants}>
             <div className="privacy-policy">
-                <h1>Política de Privacidad</h1>
+                <div className="text-center">
+                    <h1>Política de Privacidad</h1>
+                </div>
                 <p><strong>Última actualización: 8 de junio del 2024</strong></p>
 
                 <section>

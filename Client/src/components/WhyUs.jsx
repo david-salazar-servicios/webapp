@@ -13,7 +13,7 @@ export default () => {
         </div>
 
         <div className="row" data-aos="fade-up" data-aos-delay="200">
-          <div className="col-xl-5 img-bg" style={{ backgroundImage: `url(${image})` , borderRadius:'30px',}}></div>
+          <div className="col-xl-5 img-bg " style={{ backgroundImage: `url(${image})` , borderRadius:'30px',}}></div>
           <div className="col-xl-7 slides">
             <Swiper
               modules={[Navigation, Pagination, Scrollbar, A11y, Autoplay]}

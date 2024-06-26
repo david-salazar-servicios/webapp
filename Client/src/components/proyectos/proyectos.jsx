@@ -1,110 +1,121 @@
-import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React from 'react';
 import { motion } from 'framer-motion';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Gallery, Item } from 'react-photoswipe-gallery';
+import 'photoswipe/dist/photoswipe.css';
 import '../../vendor/bootstrap/css/proyectos.css';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import Fontanería_1_600x600 from '../../assets/images/Proyectos/Fontanería_1_600x600.jpg';
+import Fontanería_1_1200x1200 from '../../assets/images/Proyectos/Fontanería_1_1200x1200.jpg';
+import Fontanería_2_600x600 from '../../assets/images/Proyectos/Fontanería_2_600x600.jpg';
+import Fontanería_2_1200x1200 from '../../assets/images/Proyectos/Fontanería_2_1200x1200.jpg';
+import Fugas_1_600x600 from '../../assets/images/Proyectos/Fugas_1_600x600.jpg';
+import Fugas_1_1200x1200 from '../../assets/images/Proyectos/Fugas_1_1200x1200.jpg';
+import Fugas_2_600x600 from '../../assets/images/Proyectos/Fugas_2_600x600.jpg';
+import Fugas_2_1200x1200 from '../../assets/images/Proyectos/Fugas_2_1200x1200.jpg';
+import Riego_1_600x600 from '../../assets/images/Proyectos/Riego_1_600x600.jpg';
+import Riego_1_1200x1200 from '../../assets/images/Proyectos/Riego_1_1200x1200.jpg';
+import Riego_2_600x600 from '../../assets/images/Proyectos/Riego_2_600x600.jpg';
+import Riego_2_1200x1200 from '../../assets/images/Proyectos/Riego_2_1200x1200.jpg';
 
-const images = [
-    [
-        {
-            src: 'https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp',
-            alt: 'Boat on Calm Water',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-        {
-            src: 'https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain1.webp',
-            alt: 'Wintry Mountain Landscape',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-    ],
-    [
-        {
-            src: 'https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain2.webp',
-            alt: 'Mountains in the Clouds',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-        {
-            src: 'https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp',
-            alt: 'Boat on Calm Water',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-    ],
-    [
-        {
-            src: 'https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(18).webp',
-            alt: 'Waves at Sea',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-        {
-            src: 'https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain3.webp',
-            alt: 'Yosemite National Park',
-            className: 'w-100 shadow-1-strong rounded mb-4 img-hover-effect',
-        },
-    ],
-];
+AOS.init();
 
 const Proyectos = () => {
-    // Define the animation variants
     const boxVariants = {
         hidden: { opacity: 0, y: 50 },
         visible: { opacity: 1, y: 0 },
+        fromLeftToCenter: { opacity: 1, x: [-300, 0] },
     };
 
-    const [show, setShow] = useState(false);
-    const [currentImage, setCurrentImage] = useState({ src: '', alt: '' });
-
-    const handleClose = () => setShow(false);
-    const handleShow = (image) => {
-        setCurrentImage(image);
-        setShow(true);
-    };
     return (
-        <> <motion.div initial="hidden" animate="visible" variants={boxVariants}>
-            <section className="experiance-section">
-                <div className="content-column col-lg-7 col-md-12 col-sm-12">
-                    <div className="title-box">
-                        <h2>Galería de Proyectos</h2>
-                    </div>
+        <motion.div initial="hidden" animate="visible" variants={boxVariants}>
+            <section id='works' className="s-works">
+                <div className="title-box">
+                    <h2>Galería de Proyectos</h2>
                 </div>
-                <div className="row">
-                    {images.map((column, colIndex) => (
-                        <div className={`col-lg-4 col-md-12 mb-4 mb-lg-0`} key={colIndex}>
-                            {column.map((image, imgIndex) => (
-                                <img
-                                    key={imgIndex}
-                                    src={image.src}
-                                    className={image.className}
-                                    alt={image.alt}
-                                    onClick={() => handleShow(image)}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            ))}
+                <div className="rows works-content">
+                    <div className="masonry-wrap">
+                        <div className="masonry">
+                            <Gallery>
+                                {[{
+                                    original: Fontanería_1_600x600,
+                                    thumbnail: Fontanería_1_600x600,
+                                    srcSet: `${Fontanería_1_600x600} 1x, ${Fontanería_1_1200x1200} 2x`,
+                                    title: "Fontanería_1",
+                                    text: "Fontanería #1",
+                                    cat: "Heredia, Belén"
+                                },
+                                {
+                                    original: Fontanería_2_600x600,
+                                    thumbnail: Fontanería_2_600x600,
+                                    srcSet: `${Fontanería_2_600x600} 1x, ${Fontanería_2_1200x1200} 2x`,
+                                    title: "Fontanería_2",
+                                    text: "Fontanería #2",
+                                    cat: "Heredia, Belén"
+                                },
+                                {
+                                    original: Fugas_1_600x600,
+                                    thumbnail: Fugas_1_600x600,
+                                    srcSet: `${Fugas_1_600x600} 1x, ${Fugas_1_1200x1200} 2x`,
+                                    title: "Fugas_1",
+                                    text: "Fugas #1",
+                                    cat: "Alajuela, San Rafael"
+                                },
+                                {
+                                    original: Fugas_2_600x600,
+                                    thumbnail: Fugas_2_600x600,
+                                    srcSet: `${Fugas_2_600x600} 1x, ${Fugas_2_1200x1200} 2x`,
+                                    title: "Fugas_2",
+                                    text: "Fugas #2",
+                                    cat: "Alajuela, San Rafael"
+                                },
+                                {
+                                    original: Riego_1_600x600,
+                                    thumbnail: Riego_1_600x600,
+                                    srcSet: `${Riego_1_600x600} 1x, ${Riego_1_1200x1200} 2x`,
+                                    title: "Riego_1",
+                                    text: "Riego #1",
+                                    cat: "San José, Santa Ana"
+                                },
+                                {
+                                    original: Riego_2_600x600,
+                                    thumbnail: Riego_2_600x600,
+                                    srcSet: `${Riego_2_600x600} 1x, ${Riego_2_1200x1200} 2x`,
+                                    title: "Riego_2",
+                                    text: "Riego #2",
+                                    cat: "San José, Santa Ana"
+                                }].map((item, index) => (
+                                    <div className="masonry__brick" data-aos="fade" data-aos-easing="ease-in-out" key={index}>
+                                        <div className="item-folio">
+                                            <div className="item-folio__thumb">
+                                                <Item
+                                                    original={item.original}
+                                                    thumbnail={item.thumbnail}
+                                                    width="1050"
+                                                    height="700"
+                                                    title={item.title}
+                                                >
+                                                    {({ ref, open }) => (
+                                                        <a ref={ref} onClick={open} className="thumb-link" title={item.title}>
+                                                            <img src={item.thumbnail} srcSet={item.srcSet} alt={item.title} />
+                                                        </a>
+                                                    )}
+                                                </Item>
+                                            </div>
+                                            <div className="item-folio__text">
+                                                <h3 className="item-folio__title">{item.text}</h3>
+                                                <p className="item-folio__cat">{item.cat}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </Gallery>
                         </div>
-                    ))}
-
-                    <Modal show={show} onHide={handleClose}>
-                        <Modal.Header closeButton>
-                            <Modal.Title>{currentImage.alt}</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <img
-                                src={currentImage.src}
-                                alt={currentImage.alt}
-                                className="w-100"
-                            />
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onClick={handleClose}>
-                                Close
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
+                    </div>
                 </div>
             </section>
         </motion.div>
-        </>
     );
 };
 
 export default Proyectos;
-

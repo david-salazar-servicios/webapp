@@ -31,6 +31,7 @@ const ServiceCard = ({ service }) => {
       animate={controls}
     >
       <article className="postcard light blue">
+<<<<<<< HEAD
           <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
         <div className="postcard__text t-dark">
           <h1 className="postcard__title">{service.title}</h1>
@@ -47,6 +48,28 @@ const ServiceCard = ({ service }) => {
         </div>
       </article>
       
+=======
+        <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
+        <div className="postcard__text t-dark">
+          <h1 className="postcard__title">{service.title}</h1>
+          <div className="postcard__subtitle small">
+            {service.description}
+          </div>
+          <div className="postcard__bar"></div>
+          <div className="postcard__tagbox">
+            <ul>
+              <li className="tag__item">
+                <NavLink to={`/Services/${service.id}`}>
+                  <i className="fas fa-link mr-2"></i>Leer más
+                </NavLink>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+
+>>>>>>> a27b418745ec2636af4e2e704d41ac977b6704fe
     </motion.div>
   );
 };

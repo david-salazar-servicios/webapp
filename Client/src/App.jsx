@@ -25,6 +25,7 @@ import Testimonials from './components/testimonials/testimonials';
 import CardServices from './components/services/CardServices';
 import Privacidad from './components/privacidad/privacidad';
 import Proyectos from './components/proyectos/proyectos';
+import Novedades from './components/novedades/novedades';
 import GlobalStyle from './components/GlobalStyle';
 import ScrollToTop from './components/ScrollToTop';
 
@@ -49,6 +50,7 @@ function App() {
                     <Route path="/servicios" element={<CardServices />} />
                     <Route path="/privacidad" element={<Privacidad />} />
                     <Route path="/proyectos" element={<Proyectos />} />
+                    <Route path="/novedades" element={<Novedades />} />
                 </Route>
 
                 <Route element={<PersistLogin />}>
