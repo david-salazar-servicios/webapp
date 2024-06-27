@@ -1,4 +1,3 @@
-import '../../vendor/bootstrap/css/privacidad.css';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaCookieBite, FaLink, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 

@@ -1,8 +1,6 @@
 import React, { useRef } from "react";
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { motion } from 'framer-motion';
-import '../../vendor/bootstrap/css/contacto.css';
-import WhyUs from '../../components/WhyUs';
 import { useSendEmailContactoMutation } from '../../features/contacto/sendEmailContactoApiSlice';
 import { Toast } from 'primereact/toast';
 

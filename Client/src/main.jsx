@@ -7,10 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // CSS imports
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
-import '../src/assets/main.css';
-import "react-toastify/dist/ReactToastify.css";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import './vendor/bootstrap/css/bootstrap.min.css'
 import './vendor/jquery/jquery.min.js'
 import 'swiper/css';
@@ -24,6 +20,10 @@ import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';  // Tema
 import 'primeicons/primeicons.css';
 import 'swiper/swiper-bundle.css'; // Ensure Swiper styles are imported
+import '../src/assets/main.css';
+import "react-toastify/dist/ReactToastify.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -31,7 +31,7 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-      <Routes>
+        <Routes>
           <Route path="*" element={<App />} />
         </Routes>
       </BrowserRouter>
