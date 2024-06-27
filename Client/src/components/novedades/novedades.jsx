@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import '../../vendor/bootstrap/css/novedades.css';
 import { motion } from 'framer-motion';
 
 const profiles = [
@@ -82,8 +81,8 @@ const Novedades = () => {
               <h2>Novedades en nuestras Redes</h2>
             </div>
             <div className="description">
-              En esta sección, compartimos las últimas novedades y actualizaciones publicadas por nuestra empresa en nuestras redes sociales. 
-              Mantente al tanto de nuestras actividades, proyectos, y noticias relevantes visitando nuestras páginas oficiales en Facebook. <br/><br/>
+              En esta sección, compartimos las últimas novedades y actualizaciones publicadas por nuestra empresa en nuestras redes sociales.
+              Mantente al tanto de nuestras actividades, proyectos, y noticias relevantes visitando nuestras páginas oficiales en Facebook. <br /><br />
               ¡No te pierdas ninguna de nuestras actualizaciones!
             </div>
           </div>

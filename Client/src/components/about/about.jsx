@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import Testimonials from '../../components/testimonials/testimonials';
+
 import Empresa from '../../assets/images/empresa.png';
 import David from '../../assets/images/David.jpg';
 import David2 from '../../assets/images/David2.jpg';
-import Testimonials from '../../components/testimonials/testimonials';
-import '../../vendor/bootstrap/css/about.css';
 
 export default function Home() {
     // Define the animation variants
