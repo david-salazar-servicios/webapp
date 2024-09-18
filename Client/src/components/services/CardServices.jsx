@@ -31,7 +31,7 @@ const ServiceCard = ({ service }) => {
       animate={controls}
     >
       <article className="postcard light blue">
-        <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} />
+        <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} referrerPolicy="no-referrer"/>
         <div className="postcard__text t-dark">
           <h1 className="postcard__title">{service.title}</h1>
           <div className="postcard__subtitle small">

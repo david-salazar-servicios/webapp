@@ -138,11 +138,10 @@ export default function Header() {
         >
           <div className="contact-info">
 
-            {/* Add icon for home */}
-            <a href="/" className="d-flex align-items-center">
-              <i className="bi bi-house"></i>
+            <NavLink to="/" className="d-flex align-items-center" >
+            <i className="bi bi-house"></i>
               <b><span className="d-none d-md-inline-block ml-2">Inicio</span></b>
-            </a>
+              </NavLink>
             <a href="tel:22396042" className="d-flex align-items-center">
               <i className="bi bi-telephone"></i>
               <b> <span className="d-none d-md-inline-block ml-2">2239-6042</span></b>
@@ -187,7 +186,7 @@ export default function Header() {
               }}>Invierta solo una vez</h6>
               <h4 style={{
                 textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
-              }}>Servicios Residenciales &amp; Comerciales CRLTDA</h4>
+              }}>Servicios Residenciales &amp; Comerciales CR LTDA</h4>
               <NavLink to="/contacto" className="filled-button" >
                 Contáctanos
               </NavLink>
