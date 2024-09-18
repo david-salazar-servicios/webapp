@@ -35,13 +35,25 @@ const getAllServicios = async (req, res) => {
 // @access Private
 const createNewServicio = async (req, res) => {
     try {
-        const { nombre, descripcion, id_categoria } = req.body;
+        const { nombre, descripcion, categoria } = req.body; // categoria is now an array
+
+        // Insert the new service into the Servicios table
         const newService = await pool.query(
-            'INSERT INTO Servicios (nombre, descripcion, id_categoria) VALUES ($1, $2, $3) RETURNING *', 
-            [nombre, descripcion, id_categoria]
+            'INSERT INTO Servicios (nombre, descripcion) VALUES ($1, $2) RETURNING *', 
+            [nombre, descripcion]
         );
 
-        res.json(newService.rows[0]);
+        const serviceId = newService.rows[0].id_servicio; // Get the ID of the newly created service
+
+        // Insert the service-category relationships into the servicio_categoria table
+        for (const catId of categoria) {
+            await pool.query(
+                'INSERT INTO servicio_categoria (id_servicio, id_categoria) VALUES ($1, $2)',
+                [serviceId, catId]
+            );
+        }
+
+        res.json({ message: 'Service created successfully', service: newService.rows[0] });
     } catch (error) {
         console.error("Error creating new service:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -142,7 +154,6 @@ const getServicioById = async (req, res) => {
                 Accept: 'application/json',
             }
         });
-        console.log(offerResponse)
         // Parse the response as JSON
         const offerData = await offerResponse.json();
         
@@ -171,8 +182,10 @@ const getServicioById = async (req, res) => {
 // @access Private
 const updateServicio = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { nombre, descripcion } = req.body;
+        const { id } = req.params; // Service ID from the URL
+        const { nombre, descripcion, categoria } = req.body; // Name, description, and categories from the request body
+
+        // Update the service details in the Servicios table
         const updatedService = await pool.query(
             'UPDATE Servicios SET nombre = $1, descripcion = $2 WHERE id_servicio = $3 RETURNING *',
             [nombre, descripcion, id]
@@ -182,12 +195,28 @@ const updateServicio = async (req, res) => {
             return res.status(404).json({ message: 'Service not found' });
         }
 
-        res.json(updatedService.rows[0]);
+        // Remove existing relations from servicio_categoria where id_servicio matches the service
+        await pool.query(
+            'DELETE FROM servicio_categoria WHERE id_servicio = $1',
+            [id]
+        );
+
+        // Insert new relations into servicio_categoria using the new categoria array
+        for (const catId of categoria) {
+            await pool.query(
+                'INSERT INTO servicio_categoria (id_servicio, id_categoria) VALUES ($1, $2)',
+                [id, catId]
+            );
+        }
+
+        res.json({ message: 'Service updated successfully', service: updatedService.rows[0] });
     } catch (error) {
-        console.error("Error updating service:", error);
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        console.error('Error updating service:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
+
+
 // @desc Add a service to a user
 // @route POST /usuarios_servicios
 // @access Private

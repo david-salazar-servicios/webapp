@@ -8,11 +8,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { message } from 'antd';
-import image from '../../assets/images/Logo-removebg-preview.png'
+import image from '../../assets/images/Logo-removebg-preview.png';
 import { Row, Col } from 'antd';
 
 const { Option } = Select;
-
 
 const ServicesForm = () => {
     const location = useLocation();
@@ -26,45 +25,41 @@ const ServicesForm = () => {
     const [createService, { isLoading: isCreating, error: createError }] = useCreateServiceMutation();
     const isEditMode = Boolean(serviceId);
 
-
     const { data: service, isLoading: isLoadingService } = useGetServiceByIdQuery(serviceId, {
-        skip: !isEditMode, // Solo ejecuta la consulta si está en modo edición
+        skip: !isEditMode, // Only execute the query if in edit mode
     });
 
     const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
     const [formChanged, setFormChanged] = useState(false);
 
     const handleCancelEdit = () => {
-        form.resetFields(); // Limpia el formulario
-        navigate('/mantenimiento/servicios'); // Cambia la URL
+        form.resetFields(); // Clear the form
+        navigate('/mantenimiento/servicios'); // Change the URL
     };
-
 
     useEffect(() => {
         if (service && isEditMode) {
             form.setFieldsValue({
                 nombre: service.nombre,
                 descripcion: service.descripcion,
+                categoria: service.categorias.map(cat => cat.id_categoria), // Preselect the service's categories
             });
         } else {
-            form.resetFields(); // Esto limpiará el formulario si se sale del modo de edición
+            form.resetFields(); // This will clear the form when exiting edit mode
         }
     }, [service, form, isEditMode]);
 
-
     const onFinish = async (values) => {
         const payload = {
-            ...values,
-            id_categoria: values.categoria
+            ...values
         };
-    
-        // Comprobando si se está en modo de edición y si el formulario ha cambiado
+
+        // Checking if in edit mode and if the form has changed
         if (isEditMode && !formChanged) {
-            // Muestra un mensaje si no se han realizado cambios
             message.info('No se han realizado cambios.');
-            return; // Sal del handler para evitar hacer una actualización innecesaria
+            return; // Exit if no changes were made
         }
-    
+
         try {
             let response;
             if (isEditMode) {
@@ -77,9 +72,10 @@ const ServicesForm = () => {
                 console.log('Service created successfully:', response);
             }
             form.resetFields();
-            setFormChanged(false); // Resetea el estado de cambios en el formulario después de enviar
+            setFormChanged(false); // Reset the formChanged state after submission
         } catch (error) {
             console.error('Failed to process service:', error);
+            message.error('Hubo un error al procesar el servicio.');
         }
     };
 
@@ -99,7 +95,7 @@ const ServicesForm = () => {
                         name="services_form"
                         onFinish={onFinish}
                         onValuesChange={() => setFormChanged(true)}
-                        initialValues={{ categoria: '' }} // Valor inicial vacío o el que consideres necesario
+                        initialValues={{ categoria: [] }} // Initial value as an empty array for multiple select
                         style={{ maxWidth: 600 }}
                         labelCol={{ span: 8 }}
                         wrapperCol={{ span: 16 }}
@@ -125,31 +121,36 @@ const ServicesForm = () => {
                             label="Categoría"
                             rules={[{ required: true, message: 'Por favor selecciona una categoría!' }]}
                         >
-                            <Select placeholder="Selecciona una categoría" style={{ width: '100%' }} >
+                            <Select
+                                mode="multiple" // Enable multiple select
+                                placeholder="Selecciona una o más categorías"
+                                style={{ width: '100%' }}
+                            >
                                 {categorias?.map((cat) => (
-                                    <Option key={cat.id_categoria} value={cat.id_categoria}>{cat.nombre}</Option>
+                                    <Option key={cat.id_categoria} value={cat.id_categoria}>
+                                        {cat.nombre}
+                                    </Option>
                                 ))}
                             </Select>
                         </Form.Item>
 
-                        <Form.Item wrapperCol={{ span: 16, offset: 8 }} >
-                            <Button type="primary" htmlType="submit">
+                        <Form.Item wrapperCol={{ span: 16, offset: 8 }}>
+                            <Button type="primary" htmlType="submit" loading={isCreating || isUpdating}>
                                 {isEditMode ? 'Actualizar Servicio' : 'Agregar Servicio'}
                             </Button>
                             {isEditMode && (
                                 <Button
                                     style={{ marginLeft: '10px' }}
-                                    onClick={handleCancelEdit}>
+                                    onClick={handleCancelEdit}
+                                >
                                     Cancelar Edición
                                 </Button>
                             )}
                         </Form.Item>
-
                     </Form>
-
                 </Card>
             </Col>
-            <Col xs={24} sm={24} md={12} lg={8} xl={8}> {/* Tamaño de columna para la imagen */}
+            <Col xs={24} sm={24} md={12} lg={8} xl={8}> {/* Column size for the image */}
                 <div className="text-center">
                     <img src={image} alt="logo" style={{ maxWidth: '100%', height: 'auto' }} />
                 </div>

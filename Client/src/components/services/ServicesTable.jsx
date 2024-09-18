@@ -7,31 +7,39 @@ import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 
 const ServicesTable = () => {
-    const { data: services, isLoading: isLoadingServices, error: errorServices } = useGetServicesQuery();
-    const { data: categorias } = useGetCategoriasQuery();
+    const { data: servicesData, isLoading: isLoadingServices, error: errorServices } = useGetServicesQuery();
+    const { data: categoriasData } = useGetCategoriasQuery(); // Fetch category names
     const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
 
     const navigate = useNavigate();
+
     const handleEdit = (id_servicio) => {
-        // Actualiza la URL sin navegar realmente
+        // Update the URL without navigating
         navigate(`?editar=${id_servicio}`, { replace: true });
     };
+
     const handleDelete = async (id) => {
         try {
             await deleteService(id).unwrap();
             message.success('Servicio eliminado correctamente');
-
         } catch (error) {
             message.error('Error al eliminar el servicio');
         }
     };
 
-    // Mapea los IDs de categoría a nombres de categorías
-    const getCategoriaName = (id_categoria) => {
-        const categoria = categorias?.find(cat => cat.id_categoria === id_categoria);
-        return categoria ? categoria.nombre : 'Desconocido';
+    // Function to get the category name(s) for a given service ID
+    const getCategoriaNames = (id_servicio) => {
+        const serviceCategorias = servicesData.categorias.filter(cat => cat.id_servicio === id_servicio);
+        if (serviceCategorias.length > 0 && categoriasData) {
+            const categoryNames = serviceCategorias
+                .map(cat => categoriasData.find(c => c.id_categoria === cat.id_categoria)?.nombre) // Get category names
+                .filter(Boolean); // Filter out undefined values if a category isn't found
+            return categoryNames.length > 0 ? categoryNames.join(', ') : 'Categoría no encontrada';
+        }
+        return 'Categoría no encontrada';
     };
 
+    // Define table columns
     const columns = [
         {
             title: 'Nombre',
@@ -42,13 +50,15 @@ const ServicesTable = () => {
             title: 'Descripción',
             dataIndex: 'descripcion',
             key: 'descripcion',
-            responsive: ['md'], // La columna solo se muestra en pantallas medianas y superiores
+            responsive: ['md'], // Display only on medium screens and above
         },
         {
-            title: 'Categoría',
-            dataIndex: 'id_categoria',
+            title: 'Categorías',
+            dataIndex: 'id_servicio',
             key: 'id_categoria',
-            render: id_categoria => <span>{getCategoriaName(id_categoria)}</span>,
+            render: (id_servicio) => (
+                <span>{getCategoriaNames(id_servicio)}</span> // Display category names
+            ),
         },
         {
             title: 'Acciones',
@@ -73,12 +83,11 @@ const ServicesTable = () => {
     if (errorServices) return <div>Error al cargar los servicios</div>;
 
     return (
-        
         <Row justify="center">
             <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                 <Table
                     columns={columns}
-                    dataSource={services}
+                    dataSource={servicesData?.servicios}
                     rowKey="id_servicio"
                     style={{
                         marginTop: "30px",
@@ -89,7 +98,6 @@ const ServicesTable = () => {
             </Col>
         </Row>
     );
-
 };
 
 export default ServicesTable;
