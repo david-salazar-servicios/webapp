@@ -4,6 +4,7 @@ const pool = require('../db');
 // solicitudController.js
 const moment = require('moment-timezone');
 const getAllSolicitudes = async (req, res) => {
+    
     try {
         // Execute the SQL query to fetch all services
         const queryResult = await pool.query('SELECT * FROM solicitud');

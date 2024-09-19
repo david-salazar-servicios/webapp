@@ -6,8 +6,13 @@ import { Menubar } from 'primereact/menubar';
 import { useGetServicesQuery } from '../features/services/ServicesApiSlice';
 import { useGetCategoriasQuery } from '../features/categorias/CategoriasApiSlice';
 import { motion } from 'framer-motion';
-import { Space, Spin, Switch } from 'antd';
+import { Space, Spin, Badge } from 'antd';
 import { NavLink } from 'react-router-dom';
+import { DeleteOutlined } from '@ant-design/icons';
+import { Column } from 'primereact/column';
+import { DataTable } from 'primereact/datatable';
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { Button } from 'primereact/button';
 
 const Loader = () => {
   const [auto, setAuto] = useState(false);
@@ -37,6 +42,7 @@ const Loader = () => {
 
 export default function Header() {
   const navigate = useNavigate();
+  const op = useRef(null);
   const toast = useRef(null);
   const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
 
@@ -128,7 +134,7 @@ export default function Header() {
   ];
 
   return (
-    <div>
+    <div className="header-container">
       <div className="site-navbar-wrap">
         <motion.div
           className="site-navbar-top container py-3"
@@ -137,18 +143,17 @@ export default function Header() {
           transition={{ duration: 0.5 }}
         >
           <div className="contact-info">
-
             <NavLink to="/" className="d-flex align-items-center" >
-            <i className="bi bi-house"></i>
+              <i className="bi bi-house"></i>
               <b><span className="d-none d-md-inline-block ml-2">Inicio</span></b>
-              </NavLink>
+            </NavLink>
             <a href="tel:22396042" className="d-flex align-items-center">
               <i className="bi bi-telephone"></i>
-              <b> <span className="d-none d-md-inline-block ml-2">2239-6042</span></b>
+              <b><span className="d-none d-md-inline-block ml-2">2239-6042</span></b>
             </a>
             <a href="https://wa.me/50686096382" target='_blank' className="d-flex align-items-center">
               <i className="bi bi-phone"></i>
-              <b> <span className="d-none d-md-inline-block ml-2">8609-6382</span></b>
+              <b><span className="d-none d-md-inline-block ml-2">8609-6382</span></b>
             </a>
           </div>
           <div className="social-icons">
@@ -165,33 +170,44 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Menubar model={menuItems} className="custom-menubar" />
-
-          </motion.div>
-        </div>
-        <div className="mt-3">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5 }}
-          >
-            <motion.div
-              className="fixed-text-content mt-5"
-              initial={{ y: '20vh', opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 50, damping: 20 }}
-            >
-              <h6 style={{
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
-              }}>Invierta solo una vez</h6>
-              <h4 style={{
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)'
-              }}>Servicios Residenciales &amp; Comerciales CR LTDA</h4>
-              <NavLink to="/contacto" className="filled-button" >
-                Contáctanos
-              </NavLink>
-            </motion.div>
-
+            <div className="menubar-with-cart">
+              <Menubar model={menuItems} className="custom-menubar" />
+              <div className="cart-container">
+                <Button icon="pi pi-shopping-cart" style={{backgroundColor: "#FF8E03", borderRadius: "10px", border: "2px solid #FF8E03"}} onClick={(e) => op.current.toggle(e)} />
+                <Badge count={updatedServicesDetails?.length || 0} overflowCount={99} style={{ backgroundColor: '#52c41a' }}>
+                  <OverlayPanel ref={op} showCloseIcon id="overlay_panel" style={{ width: '450px', zIndex: 1000, position: 'relative' }}>
+                    <Toast ref={toast} />
+                    {(updatedServicesDetails && updatedServicesDetails.length > 0) ? (
+                      <DataTable value={updatedServicesDetails} selectionMode="single" paginator rows={5}>
+                        <Column field="nombre" header="Nombre" sortable style={{ minWidth: '12rem' }} />
+                        <Column
+                          body={(rowData) => (
+                            <Button
+                              shape="circle"
+                              style={{
+                                backgroundColor: 'transparent',
+                                border: '1px solid white',
+                                boxShadow: 'none',
+                                color: "black",
+                                borderRadius: '10px'
+                              }}
+                              icon={<DeleteOutlined />}
+                              type="link"
+                              className="text-danger shadow-sm"
+                              onClick={() => handleDelete(rowData.id_servicio)}
+                            />
+                          )}
+                          header="Acciones"
+                          style={{ minWidth: '8rem' }}
+                        />
+                      </DataTable>
+                    ) : (
+                      <div>No hay servicios para mostrar</div>
+                    )}
+                  </OverlayPanel>
+                </Badge>
+              </div>
+            </div>
           </motion.div>
         </div>
       </div>

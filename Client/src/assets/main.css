@@ -975,7 +975,12 @@ footer ul.menu-list li a:hover {
 .site-navbar-wrap .social-icons a:hover {
   background-color: #ff8e00;
 }
-
+.menubar-with-cart {
+  display: flex;
+  justify-content: center; /* Centers the menubar and cart horizontally */
+  align-items: center;
+  width: 100%; /* Ensure it takes full width */
+}
 /* Header.css */
 .custom-menubar {
   background: transparent;

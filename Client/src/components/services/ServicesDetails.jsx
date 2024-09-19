@@ -111,9 +111,9 @@ export default function ServicesDetails() {
                       </Accordion.Item>
                     </Accordion>
                   </div>
-                 {/*  <div className="text-right pt-5">
+                  <div className="text-right pt-5">
                     <Button type="primary" size="large" onClick={handleServiceRequest}>Solicitar Servicios</Button>
-                  </div> */}
+                  </div> 
                 </div>
               </motion.div>
 
