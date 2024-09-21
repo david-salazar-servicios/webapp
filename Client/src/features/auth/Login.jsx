@@ -8,13 +8,13 @@ import { useLoginMutation } from './authApiSlice';
 import { setCredentials } from './authSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import image from '../../assets/images/Logo-removebg-preview.png';
-import { jwtDecode } from "jwt-decode"; // asegúrate de que la importación sea correcta
+import { jwtDecode } from 'jwt-decode';
 import { useGetUserByIdQuery } from '../users/UsersApiSlice';
 
 function Login() {
     const [form] = Form.useForm();
     const [persist, setPersist] = usePersist();
-    const [login, { isLoading, isError, error }] = useLoginMutation();
+    const [login, { isLoading }] = useLoginMutation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [userRoles, setUserRoles] = useState([]);
@@ -22,11 +22,10 @@ function Login() {
     const userRef = useRef();
     const [userId, setUserId] = useState(null);
 
+    // Fetch user data based on userId
     const { data: user, isSuccess } = useGetUserByIdQuery(userId, {
         skip: !userId,
     });
-
-
 
     const handleSubmit = async (values) => {
         try {
@@ -34,33 +33,37 @@ function Login() {
             dispatch(setCredentials({ ...userData }));
             localStorage.setItem('persist', persist ? 'true' : 'false');
     
-            const decoded = jwtDecode(userData.accessToken);
-            setUserId(decoded.UserInfo.userId);
-            setUserRoles(decoded.UserInfo.roles);
-            toast.dismiss(); // Remueve el toast de 'intentando iniciar sesión'
-            toast.success('Logged in successfully!'); // Mostrar mensaje de éxito al iniciar sesión
+            const decoded = jwtDecode(userData.accessToken); // Decode the JWT token
+            setUserId(decoded.UserInfo.userId); // Set userId from decoded token
+            setUserRoles(decoded.UserInfo.roles); // Set roles from decoded token
+            
+            toast.dismiss(); // Dismiss any previous toast
+            toast.success('Logged in successfully!'); // Show success message
+
         } catch (err) {
             console.error('Failed to login:', err);
-            toast.error('Failed to login. Please check your credentials.'); // Podrías ajustar este mensaje según el error específico.
+            toast.error('Failed to login. Please check your credentials.'); // Show error message
         }
     };
 
     useEffect(() => {
-        if (user) {
+        if (user && isSuccess) {
+            // Redirect based on roles
             if (user.password_reset) {
                 navigate('/CambiarContrasenna');
             } else if (userRoles.includes('Admin')) {
-                navigate('/mantenimiento/index');
+                navigate('/mantenimiento/index'); // Redirect Admin to the maintenance page
+            } else if (userRoles.includes('Tecnico')) {
+                navigate('/mantenimiento/index'); // Redirect Tecnico to the index page
             } else {
-                navigate('/');
+                navigate('/'); // Default redirect if no matching roles
             }
         }
-    }, [user, userRoles, navigate]);
+    }, [user, userRoles, navigate, isSuccess]);
 
     return (
         <div className="min-vh-100 d-flex justify-content-center align-items-center background-radial-gradient overflow-hidden">
             <Row gutter={[16, 16]} style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
-
                 <Col span={24} className="background-row">
                     <div className="text-center">
                         <img src={image} style={{ width: '285px' }} alt="logo" />

@@ -51,10 +51,18 @@ function App() {
                     <Route path="/novedades" element={<Novedades />} />
                 </Route>
 
+                {/* Protected Routes */}
                 <Route element={<PersistLogin />}>
+                    {/* General protected routes for any allowed role */}
+                    <Route element={<RequireAuth allowedRoles={[...Object.values(ROLES)]} />}>
+                        <Route path="mantenimiento" element={<MaintenanceLayout />}>
+                            <Route path="index" element={<ProcessCalendar />} />
+                        </Route>
+                    </Route>
+
+                    {/* Admin-Only Routes */}
                     <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
                         <Route path="mantenimiento" element={<MaintenanceLayout />}>
-                            <Route path="index" element={<ProcessCalendar />}></Route>
                             <Route path="servicios" element={<Services />} />
                             <Route path="solicitudes" element={<Requests />} />
                             <Route path="categorias" element={<Categories />} />
@@ -62,13 +70,12 @@ function App() {
                             <Route path="roles" element={<Roles />} />
                         </Route>
                     </Route>
-                </Route>
 
-                {/*  <Route element={<PersistLogin />}>
-                    <Route element={<RequireAuth allowedRoles={[...Object.values(ROLES)]} />}>
-                    
-                 </Route>
-                </Route>*/}
+                    {/* Tecnico-Only Routes */}
+                    <Route element={<RequireAuth allowedRoles={[ROLES.Tecnico]} />}>
+                        <Route path="mantenimiento/index" element={<ProcessCalendar />} />
+                    </Route>
+                </Route>
             </Routes>
         </div>
     );
