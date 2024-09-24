@@ -41,7 +41,7 @@ const Loader = () => {
 };
 
 export default function Header() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Use navigate for redirect
   const op = useRef(null);
   const toast = useRef(null);
   const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
@@ -61,6 +61,11 @@ export default function Header() {
     } catch (error) {
       toast.current.show({ severity: 'error', summary: 'Error al eliminar', detail: 'Error al eliminar el servicio', life: 2000 });
     }
+  };
+
+  const handleConfirmarPedido = () => {
+    // Redirect to /Proceso_Solicitud when the button is clicked
+    navigate('/Proceso_Solicitud');
   };
 
   useEffect(() => {
@@ -118,7 +123,6 @@ export default function Header() {
               command: () => navigate(`/Services/${service.id_servicio}`)
             });
 
-            // Add a separator after each service item except the last one
             if (index < services.length - 1) {
               acc.push({ separator: true });
             }
@@ -173,34 +177,44 @@ export default function Header() {
             <div className="menubar-with-cart">
               <Menubar model={menuItems} className="custom-menubar" />
               <div className="cart-container">
-                <Button icon="pi pi-shopping-cart" style={{backgroundColor: "#FF8E03", borderRadius: "10px", border: "2px solid #FF8E03"}} onClick={(e) => op.current.toggle(e)} />
+                <Button icon="pi pi-shopping-cart" style={{ backgroundColor: "#FF8E03", borderRadius: "10px", border: "2px solid #FF8E03" }} onClick={(e) => op.current.toggle(e)} />
                 <Badge count={updatedServicesDetails?.length || 0} overflowCount={99} style={{ backgroundColor: '#52c41a' }}>
                   <OverlayPanel ref={op} showCloseIcon id="overlay_panel" style={{ width: '450px', zIndex: 1000, position: 'relative' }}>
                     <Toast ref={toast} />
                     {(updatedServicesDetails && updatedServicesDetails.length > 0) ? (
-                      <DataTable value={updatedServicesDetails} selectionMode="single" paginator rows={5}>
-                        <Column field="nombre" header="Nombre" sortable style={{ minWidth: '12rem' }} />
-                        <Column
-                          body={(rowData) => (
-                            <Button
-                              shape="circle"
-                              style={{
-                                backgroundColor: 'transparent',
-                                border: '1px solid white',
-                                boxShadow: 'none',
-                                color: "black",
-                                borderRadius: '10px'
-                              }}
-                              icon={<DeleteOutlined />}
-                              type="link"
-                              className="text-danger shadow-sm"
-                              onClick={() => handleDelete(rowData.id_servicio)}
-                            />
-                          )}
-                          header="Acciones"
-                          style={{ minWidth: '8rem' }}
+                      <>
+                        <DataTable value={updatedServicesDetails} selectionMode="single" paginator rows={5}>
+                          <Column field="nombre" header="Nombre" sortable style={{ minWidth: '12rem' }} />
+                          <Column
+                            body={(rowData) => (
+                              <Button
+                                shape="circle"
+                                style={{
+                                  backgroundColor: 'transparent',
+                                  border: '1px solid white',
+                                  boxShadow: 'none',
+                                  color: "black",
+                                  borderRadius: '10px'
+                                }}
+                                icon={<DeleteOutlined />}
+                                type="link"
+                                className="text-danger shadow-sm"
+                                onClick={() => handleDelete(rowData.id_servicio)}
+                              />
+                            )}
+                            header="Acciones"
+                            style={{ minWidth: '8rem' }}
+                          />
+                        </DataTable>
+
+                        {/* Confirmar Pedido button */}
+                        <Button
+                          label="Confirmar Pedido"
+                          icon="pi pi-check"
+                          className="p-button-success mt-3"
+                          onClick={handleConfirmarPedido}
                         />
-                      </DataTable>
+                      </>
                     ) : (
                       <div>No hay servicios para mostrar</div>
                     )}
@@ -213,8 +227,7 @@ export default function Header() {
       </div>
 
       <CarouselHeader />
-      <div style={{ height: '5px', backgroundColor: '#ff8e00' }}>
-      </div>
+      <div style={{ height: '5px', backgroundColor: '#ff8e00' }}></div>
     </div>
   );
 }
