@@ -33,6 +33,15 @@ export const requestServiceApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Solicitud', id }],
         }),
+        // New method for updating fecha_preferencia
+        updateSolicitudFechaPreferencia: builder.mutation({
+            query: ({ id, fecha_preferencia }) => ({
+                url: `/solicitudes/${id}/fecha_preferencia`,
+                method: 'PUT',
+                body: { fecha_preferencia },
+            }),
+            invalidatesTags: (result, error, { id }) => [{ type: 'Solicitud', id }],
+        }),
     }),
 });
 
@@ -40,5 +49,6 @@ export const {
     useCreateSolicitudWithDetailsMutation,
     useGetSolicitudesQuery,
     useGetSolicitudByIdQuery,
-    useUpdateSolicitudEstadoMutation, // Export the new hook
+    useUpdateSolicitudEstadoMutation,
+    useUpdateSolicitudFechaPreferenciaMutation, // Export the new hook
 } = requestServiceApiSlice;

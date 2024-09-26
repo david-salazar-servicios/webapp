@@ -3,13 +3,13 @@ import { Modal, Form, Input, ConfigProvider, Select, Button, Space, Spin } from 
 import { DatePicker as AntDatePicker } from 'antd';
 import { useGetUsersQuery } from '../../features/users/UsersApiSlice';
 import { useGetUsersRolesQuery, useGetRolesQuery } from '../../features/roles/RolesApiSlice';
-import { useCreateCitaMutation } from '../../features/cita/CitaApiSlice';
-import { useUpdateSolicitudEstadoMutation, useGetSolicitudByIdQuery } from '../../features/RequestService/RequestServiceApiSlice';
+import { useCreateCitaMutation, useUpdateCitaMutation, useGetAllCitasQuery } from '../../features/cita/CitaApiSlice';
+import { useUpdateSolicitudEstadoMutation, useGetSolicitudByIdQuery, useUpdateSolicitudFechaPreferenciaMutation } from '../../features/RequestService/RequestServiceApiSlice'; // Import the mutation for updating fecha_preferencia
 import dayjs from 'dayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import utc from 'dayjs/plugin/utc';
 import enUS from 'antd/es/locale/en_US';
-import { Toast } from 'primereact/toast'; // Import PrimeReact Toast
+import { Toast } from 'primereact/toast';
 
 const { Option } = Select;
 
@@ -30,23 +30,27 @@ const buddhistLocale = {
     }
 };
 
-export default function CitaForm({ visible, onClose, citaData }) {
+export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) {
     const [form] = Form.useForm();
     const [technicians, setTechnicians] = useState([]);
     const [loading, setLoading] = useState(true);
     const toast = useRef(null); // Create a Toast reference
 
-    // Fetch users, roles, and user roles only once
+    // Fetch users, roles, and user roles
     const { data: users } = useGetUsersQuery();
     const { data: rolesData } = useGetRolesQuery();
-    const { data: userRolesData, isError: isUserRolesError, refetch: refetchUserRoles } = useGetUsersRolesQuery();
-    // Fetch solicitud details only if citaData is available
-    const { data: solicitudDetails, isLoading: isSolicitudLoading, refetch } = useGetSolicitudByIdQuery(citaData?.id_solicitud, {
-        skip: !citaData?.id_solicitud // Skip fetch if no citaData is provided
+    const { data: userRolesData, refetch: refetchUserRoles } = useGetUsersRolesQuery();
+    const { data: citaData } = useGetAllCitasQuery();
+
+    // Fetch solicitud details only if solicitudData is available
+    const { data: solicitudDetails, isLoading: isSolicitudLoading, refetch } = useGetSolicitudByIdQuery(solicitudData?.id_solicitud, {
+        skip: !solicitudData?.id_solicitud // Skip fetch if no solicitudData is provided
     });
 
     const [createCita, { isLoading: isCreating }] = useCreateCitaMutation();
+    const [updateCita, { isLoading: isUpdating }] = useUpdateCitaMutation(); // Mutation for updating an existing Cita
     const [updateSolicitudEstado] = useUpdateSolicitudEstadoMutation();
+    const [updateSolicitudFechaPreferencia] = useUpdateSolicitudFechaPreferenciaMutation(); // Add the hook for updating fecha_preferencia
 
     useEffect(() => {
         if (users && userRolesData && rolesData) {
@@ -59,6 +63,7 @@ export default function CitaForm({ visible, onClose, citaData }) {
             setTechnicians(technicianList);
         }
     }, [users, userRolesData, rolesData]);
+
     useEffect(() => {
         const interval = setInterval(() => {
             refetchUserRoles();
@@ -67,63 +72,99 @@ export default function CitaForm({ visible, onClose, citaData }) {
     }, [refetchUserRoles]);
 
     useEffect(() => {
-        if (visible && citaData) {
+        if (visible && solicitudData) {
             setLoading(true);
             refetch(); // Refetch the data
         }
-    }, [visible, citaData, refetch]);
+    }, [visible, solicitudData, refetch]);
 
-    // Update form fields only when the form is visible and citaData changes
     useEffect(() => {
-        if (visible && citaData && solicitudDetails && !isSolicitudLoading) {
+        if (visible && solicitudData && solicitudDetails && !isSolicitudLoading) {
             setLoading(false); // Stop loading when the data is fetched
+    
             const preferredDate = solicitudDetails.fecha_preferencia ? dayjs(solicitudDetails.fecha_preferencia) : null;
+    
+            // Find cita by id_solicitud, it may not exist if creating a new cita
+            const filteredCita = citaData?.find(cita => cita.id_solicitud === solicitudDetails.id_solicitud);
+    
+            // Reset form fields and set values, using defaults if filteredCita is not found
             form.resetFields();
             form.setFieldsValue({
                 id_solicitud: solicitudDetails.id_solicitud,
-                id_tecnico: '',
-                datetime: preferredDate,
+                id_tecnico: filteredCita ? filteredCita.id_tecnico : '', // If filteredCita is not found, set id_tecnico to an empty string
+                datetime: filteredCita ? dayjs(filteredCita.datetime) : preferredDate, // Use filteredCita's datetime or default to preferred date
             });
         }
-    }, [solicitudDetails, form, citaData, visible, isSolicitudLoading]);
+    }, [solicitudDetails, form, solicitudData, visible, isSolicitudLoading, citaData]);
 
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            await createCita(values).unwrap();
-            await updateSolicitudEstado({ id: values.id_solicitud, estado: 'En Agenda' }).unwrap();
-            toast.current.show({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: 'La solicitud ha sido agendada correctamente',
-                life: 3000
-            });
-            onClose();
-        } catch (error) {
-            console.error('Error creando cita:', error);
-
-            if (error.status === 409) {
+    
+            // Find the filteredCita by id_solicitud (just like in the useEffect)
+            const filteredCita = citaData.find(cita => cita.id_solicitud === solicitudData.id_solicitud);
+    
+            // Format the selected datetime to the desired format for both Cita and Solicitud using dayjs
+            const formattedDateTime = values.datetime ? dayjs(values.datetime).format('YYYY-MM-DDTHH:mm:ssZ') : null;
+    
+            if (isUpdate && filteredCita) {
+                console.log("Cita Data", filteredCita);
+                console.log("Form values", values);
+    
+                // Update Cita with the formatted date
+                await updateCita({ ...values, id_cita: filteredCita.id_cita, datetime: formattedDateTime, estado: 'En Agenda' }).unwrap();
+                
+                // Update fecha_preferencia of solicitud with the same formatted date
+                if (formattedDateTime) {
+                    await updateSolicitudFechaPreferencia({ id: values.id_solicitud, fecha_preferencia: formattedDateTime }).unwrap();
+                }
+    
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Ya existe una cita para esta fecha y hora con este técnico',
-                    life: 5000
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: 'La cita ha sido actualizada correctamente',
+                    life: 3000
                 });
             } else {
+                // If creating a new cita
+                await createCita({ ...values, datetime: formattedDateTime }).unwrap();
+                await updateSolicitudEstado({ id: values.id_solicitud, estado: 'En Agenda' }).unwrap();
+    
+                // Update fecha_preferencia of solicitud with the same formatted date
+                if (formattedDateTime) {
+                    await updateSolicitudFechaPreferencia({ id: values.id_solicitud, fecha_preferencia: formattedDateTime }).unwrap();
+                }
+    
                 toast.current.show({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudo crear la cita',
-                    life: 5000
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: 'La solicitud ha sido agendada correctamente',
+                    life: 3000
                 });
             }
+    
+            // Close the modal after success
+            onClose();
+        } catch (error) {
+            console.error('Error gestionando cita:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: error?.data?.message || 'No se pudo gestionar la cita',
+                life: 5000
+            });
         }
     };
 
     return (
         <>
             <Toast ref={toast} /> {/* Add the Toast component */}
-            <Modal open={visible} title="Crear Cita" onCancel={onClose} footer={null}>
+            <Modal
+                open={visible}
+                title={isUpdate ? "Actualizar Cita" : "Crear Cita"} // Change title based on isUpdate
+                onCancel={onClose}
+                footer={null}
+            >
                 {loading ? (
                     <Spin tip="Cargando..." />
                 ) : (
@@ -140,7 +181,7 @@ export default function CitaForm({ visible, onClose, citaData }) {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item label="Fecha y Hora" name="datetime">
+                        <Form.Item label="Fecha y Hora" name="datetime" rules={[{ required: true, message: 'Selecciona fecha y hora' }]}>
                             <ConfigProvider locale={buddhistLocale}>
                                 <Space direction="vertical">
                                     <AntDatePicker
@@ -153,7 +194,9 @@ export default function CitaForm({ visible, onClose, citaData }) {
                             </ConfigProvider>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" onClick={handleSubmit} loading={isCreating}>Enviar</Button>
+                            <Button type="primary" onClick={handleSubmit} loading={isCreating || isUpdating}>
+                                {isUpdate ? "Actualizar" : "Enviar"}
+                            </Button>
                         </Form.Item>
                     </Form>
                 )}

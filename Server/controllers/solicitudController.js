@@ -120,9 +120,39 @@ const getSolicitudByIdForEmit = async (solicitudId) => {
 
     return { ...solicitud, detalles };
 };
+
+const updateSolicitudFechaPreferencia = async (req, res) => {
+    const { solicitudId } = req.params;
+    const { fecha_preferencia } = req.body;
+
+    try {
+        // Format the fecha_preferencia using moment-timezone
+        const formattedFechaPreferencia = moment(fecha_preferencia).tz('America/Costa_Rica').format();
+
+        // Update the fecha_preferencia field in the solicitud
+        const queryResult = await pool.query(
+            'UPDATE solicitud SET fecha_preferencia = $1 WHERE id_solicitud = $2 RETURNING *',
+            [formattedFechaPreferencia, solicitudId]
+        );
+
+        if (queryResult.rowCount === 0) {
+            return res.status(404).json({ message: 'Solicitud not found' });
+        }
+
+        // Fetch and return the updated solicitud details
+        const updatedSolicitud = await getSolicitudByIdForEmit(solicitudId);
+
+        res.json(updatedSolicitud);
+    } catch (error) {
+        console.error("Error updating solicitud fecha_preferencia:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
 module.exports = {
     crearSolicitud_AgregarServicios,
     getAllSolicitudes,
     getSolicitudById,
-    updateSolicitudEstado
+    updateSolicitudEstado,
+    updateSolicitudFechaPreferencia 
 };

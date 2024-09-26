@@ -3,6 +3,7 @@ import { useGetSolicitudesQuery } from '../../features/RequestService/RequestSer
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ProgressBar } from 'primereact/progressbar';
+import { Popconfirm } from 'antd';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
@@ -16,36 +17,63 @@ export default function SolicitudesTable() {
     const [globalFilter, setGlobalFilter] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentSolicitud, setCurrentSolicitud] = useState(null);
+    const [isUpdate, setIsUpdate] = useState(false); // New state to track if it's an update
     const dt = useRef(null);
     const toast = useRef(null);
 
     const solicitudes = data ? [...data].sort((a, b) => a.estado === 'Pendiente' ? -1 : 1) : [];
 
-    const showCitaForm = (solicitud) => {
-        if (solicitud.estado === 'En Agenda') {
-            toast.current.show({
-                severity: 'info',
-                summary: 'Información',
-                detail: 'La solicitud ya está en agenda',
-                life: 3000
-            });
-        } else {
-            setCurrentSolicitud(solicitud);
-            setIsModalVisible(true);
-        }
+    const showCitaForm = (solicitud, isUpdate) => {
+        setCurrentSolicitud(solicitud);
+        setIsUpdate(isUpdate); // Set if it's an update or a new creation
+        setIsModalVisible(true);
+    };
+
+    const handleConfirm = (solicitud) => {
+        // Logic for updating the solicitud (or any other logic)
+        const isUpdate = solicitud.estado === 'En Agenda'; // True if updating, false if creating new
+        showCitaForm(solicitud, isUpdate);
+    };
+
+    const handleCancel = () => {
+        // Close pop-up when canceled
     };
 
     const handleFormClose = (shouldRefetch = false) => {
         setIsModalVisible(false);
         if (shouldRefetch) {
             refetch();
-
         }
     };
 
     const statusBodyTemplate = (rowData) => {
         const status = rowData.estado === 'Pendiente' ? 'warning' :
             rowData.estado === 'En Agenda' ? 'info' : 'success';
+
+        if (rowData.estado === 'Pendiente' || rowData.estado === 'En Agenda') {
+            const confirmText = rowData.estado === 'Pendiente' ?
+                "¿Quieres confirmar y agendar esta solicitud?" :
+                "¿Quieres actualizar esta solicitud?";
+
+            return (
+                <Popconfirm
+                    title={confirmText}
+                    onConfirm={() => handleConfirm(rowData)} // Confirmation required before opening the form
+                    onCancel={handleCancel}
+                    okText="Sí"
+                    cancelText="No"
+                    placement="top"
+                >
+                    <Tag
+                        value={rowData.estado}
+                        severity={status}
+                        style={{ cursor: 'pointer' }} // Make it clear that this tag is interactive
+                    />
+                </Popconfirm>
+            );
+        }
+
+        // Default case for other states
         return <Tag value={rowData.estado} severity={status} />;
     };
 
@@ -62,7 +90,7 @@ export default function SolicitudesTable() {
                     label="Exportar"
                     icon="pi pi-upload"
                     className="p-button-help"
-                    style={{borderRadius:"10px",background:"#05579E", border:"1px solid #05579E"}}
+                    style={{ borderRadius: "10px", background: "#05579E", border: "1px solid #05579E" }}
                     onClick={() => dt.current.exportCSV()}
                 />
             </Col>
@@ -97,7 +125,6 @@ export default function SolicitudesTable() {
                             header={header}
                             scrollable
                             scrollHeight="100%"
-                            onRowClick={(e) => showCitaForm(e.data)}
                             className="custom-hover-effect elegant-table"
                         >
                             <Column field="id_solicitud" header="Id Solicitud" sortable style={{ width: '8rem' }}></Column>
@@ -112,7 +139,7 @@ export default function SolicitudesTable() {
                         </DataTable>
                     </Col>
                 </Card>
-                <CitaForm key={currentSolicitud?.id_solicitud} visible={isModalVisible} onClose={() => handleFormClose(true)} citaData={currentSolicitud} />
+                <CitaForm key={currentSolicitud?.id_solicitud} visible={isModalVisible} onClose={() => handleFormClose(true)} solicitudData={currentSolicitud} isUpdate={isUpdate} />
             </Row>
         </>
     );

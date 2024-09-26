@@ -70,13 +70,13 @@ const createCita = async (req, res) => {
 // @access Private
 const updateCita = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { id_solicitud, id_tecnico, datetime, estado } = req.body;
+        console.log(req.body)
+        const { id_solicitud, id_tecnico, datetime, id_cita, estado } = req.body;
 
         // Update cita in the database
         const updatedCita = await pool.query(
             'UPDATE cita SET id_solicitud = $1, id_tecnico = $2, datetime = $3, estado = $4 WHERE id_cita = $5 RETURNING *',
-            [id_solicitud, id_tecnico, datetime, estado, id]
+            [id_solicitud, id_tecnico, datetime, estado, id_cita]
         );
 
         if (updatedCita.rows.length === 0) {
