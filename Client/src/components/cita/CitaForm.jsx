@@ -214,7 +214,7 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                 <List
                                     dataSource={servicio.detalles || []}
                                     renderItem={(detalle) => (
-                                        <List.Item style={{ display: 'flex', alignItems: 'center' }}>
+                                        <List.Item style={{ justifyContent: 'start'}}>
                                             <CheckCircleOutlined style={{ color: 'green', marginRight: 30 }} />
                                             <Text>{detalle}</Text>
                                         </List.Item>
