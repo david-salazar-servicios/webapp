@@ -11,10 +11,10 @@ import {
     LoginOutlined,
     UserSwitchOutlined
 } from '@ant-design/icons';
-import { Layout, Menu, Modal, List, Badge } from 'antd';
+import { Layout, Menu, Modal, List, Badge, Card, Typography, Row, Col } from 'antd';
 import io from 'socket.io-client';
 import { format } from 'date-fns'; // Ensure you import the date-fns format function
-
+const { Text, Title } = Typography;
 const { Content, Sider } = Layout;
 
 const MaintenanceLayout = () => {
@@ -45,7 +45,7 @@ const MaintenanceLayout = () => {
             }
         };
     }, [refetch]);
-
+    console.log(notificationData)
     const handleSubmit = async () => {
         try {
             await sendLogout().unwrap();
@@ -71,30 +71,30 @@ const MaintenanceLayout = () => {
         { label: 'Home', key: 'mantenimiento/index', icon: <HomeOutlined /> },
         { label: 'Reportes', key: 'mantenimiento/reportes', icon: <PieChartOutlined /> },
         { label: 'Perfiles', key: 'mantenimiento/perfiles', icon: <UserAddOutlined /> },
-        { 
-            label: 'Mantenimiento', 
-            key: 'sub1', 
-            icon: <SettingOutlined />, 
+        {
+            label: 'Mantenimiento',
+            key: 'sub1',
+            icon: <SettingOutlined />,
             children: [
                 { label: 'Categorias', key: 'mantenimiento/categorias' },
                 { label: 'Servicios', key: 'mantenimiento/servicios' },
                 { label: 'Roles', key: 'mantenimiento/roles' },
-            ] 
+            ]
         },
         {
             label: (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span>Solicitudes</span>
-                <Badge 
-                  count={pendientesCount} // Show count of pendientes
-                  style={{ backgroundColor: '#52c41a', marginLeft: 10 }}
-                  size='small'
-                />
-              </div>
-            ), 
-            key: 'mantenimiento/solicitudes', 
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span>Solicitudes</span>
+                    <Badge
+                        count={pendientesCount} // Show count of pendientes
+                        style={{ backgroundColor: '#52c41a', marginLeft: 10 }}
+                        size='small'
+                    />
+                </div>
+            ),
+            key: 'mantenimiento/solicitudes',
             icon: <UserAddOutlined />
-          },
+        },
         { label: 'Facturación', key: 'mantenimiento/facturacion', icon: <FormOutlined /> },
         { label: 'Cambiar a Cliente', key: '', icon: <UserSwitchOutlined /> },
         { label: 'Salir', key: 'logout', icon: <LoginOutlined /> },
@@ -124,33 +124,80 @@ const MaintenanceLayout = () => {
                 <Content style={{ padding: '20px' }}>
                     <Outlet />
                     <Modal
-                        title="Nueva Solicitud Creada"
+                        title={<Title level={3} style={{ marginBottom: 0}}>Nueva Solicitud Creada</Title>}
                         open={modalVisible}
                         onOk={() => setModalVisible(false)}
                         onCancel={() => setModalVisible(false)}
                         footer={null}
+                        bodyStyle={{ padding: '20px' }}
+                        width={850}
                     >
-                        <p><strong>Mensaje:</strong> {notificationData.message}</p>
-                        <p><strong>ID Solicitud:</strong> {notificationData.solicitud?.id_solicitud}</p>
-                        <p><strong>Nombre:</strong> {notificationData.solicitud?.nombre}</p>
-                        <p><strong>Apellido:</strong> {notificationData.solicitud?.apellido}</p>
-                        <p><strong>Correo Electrónico:</strong> {notificationData.solicitud?.correo_electronico}</p>
-                        <p><strong>Teléfono:</strong> {notificationData.solicitud?.telefono}</p>
-                        <p><strong>Fecha Creación:</strong> {formatFechaCreacion(notificationData.solicitud?.fecha_creacion)}</p>
-                        <p><strong>Observación:</strong> {notificationData.solicitud?.observacion}</p>
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={notificationData.solicitud?.detalles || []}
-                            renderItem={item => (
-                                <List.Item>
-                                    <List.Item.Meta
-                                        title={<span>{item.servicio_nombre}</span>}
-                                        description={item.servicio_descripcion}
-                                    />
-                                </List.Item>
-                            )}
-                        />
+                        {/* Card for Solicitud Information */}
+                        <Card
+                            title={<Title level={4}>Información de la Solicitud</Title>}
+                            bordered={false}
+                            style={{ marginBottom: '20px', backgroundColor: '#f6f9fc', borderRadius: '8px' }}
+                        >
+                            <Row gutter={[16, 16]}>
+                                <Col span={12}>
+                                    <Text strong>ID Solicitud: </Text>
+                                    <Text>{notificationData.solicitud?.id_solicitud}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Nombre: </Text>
+                                    <Text>{notificationData.solicitud?.nombre}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Apellido: </Text>
+                                    <Text>{notificationData.solicitud?.apellido}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Correo Electrónico: </Text>
+                                    <Text>{notificationData.solicitud?.correo_electronico}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Teléfono: </Text>
+                                    <Text>{notificationData.solicitud?.telefono}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Fecha Creación: </Text>
+                                    <Text>{formatFechaCreacion(notificationData.solicitud?.fecha_creacion)}</Text>
+                                </Col>
+                                {notificationData.solicitud?.observacion && (
+                                    <Col span={24}>
+                                        <Text strong>Observación: </Text>
+                                        <Text>{notificationData.solicitud?.observacion}</Text>
+                                    </Col>
+                                )}
+                            </Row>
+                        </Card>
+
+                        {/* Title for Servicios */}
+                        <Title level={4} style={{ marginBottom: '16px' }}>Servicios Solicitados</Title>
+
+                        {/* Card for Each Servicio */}
+                        {notificationData.solicitud?.servicios?.map((servicio, index) => (
+                            <Card
+                                key={index}
+                                title={servicio.servicio_nombre}
+                                bordered={true}
+                                style={{ marginBottom: '20px', borderRadius: '8px' }}
+                            >
+                                <List
+                                    itemLayout="horizontal"
+                                    dataSource={servicio.detalles || []}
+                                    renderItem={detalle => (
+                                        <List.Item>
+                                            <List.Item.Meta
+                                                description={detalle}
+                                            />
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        ))}
                     </Modal>
+
                 </Content>
             </Layout>
         </Layout>

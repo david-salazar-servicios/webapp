@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Form, Row, Col, Card, Button, Typography, Steps, Input } from 'antd';
+import { Form, Row, Col, Card, Button, Typography, Steps, Input, Divider } from 'antd';
 import { useCreateSolicitudWithDetailsMutation } from "../../features/RequestService/RequestServiceApiSlice";
 import { Calendar } from 'primereact/calendar';
-import { DeleteOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { DeleteOutlined, LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
 import { Toast } from 'primereact/toast';
-import ServicesHook from "../../hooks/services/ServicesHook";
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -50,8 +49,13 @@ export default function RequestServices() {
             id_usuario: null,
             fecha_creacion: new Date().toISOString(),
             fecha_preferencia: date.toISOString(),
-            servicios: updatedServicesDetails.map(detail => detail.id_servicio),
+            servicios: updatedServicesDetails.map(detail => ({
+                id_servicio: detail.id_servicio, // The service ID
+                selectedOffers: detail.selectedOffers // The related selected offers
+            })),
         };
+    
+        console.log(solicitudDetails); // Logging for debugging purposes
     
         try {
             await createSolicitudWithDetails(solicitudDetails).unwrap();
@@ -65,6 +69,7 @@ export default function RequestServices() {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al enviar la solicitud', life: 3000 });
         }
     };
+    
 
     const onReset = () => {
         form.resetFields();
@@ -99,13 +104,47 @@ export default function RequestServices() {
         {
             content: (
                 <div>
-                    {updatedServicesDetails.length > 0 ? (
-                        updatedServicesDetails.map((serviceDetail, index) => (
-                            <ServicesHook key={index} serviceId={serviceDetail.id_servicio} onDelete={handleDelete} />
-                        ))
-                    ) : (
-                        <Text>No hay servicios para mostrar</Text>
-                    )}
+                    {
+    updatedServicesDetails.length > 0 ? (
+        updatedServicesDetails.map((serviceDetail, index) => (
+            <Card key={index} className="rounded-3 mb-4 shadow-sm">
+                {/* Title and Delete button */}
+                <div className="d-flex justify-content-between align-items-center">
+                    <Title level={4}>{serviceDetail.nombre}</Title>
+                    <Button
+                        icon={<DeleteOutlined />}
+                        type="link"
+                        danger
+                        onClick={() => handleDelete(serviceDetail.id_servicio)}
+                    />
+                </div>
+        
+                {/* Divider between Title and Selected Offers */}
+                <Divider />
+        
+                {/* Display selected offers with check icons */}
+                {serviceDetail.selectedOffers && serviceDetail.selectedOffers.length > 0 ? (
+                    <ul style={{ marginTop: '10px', paddingLeft: '20px', listStyleType: 'none'}}>
+                        {serviceDetail.selectedOffers.map((offer, i) => (
+                            <li key={i} style={{marginBottom:'10px'}}>
+                                <CheckOutlined style={{ color: 'green', marginRight: '8px' }} />
+                                <Text>{offer}</Text>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <Text>No hay ofertas seleccionadas</Text>
+                )}
+            </Card>
+        ))
+        
+        
+    ) : (
+        <Text>No hay servicios para mostrar</Text>
+    )
+}
+
+
                     <div>
                         <Button type="primary" style={{ margin: "20px" }} onClick={next}>
                             Siguiente <RightOutlined />
@@ -196,8 +235,8 @@ export default function RequestServices() {
 
     return (
         <div style={{ width: '100%', padding: '0 10px' }}>
-            <div className="d-flex justify-content-center align-items-center mb-4 mt-5">
-                <Title level={2} className="fw-normal mb-0 text-black section-title">
+            <div className="d-flex justify-content-center align-items-center mb-4 pt-5">
+                <Title level={2} className="fw-normal mb-0 text-black section-title pt-5">
                     <div className="section-title" data-aos="fade-up">
                         <h2>Proceso de Solicitud</h2>
                     </div>
