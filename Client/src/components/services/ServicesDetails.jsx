@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Accordion } from 'react-bootstrap';
 import { useGetServiceByIdQuery } from '../../features/services/ServicesApiSlice';
@@ -14,9 +14,16 @@ export default function ServicesDetails() {
   const toast = useRef(null);
 
   const [activeKeys, setActiveKeys] = useState(['0', '1']);
+  const [selectedOffers, setSelectedOffers] = useState([]);
+
+  // Reset selectedOffers when a new service is loaded
+  useEffect(() => {
+    setSelectedOffers([]);
+  }, [serviceId]); // Reset the array when serviceId changes
+
 
   const handleServiceRequest = () => {
-    if (serviceId) {
+    if (serviceId && selectedOffers.length > 0) { // Check if selectedOffers is not empty
       try {
         let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
         const serviceExists = serviceRequests.some(req => req.id_servicio === serviceId);
@@ -24,7 +31,7 @@ export default function ServicesDetails() {
         if (serviceExists) {
           toast.current.show({ severity: 'info', summary: 'Servicio ya agregado', detail: 'Este servicio ya ha sido agregado a la lista de solicitudes', life: 2000 });
         } else {
-          serviceRequests.push({ id_servicio: serviceId, nombre: service.nombre });
+          serviceRequests.push({ id_servicio: serviceId, nombre: service.nombre, selectedOffers });
           localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
           window.dispatchEvent(new Event('serviceAdded'));
           toast.current.show({ severity: 'success', summary: 'Servicio agregado', detail: 'El servicio ha sido agregado a la lista de solicitudes correctamente', life: 2000 });
@@ -33,6 +40,16 @@ export default function ServicesDetails() {
         toast.current.show({ severity: 'error', summary: 'Error al agregar servicio', detail: `No se ha podido agregar el servicio: ${error.message}`, life: 2000 });
       }
     }
+  };
+
+  const handleCheckboxChange = (offer) => {
+    setSelectedOffers((prevSelected) => {
+      if (prevSelected.includes(offer)) {
+        return prevSelected.filter((item) => item !== offer);
+      } else {
+        return [...prevSelected, offer];
+      }
+    });
   };
 
   const handleAccordionClick = (key) => {
@@ -100,11 +117,20 @@ export default function ServicesDetails() {
                         </Accordion.Body>
                       </Accordion.Item>
                       <Accordion.Item eventKey="1">
-                        <Accordion.Header onClick={() => handleAccordionClick('1')}>Lo que ofrecemos</Accordion.Header>
+                        <Accordion.Header onClick={() => handleAccordionClick('1')}>Selecciona lo que deseas solicitar:</Accordion.Header>
                         <Accordion.Body>
                           <Timeline>
                             {service?.offers?.map((offer, index) => (
-                              <Timeline.Item key={index}>{offer}</Timeline.Item>
+                              <Timeline.Item 
+                                key={index} 
+                                dot={<input 
+                                        type="checkbox" 
+                                        checked={selectedOffers.includes(offer)} 
+                                        onChange={() => handleCheckboxChange(offer)}
+                                      />}
+                              >
+                                {offer}
+                              </Timeline.Item>
                             ))}
                           </Timeline>
                         </Accordion.Body>
@@ -112,7 +138,14 @@ export default function ServicesDetails() {
                     </Accordion>
                   </div>
                   <div className="text-right pt-5">
-                    <Button type="primary" size="large" onClick={handleServiceRequest}>Solicitar Servicios</Button>
+                    <Button 
+                      type="primary" 
+                      size="large" 
+                      onClick={handleServiceRequest}
+                      disabled={selectedOffers.length === 0} // Disable button if no offers are selected
+                    >
+                      Solicitar Servicio
+                    </Button>
                   </div> 
                 </div>
               </motion.div>
