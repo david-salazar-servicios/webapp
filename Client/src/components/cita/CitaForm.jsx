@@ -108,8 +108,6 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
             const formattedDateTime = values.datetime ? dayjs(values.datetime).format('YYYY-MM-DDTHH:mm:ssZ') : null;
     
             if (isUpdate && filteredCita) {
-                console.log("Cita Data", filteredCita);
-                console.log("Form values", values);
     
                 // Update Cita with the formatted date
                 await updateCita({ ...values, id_cita: filteredCita.id_cita, datetime: formattedDateTime, estado: 'En Agenda' }).unwrap();
