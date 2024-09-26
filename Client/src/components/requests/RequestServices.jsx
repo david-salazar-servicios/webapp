@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Form, Row, Col, Card, Button, Typography, Steps, Input, Divider } from 'antd';
 import { useCreateSolicitudWithDetailsMutation } from "../../features/RequestService/RequestServiceApiSlice";
 import { Calendar } from 'primereact/calendar';
-import { DeleteOutlined, LeftOutlined, RightOutlined, CheckOutlined } from '@ant-design/icons';
+import { DeleteOutlined, LeftOutlined, RightOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Toast } from 'primereact/toast';
 
 const { Title, Text } = Typography;
@@ -127,7 +127,7 @@ export default function RequestServices() {
                     <ul style={{ marginTop: '10px', paddingLeft: '20px', listStyleType: 'none'}}>
                         {serviceDetail.selectedOffers.map((offer, i) => (
                             <li key={i} style={{marginBottom:'10px'}}>
-                                <CheckOutlined style={{ color: 'green', marginRight: '8px' }} />
+                                <CheckCircleOutlined style={{ color: 'green', marginRight: '30px' }} />
                                 <Text>{offer}</Text>
                             </li>
                         ))}
