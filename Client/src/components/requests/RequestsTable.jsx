@@ -128,13 +128,14 @@ export default function SolicitudesTable() {
                             className="custom-hover-effect elegant-table"
                         >
                             <Column field="id_solicitud" header="Id Solicitud" sortable style={{ width: '8rem' }}></Column>
-                            <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'yyyy-dd-MM HH:mm')} style={{ width: '12rem' }}></Column>
-                            <Column field="fecha_preferencia" header="Fecha de Preferencia" sortable body={rowData => format(new Date(rowData.fecha_preferencia), 'yyyy-dd-MM HH:mm')} style={{ width: '14rem' }}></Column>
+                            
+                            <Column field="fecha_preferencia" header="Fecha & Hora Cita" sortable body={rowData => format(new Date(rowData.fecha_preferencia), 'yyyy-dd-MM HH:mm')} style={{ width: '14rem' }}></Column>
                             <Column field="nombre" header="Nombre" sortable style={{ width: '10rem' }}></Column>
                             <Column field="apellido" header="Apellido" sortable style={{ width: '10rem' }}></Column>
                             <Column field="correo_electronico" header="Correo Electrónico" sortable style={{ width: '14rem' }}></Column>
                             <Column field="telefono" header="Teléfono" sortable style={{ width: '10rem' }}></Column>
                             <Column field="observacion" header="Observación" sortable style={{ width: '12rem' }}></Column>
+                            <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'yyyy-dd-MM')} style={{ width: '12rem' }}></Column>
                             <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '10rem' }}></Column>
                         </DataTable>
                     </Col>

@@ -75,7 +75,7 @@ export default function ServicesDetails() {
             </>
           ) : (
             <>
-              <motion.div 
+              <motion.div
                 key={serviceId} // Unique key to trigger animation on render
                 className="col-lg-7 d-flex flex-column justify-content-center align-items-stretch order-2 order-lg-1"
                 initial={{ opacity: 0, x: -100 }}
@@ -83,7 +83,7 @@ export default function ServicesDetails() {
                 transition={{ duration: 0.5 }}
               >
                 <div className="">
-                  <div style={{ display: 'flex'}}>
+                  <div style={{ display: 'flex' }}>
                     {service?.categorias.map(categoria => (
                       <Tag
                         key={categoria.nombre}
@@ -119,38 +119,37 @@ export default function ServicesDetails() {
                       <Accordion.Item eventKey="1">
                         <Accordion.Header onClick={() => handleAccordionClick('1')}>Selecciona lo que deseas solicitar:</Accordion.Header>
                         <Accordion.Body>
-                          <Timeline>
-                            {service?.offers?.map((offer, index) => (
-                              <Timeline.Item 
-                                key={index} 
-                                dot={<input 
-                                        type="checkbox" 
-                                        checked={selectedOffers.includes(offer)} 
-                                        onChange={() => handleCheckboxChange(offer)}
-                                      />}
-                              >
-                                {offer}
-                              </Timeline.Item>
-                            ))}
-                          </Timeline>
+                          <Timeline
+                            items={service?.offers?.map((offer, index) => ({
+                              key: index,
+                              dot: (
+                                <input
+                                  type="checkbox"
+                                  checked={selectedOffers.includes(offer)}
+                                  onChange={() => handleCheckboxChange(offer)}
+                                />
+                              ),
+                              children: offer, 
+                            }))}
+                          />
                         </Accordion.Body>
                       </Accordion.Item>
                     </Accordion>
                   </div>
                   <div className="text-right pt-5">
-                    <Button 
-                      type="primary" 
-                      size="large" 
+                    <Button
+                      type="primary"
+                      size="large"
                       onClick={handleServiceRequest}
                       disabled={selectedOffers.length === 0} // Disable button if no offers are selected
                     >
                       Solicitar Servicio
                     </Button>
-                  </div> 
+                  </div>
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 key={`${serviceId}-carousel`} // Unique key to trigger animation on render
                 className="col-lg-5 align-items-stretch order-1 order-lg-2"
                 initial={{ opacity: 0, x: 100 }}

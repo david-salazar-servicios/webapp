@@ -46,13 +46,13 @@ const ProcessCalendar = () => {
     .map(cita => ({
       title: `Solicitud ${cita.id_solicitud} - ${cita.nombre || 'Sin nombre'} ${cita.apellido || 'Sin apellido'}`,
       start: new Date(cita.datetime),
-      end: new Date(new Date(cita.datetime).getTime() + 60 * 60 * 1000),
+      end: new Date(cita.datetime), // Only one time
       desc: `Estado: ${cita.estado}`,
       solicitudId: cita.id_solicitud,
       tecnicoId: cita.id_tecnico,
       tecnicoNombre: cita.tecnico_nombre,
       tecnicoApellido: cita.tecnico_apellido
-    })) || [];
+    }))
 
   if (isCitasLoading) {
     return <Spin size="large" />;
@@ -78,16 +78,25 @@ const ProcessCalendar = () => {
         }}
       />
 
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        defaultView='month'
-        views={['month', 'week', 'day', 'agenda']}
-        onSelectEvent={handleEventClick}
-        style={{ height: 600, backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}
-      />
+<Calendar
+  localizer={localizer}
+  events={events}
+  startAccessor="start"
+  endAccessor="end"
+  defaultView='month'
+  views={['month', 'week', 'day', 'agenda']}
+  onSelectEvent={handleEventClick}
+  style={{ height: 600, backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}
+  components={{
+    event: ({ event }) => (
+      <span>{`Solicitud ${event.solicitudId} - ${event.tecnicoNombre} ${event.tecnicoApellido}`}</span>
+    ),
+  }}
+  formats={{
+    timeGutterFormat: 'h:mm A', // Only shows one time in the gutter
+    eventTimeRangeFormat: ({ start }) => moment(start).format('h:mm A'), // Custom format for event time
+  }}
+/>
 
       {/* Modal for displaying solicitud details */}
       {selectedEvent && (
@@ -123,12 +132,12 @@ const ProcessCalendar = () => {
                     <Text strong>Técnico: </Text>
                     <Text>{selectedEvent.tecnicoNombre} {selectedEvent.tecnicoApellido || 'Desconocido'}</Text>
                   </Col>
-                  
+
                   <Col span={12}>
                     <Text strong>Teléfono: </Text>
                     <Text>{solicitudDetails?.telefono}</Text>
                   </Col>
-                  
+
                   <Col span={12}>
                     <Text strong>Fecha Cita: </Text>
                     <Text>{moment(solicitudDetails?.fecha_preferencia).format('YYYY-MM-DD HH:mm')}</Text>
@@ -137,7 +146,7 @@ const ProcessCalendar = () => {
                     <Text strong>Observación: </Text>
                     <Text>{solicitudDetails?.observacion || 'Ninguna'}</Text>
                   </Col>
-                  
+
                 </Row>
               </Card>
 
@@ -154,7 +163,7 @@ const ProcessCalendar = () => {
                       <List
                         dataSource={servicio.detalles || []}
                         renderItem={(detalle) => (
-                          <List.Item style={{ justifyContent: 'start'}}>
+                          <List.Item style={{ justifyContent: 'start' }}>
                             <CheckCircleOutlined style={{ color: 'green', marginRight: 30 }} />
                             <Text>{detalle}</Text>
                           </List.Item>
