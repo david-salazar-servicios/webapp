@@ -23,26 +23,39 @@ export default function RequestServices() {
     const updateServicesFromStorage = () => {
         const storedServices = JSON.parse(localStorage.getItem('serviceRequests')) || [];
         setUpdatedServicesDetails(storedServices);
+
+        // If the cart is empty and user is on step 2, move back to step 1
+        if (storedServices.length === 0 && current === 1) {
+            setCurrent(0);
+            toast.current.show({
+                severity: 'warn',
+                summary: 'Advertencia',
+                detail: 'No hay servicios para confirmar, volviendo al paso de selección.',
+                life: 3000
+            });
+        }
     };
 
     useEffect(() => {
         updateServicesFromStorage();
 
         const handleStorageChange = () => updateServicesFromStorage();
+        const handleServiceUpdated = () => updateServicesFromStorage();
+
         window.addEventListener('storage', handleStorageChange);
-        window.addEventListener('serviceAdded', handleStorageChange);
+        window.addEventListener('serviceUpdated', handleServiceUpdated);
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
-            window.removeEventListener('serviceAdded', handleStorageChange);
+            window.removeEventListener('serviceUpdated', handleServiceUpdated);
         };
-    }, []);
+    }, [current]);
 
     const onFinish = async (values) => {
         const date = new Date(values.fecha_preferencia);
         date.setSeconds(0);
         date.setMilliseconds(0);
-    
+
         const solicitudDetails = {
             ...values,
             estado: 'Pendiente',
@@ -50,26 +63,23 @@ export default function RequestServices() {
             fecha_creacion: new Date().toISOString(),
             fecha_preferencia: date.toISOString(),
             servicios: updatedServicesDetails.map(detail => ({
-                id_servicio: detail.id_servicio, // The service ID
-                selectedOffers: detail.selectedOffers // The related selected offers
+                id_servicio: detail.id_servicio,
+                selectedOffers: detail.selectedOffers
             })),
         };
-    
-        console.log(solicitudDetails); // Logging for debugging purposes
-    
+
         try {
             await createSolicitudWithDetails(solicitudDetails).unwrap();
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud enviada con éxito', life: 3000 });
             form.resetFields();
             setCurrent(0);
             localStorage.removeItem('serviceRequests');
-            const event = new Event('serviceAdded');
+            const event = new Event('serviceUpdated');
             window.dispatchEvent(event);
         } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al enviar la solicitud', life: 3000 });
         }
     };
-    
 
     const onReset = () => {
         form.resetFields();
@@ -80,9 +90,20 @@ export default function RequestServices() {
             let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
             serviceRequests = serviceRequests.filter(service => service.id_servicio !== id_servicio);
             localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
-            const event = new Event('serviceAdded');
+            const event = new Event('serviceUpdated');
             window.dispatchEvent(event);
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'El servicio ha sido eliminado correctamente', life: 3000 });
+
+            // Check if there are no services left and move to step 1
+            if (serviceRequests.length === 0 && current === 1) {
+                setCurrent(0);
+                toast.current.show({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'No hay servicios para confirmar, volviendo al paso de selección.',
+                    life: 3000
+                });
+            }
         } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al eliminar el servicio', life: 3000 });
         }
@@ -105,46 +126,37 @@ export default function RequestServices() {
             content: (
                 <div>
                     {
-    updatedServicesDetails.length > 0 ? (
-        updatedServicesDetails.map((serviceDetail, index) => (
-            <Card key={index} className="rounded-3 mb-4 shadow-sm">
-                {/* Title and Delete button */}
-                <div className="d-flex justify-content-between align-items-center">
-                    <Title level={4}>{serviceDetail.nombre}</Title>
-                    <Button
-                        icon={<DeleteOutlined />}
-                        type="link"
-                        danger
-                        onClick={() => handleDelete(serviceDetail.id_servicio)}
-                    />
-                </div>
-        
-                {/* Divider between Title and Selected Offers */}
-                <Divider />
-        
-                {/* Display selected offers with check icons */}
-                {serviceDetail.selectedOffers && serviceDetail.selectedOffers.length > 0 ? (
-                    <ul style={{ marginTop: '10px', paddingLeft: '20px', listStyleType: 'none'}}>
-                        {serviceDetail.selectedOffers.map((offer, i) => (
-                            <li key={i} style={{marginBottom:'10px'}}>
-                                <CheckCircleOutlined style={{ color: 'green', marginRight: '30px' }} />
-                                <Text>{offer}</Text>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <Text>No hay ofertas seleccionadas</Text>
-                )}
-            </Card>
-        ))
-        
-        
-    ) : (
-        <Text>No hay servicios para mostrar</Text>
-    )
-}
-
-
+                        updatedServicesDetails.length > 0 ? (
+                            updatedServicesDetails.map((serviceDetail, index) => (
+                                <Card key={index} className="rounded-3 mb-4 shadow-sm">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <Title level={4}>{serviceDetail.nombre}</Title>
+                                        <Button
+                                            icon={<DeleteOutlined />}
+                                            type="link"
+                                            danger
+                                            onClick={() => handleDelete(serviceDetail.id_servicio)}
+                                        />
+                                    </div>
+                                    <Divider />
+                                    {serviceDetail.selectedOffers && serviceDetail.selectedOffers.length > 0 ? (
+                                        <ul style={{ marginTop: '10px', paddingLeft: '20px', listStyleType: 'none' }}>
+                                            {serviceDetail.selectedOffers.map((offer, i) => (
+                                                <li key={i} style={{ marginBottom: '10px' }}>
+                                                    <CheckCircleOutlined style={{ color: 'green', marginRight: '30px' }} />
+                                                    <Text>{offer}</Text>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <Text>No hay ofertas seleccionadas</Text>
+                                    )}
+                                </Card>
+                            ))
+                        ) : (
+                            <Text>No hay servicios para mostrar</Text>
+                        )
+                    }
                     <div>
                         <Button type="primary" style={{ margin: "20px" }} onClick={next}>
                             Siguiente <RightOutlined />

@@ -51,17 +51,37 @@ export default function Header() {
     setUpdatedServicesDetails(storedServices);
   };
 
-  const handleDelete = (id_servicio) => {
-    try {
-      const serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
-      const updatedRequests = serviceRequests.filter(service => service.id_servicio !== id_servicio);
-      localStorage.setItem('serviceRequests', JSON.stringify(updatedRequests));
-      updateServicesFromStorage();
-      toast.current.show({ severity: 'success', summary: 'Servicio eliminado', detail: 'El servicio ha sido eliminado correctamente', life: 2000 });
-    } catch (error) {
-      toast.current.show({ severity: 'error', summary: 'Error al eliminar', detail: 'Error al eliminar el servicio', life: 2000 });
-    }
-  };
+  useEffect(() => {
+
+    updateServicesFromStorage();
+
+    const handleStorageChange = () => updateServicesFromStorage();
+    const handleServiceUpdated = () => updateServicesFromStorage();
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('serviceUpdated', handleServiceUpdated);
+
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('serviceUpdated', handleServiceUpdated);
+    };
+}, []);
+const handleDelete = (id_servicio) => {
+  try {
+      let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
+      serviceRequests = serviceRequests.filter(service => service.id_servicio !== id_servicio);
+      localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
+
+      // Dispatch an event to notify all components of the service deletion
+      const event = new Event('serviceUpdated');
+      window.dispatchEvent(event);
+
+      // Show a success message
+      toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'El servicio ha sido eliminado correctamente', life: 3000 });
+  } catch (error) {
+      toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al eliminar el servicio', life: 3000 });
+  }
+};
 
   const handleConfirmarPedido = () => {
     // Redirect to /Proceso_Solicitud when the button is clicked
