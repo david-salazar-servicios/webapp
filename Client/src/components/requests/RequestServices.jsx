@@ -11,6 +11,7 @@ const { Step } = Steps;
 export default function RequestServices() {
     const [current, setCurrent] = useState(0);
     const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
+    const [isSubmitted, setIsSubmitted] = useState(false); // New state flag
     const [createSolicitudWithDetails, { isLoading: isSubmitting }] = useCreateSolicitudWithDetailsMutation();
     const [form] = Form.useForm();
     const toast = useRef(null);
@@ -24,8 +25,8 @@ export default function RequestServices() {
         const storedServices = JSON.parse(localStorage.getItem('serviceRequests')) || [];
         setUpdatedServicesDetails(storedServices);
 
-        // If the cart is empty and user is on step 2, move back to step 1
-        if (storedServices.length === 0 && current === 1) {
+        // Prevent the toast warning and step reset if the form was just submitted
+        if (!isSubmitted && storedServices.length === 0 && current === 1) {
             setCurrent(0);
             toast.current.show({
                 severity: 'warn',
@@ -52,14 +53,16 @@ export default function RequestServices() {
     }, [current]);
 
     const onFinish = async (values) => {
+        // Format the preference date to have 0 seconds and milliseconds
         const date = new Date(values.fecha_preferencia);
         date.setSeconds(0);
         date.setMilliseconds(0);
-
+    
+        // Prepare the request payload
         const solicitudDetails = {
             ...values,
             estado: 'Pendiente',
-            id_usuario: null,
+            id_usuario: null, // You can replace this with the actual user id if available
             fecha_creacion: new Date().toISOString(),
             fecha_preferencia: date.toISOString(),
             servicios: updatedServicesDetails.map(detail => ({
@@ -67,19 +70,52 @@ export default function RequestServices() {
                 selectedOffers: detail.selectedOffers
             })),
         };
-
+    
         try {
+            // Send the request to the API
             await createSolicitudWithDetails(solicitudDetails).unwrap();
-            toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud enviada con éxito', life: 3000 });
+            
+            // Show a success message
+            toast.current.show({ 
+                severity: 'success', 
+                summary: 'Éxito', 
+                detail: 'Solicitud enviada con éxito', 
+                life: 3000 
+            });
+    
+            // Reset the form and state
             form.resetFields();
-            setCurrent(0);
+            setCurrent(0); // Go back to the first step
+    
+            // Clean up the specific `selectedOffers_<serviceId>` keys from localStorage
+            updatedServicesDetails.forEach(service => {
+                localStorage.removeItem(`selectedOffers_${service.id_servicio}`);
+            });
+    
+            // Remove the main `serviceRequests` key from localStorage
             localStorage.removeItem('serviceRequests');
+
+            // Set the flag to true after successful submission
+            setIsSubmitted(true);
+    
+            // Dispatch an event to update the component state
             const event = new Event('serviceUpdated');
             window.dispatchEvent(event);
+
+            // Reset the flag after a short delay to avoid future interference
+            setTimeout(() => setIsSubmitted(false), 1000);
+    
         } catch (error) {
-            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al enviar la solicitud', life: 3000 });
+            // Handle any errors and show an error message
+            toast.current.show({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Error al enviar la solicitud', 
+                life: 3000 
+            });
         }
     };
+    
 
     const onReset = () => {
         form.resetFields();

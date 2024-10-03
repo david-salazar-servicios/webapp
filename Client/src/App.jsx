@@ -27,7 +27,7 @@ import Privacidad from './components/privacidad/privacidad';
 import Proyectos from './components/proyectos/proyectos';
 import Novedades from './components/novedades/novedades';
 import ScrollToTop from './components/ScrollToTop';
-
+import Invoice from './components/proforma/Invoice';
 function App() {
     return (
         <div>
@@ -68,6 +68,7 @@ function App() {
                             <Route path="categorias" element={<Categories />} />
                             <Route path="perfiles" element={<Users />} />
                             <Route path="roles" element={<Roles />} />
+                            <Route path="facturacion" element={<Invoice />} />
                         </Route>
                     </Route>
 

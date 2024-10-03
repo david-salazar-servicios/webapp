@@ -16,11 +16,11 @@ export default function ServicesDetails() {
   const [activeKeys, setActiveKeys] = useState(['0', '1']);
   const [selectedOffers, setSelectedOffers] = useState([]);
 
-  // Reset selectedOffers when a new service is loaded
+  // Load selected offers for the current service from localStorage when component mounts or serviceId changes
   useEffect(() => {
-    setSelectedOffers([]);
-  }, [serviceId]); // Reset the array when serviceId changes
-
+    const savedOffers = JSON.parse(localStorage.getItem(`selectedOffers_${serviceId}`)) || [];
+    setSelectedOffers(savedOffers);
+  }, [serviceId]);
 
   const handleServiceRequest = () => {
     if (serviceId && selectedOffers.length > 0) { // Check if selectedOffers is not empty
@@ -44,14 +44,25 @@ export default function ServicesDetails() {
 
   const handleCheckboxChange = (offer) => {
     setSelectedOffers((prevSelected) => {
+      let updatedOffers;
       if (prevSelected.includes(offer)) {
-        return prevSelected.filter((item) => item !== offer);
+        updatedOffers = prevSelected.filter((item) => item !== offer);
       } else {
-        return [...prevSelected, offer];
+        updatedOffers = [...prevSelected, offer];
       }
+  
+      // If updatedOffers is empty, remove the item from localStorage
+      if (updatedOffers.length === 0) {
+        localStorage.removeItem(`selectedOffers_${serviceId}`);
+      } else {
+        // Otherwise, persist the updated selected offers in localStorage
+        localStorage.setItem(`selectedOffers_${serviceId}`, JSON.stringify(updatedOffers));
+      }
+  
+      return updatedOffers;
     });
   };
-
+  
   const handleAccordionClick = (key) => {
     setActiveKeys((prevKeys) =>
       prevKeys.includes(key)

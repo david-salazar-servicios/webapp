@@ -7,7 +7,7 @@ import { useInView } from 'react-intersection-observer';
 const ServiceCard = ({ service }) => {
   const controls = useAnimation();
   const [ref, inView] = useInView({ triggerOnce: false });
-
+  
   useEffect(() => {
     if (inView) {
       controls.start({
@@ -26,22 +26,20 @@ const ServiceCard = ({ service }) => {
   return (
     <motion.div
       ref={ref}
-      className='col-12 col-md-6 col-lg-6'
+      className='col-12 col-sm-10 col-md-6 col-lg-4' // Adjusted grid classes for better centering
       initial={{ opacity: 0, y: 50 }}
       animate={controls}
     >
       <article className="postcard light blue">
-        <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} referrerPolicy="no-referrer"/>
+        <img className="postcard__img" src={service.itemImageSrc} alt={service.alt} referrerPolicy="no-referrer" />
         <div className="postcard__text t-dark">
           <h1 className="postcard__title">{service.title}</h1>
-          <div className="postcard__subtitle small">
-            {service.description}
-          </div>
+
           <div className="postcard__bar"></div>
           <div className="postcard__tagbox">
             <ul>
               <li className="tag__item">
-                <NavLink to={`/Services/${service.id}`}>
+                <NavLink to={`/Services/${service.id}`} className="postcard__link">
                   <i className="fas fa-link mr-2"></i>Leer más
                 </NavLink>
               </li>
@@ -49,8 +47,6 @@ const ServiceCard = ({ service }) => {
           </div>
         </div>
       </article>
-
-
     </motion.div>
   );
 };
@@ -136,11 +132,11 @@ export default function CardServices() {
   return (
     <>
       <section className="light">
-        <div className="container-fluid py-4">
+        <div className="container py-4">
           <div className="section-title text-center">
             <h2>Servicios</h2>
           </div>
-          <div className="row">
+          <div className="row justify-content-center">
             {images.map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}

@@ -1088,220 +1088,134 @@ footer ul.menu-list li a:hover {
   height: 100vh;
   /* Make sure the loader covers the full viewport height */
 }
-
 /* Cards */
 .postcard {
-  flex-wrap: wrap;
   display: flex;
-  box-shadow: 0 4px 21px -12px rgba(0, 0, 0, 0.66);
-  border-radius: 10px;
-  margin: 0 0 2rem 0;
+  flex-direction: column;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.2), 0 9px 28px 0 rgba(0, 0, 0, 0.12), 0 12px 48px 0 rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  margin: 1.5rem;
   overflow: hidden;
   position: relative;
-  color: #ffffff;
-  height: auto;
+  color: #333;
+  background-color: #ffffff;
+  height: 400px; /* Fixed height for uniformity */
+  max-width: 350px; /* Fixed max width */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .postcard.light {
-  background-color: #e1e5ea;
+  background-color: #f9fafc;
 }
 
 .postcard .postcard__title {
-  font-size: 1.75rem;
+  font-size: 1.25rem; /* Slightly smaller title */
   color: #05579e;
-  /* Updated color */
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-align: center; /* Centered the title */
 }
 
 .postcard .postcard__img {
-  max-height: 180px;
-  width: 100%;
-  object-fit: cover;
-  position: relative;
-}
-
-.postcard .postcard__img_link {
-  display: contents;
+  width: 100%; /* Make the image span the full width */
+  height: 300px; /* Increased the height for better aspect ratio */
+  object-fit: cover; /* Keep the image proportioned */
+  display: block;
+  margin: 0 auto;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 .postcard .postcard__bar {
   width: 50px;
-  height: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
+  height: 5px;
+  margin: 0.75rem 0;
+  border-radius: 3px;
   background-color: #ff8e00;
-  /* Updated color */
-  transition: width 0.2s ease;
+  transition: width 0.3s ease;
 }
 
 .postcard .postcard__text {
-  padding: 1.5rem;
-  position: relative;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Centering the text content */
+  text-align: center;
+  background-color: rgb(246, 249, 252);
 }
 
-.postcard .postcard__preview-txt {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: justify;
-  height: 100%;
+.postcard .postcard__subtitle {
+  color: #092f5c;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  line-height: 1.5;
 }
 
 .postcard .postcard__tagbox {
   display: flex;
-  flex-flow: row wrap;
-  font-size: 14px;
-  margin: 20px 0 0 0;
-  padding: 0;
   justify-content: center;
+  font-size: 0.875rem;
+  margin: 0.75rem 0 0 0;
+  padding: 0;
 }
 
 .postcard .postcard__tagbox .tag__item {
-  display: inline-block;
   background: #05579e;
-  /* Updated color */
   border-radius: 3px;
-  padding: 2.5px 10px;
+  padding: 5px 12px;
   margin: 0 5px 5px 0;
-  cursor: default;
-  user-select: none;
   transition: background-color 0.3s;
 }
 
-.postcard .postcard__tagbox .tag__item a {
-  color: white;
-  /* Reaffirmed color */
-}
-
+.postcard .postcard__tagbox .tag__item a,
 .postcard .postcard__tagbox .tag__item i {
-  color: white;
-  /* Reaffirmed color */
+  color: #fff;
 }
 
+/* Hover effect for the button - changes background to orange */
 .postcard .postcard__tagbox .tag__item:hover {
-  background: #ff8e00;
-  /* Updated hover color */
+  background-color: #ff8e00; /* Changes to orange on hover */
+  cursor: pointer;
 }
 
-.postcard:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-image: linear-gradient(-70deg, #05579e, transparent 50%);
-  /* Updated color */
-  opacity: 1;
-  border-radius: 10px;
+.postcard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.2);
 }
-
 .postcard:hover .postcard__bar {
-  width: 100px;
+  width: 80px;
 }
 
 @media screen and (min-width: 769px) {
   .postcard {
-    flex-wrap: inherit;
-  }
-
-  .postcard .postcard__title {
-    font-size: 2rem;
-  }
-
-  .postcard .postcard__tagbox {
-    justify-content: start;
+    flex-direction: column; /* Stack everything in a column layout */
   }
 
   .postcard .postcard__img {
-    max-width: 300px;
-    max-height: 100%;
+    height: 180px;
     transition: transform 0.3s ease;
   }
 
   .postcard .postcard__text {
-    padding: 3rem;
-    width: 100%;
-  }
-
-  .media.postcard__text:before {
-    content: "";
-    position: absolute;
-    display: block;
-    background: #18151f;
-    top: -20%;
-    height: 130%;
-    width: 55px;
+    padding: 2rem;
   }
 
   .postcard:hover .postcard__img {
-    transform: scale(1.1);
-  }
-
-  .postcard:nth-child(2n+1) {
-    flex-direction: row;
-  }
-
-  .postcard:nth-child(2n+0) {
-    flex-direction: row-reverse;
-  }
-
-  .postcard:nth-child(2n+1) .postcard__text:before {
-    left: -12px !important;
-    transform: rotate(4deg);
-  }
-
-  .postcard:nth-child(2n+0) .postcard__text:before {
-    right: -12px !important;
-    transform: rotate(-4deg);
+    transform: scale(1.05);
   }
 }
 
-@media screen and (min-width: 1024px) {
-  .postcard .postcard__text {
-    padding: 2rem 3.5rem;
+@media screen and (max-width: 768px) {
+  .postcard {
+    flex-direction: column;
+    max-width: 100%;
   }
 
-  .postcard .postcard__text:before {
-    content: "";
-    position: absolute;
-    display: block;
-    top: -20%;
-    height: 130%;
-    width: 55px;
-  }
-
-  .postcard.light .postcard__text:before {
-    background: #e1e5ea;
+  .postcard .postcard__img {
+    height: 160px;
   }
 }
 
-.postcard .postcard__tagbox .blue.play:hover {
-  background: #0076bd;
-  /* Updated hover color for specific class */
-}
-
-.blue .postcard__title:hover {
-  color: #092F5C;
-  /* Updated hover color */
-}
-
-.blue .postcard__bar {
-  background-color: #0076bd;
-  /* Updated color */
-}
-
-.blue:before {
-  background-image: linear-gradient(-30deg, rgba(0, 118, 189, 0.1), transparent 50%);
-}
-
-.blue:nth-child(2n):before {
-  background-image: linear-gradient(30deg, rgba(0, 118, 189, 0.1), transparent 50%);
-}
-
-.postcard__subtitle {
-  color: #092F5C;
-}
 
 .video-gallery {
   display: grid;
@@ -1961,3 +1875,484 @@ footer ul.menu-list li a:hover {
   margin-bottom: 12px;
   text-transform: uppercase;
 }
+
+/* Scoped Table */
+.invoice-table {
+  color: #535353;
+}
+
+.invoice-wrapper {
+  font-family: 'Poppins', sans-serif;
+  color: #535353;
+  font-size: 14px;
+}
+
+.invoice-wrapper a {
+  text-decoration: none;
+}
+
+.invoice-wrapper .img-fluid {
+  max-width: 100% !important;
+  height: auto;
+}
+
+.invoice-wrapper .form-control:focus {
+  box-shadow: none;
+}
+
+.invoice-wrapper h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: 'Poppins', sans-serif;
+  color: #535353;
+}
+
+.invoice-wrapper .mb-0 {
+  margin-bottom: 0;
+}
+
+.invoice-wrapper .mb-10 {
+  margin-bottom: 10px;
+}
+
+.invoice-wrapper .mb-20 {
+  margin-bottom: 20px;
+}
+
+.invoice-wrapper .mb-30 {
+  margin-bottom: 30px;
+}
+
+.invoice-wrapper .container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Scoped BTN LG */
+.invoice-wrapper .btn-lg {
+  font-size: 14px;
+  height: 50px;
+  padding: 0 30px;
+  line-height: 50px;
+  border-radius: 3px;
+  color: #ffffff;
+  border: none;
+  margin: 0 3px 3px;
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-appearance: none;
+  text-transform: capitalize;
+  transition: all 0.3s linear;
+  z-index: 1;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.invoice-wrapper .btn-lg:hover {
+  color: #ffffff;
+}
+
+.invoice-wrapper .btn-lg:hover:after {
+  transform: perspective(200px) scaleX(1.05) rotateX(0deg) translateZ(0);
+  transition: transform 0.9s linear, transform 0.4s linear;
+}
+
+.invoice-wrapper .btn-lg:after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  content: "";
+  transform: perspective(200px) scaleX(0.1) rotateX(90deg) translateZ(-10px);
+  transform-origin: bottom center;
+  transition: transform 0.9s linear, transform 0.4s linear;
+  z-index: -1;
+}
+
+.invoice-wrapper .btn-check:focus+.btn, .btn:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+.invoice-wrapper .btn-print {
+  background-image: linear-gradient(to bottom, #54544d, #1a1918);
+}
+
+.invoice-wrapper .btn-print:after {
+  background-image: linear-gradient(to bottom, #1a1918, #54544d);
+}
+
+.invoice-wrapper .f-w-600 {
+  font-weight: 500 !important;
+}
+
+.invoice-wrapper .text-14 {
+  font-size: 14px;
+}
+
+.invoice-wrapper .invoice-table th:first-child,
+.invoice-wrapper .invoice-table td:first-child {
+  text-align: left;
+}
+
+.invoice-wrapper .color-white {
+  color: #fff!important;
+}
+
+.invoice-wrapper .inv-header-1 {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.invoice-wrapper .inv-header-2 {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.invoice-wrapper .inv-title-1 {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.invoice-wrapper .invo-addr-1 {
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 23px;
+}
+
+.invoice-wrapper .item-desc-1 {
+  text-align: left;
+}
+
+.invoice-wrapper .item-desc-1 span {
+  display: block;
+}
+
+.invoice-wrapper .important-notes-list-1 {
+  font-size: 14px !important;
+  padding-left: 15px;
+  margin-bottom: 15px;
+}
+
+.invoice-wrapper .important-notes-list-1 li {
+  margin-bottom: 5px;
+}
+
+.invoice-wrapper .bank-transfer-list-1 {
+  font-size: 13px !important;
+  padding-left: 0px;
+}
+
+.invoice-wrapper .important-notes {
+  font-size: 12px !important;
+}
+
+.invoice-wrapper .invoice-btn-section {
+  text-align: center;
+  margin-top: 27px;
+}
+
+.invoice-wrapper table th {
+  font-weight: 400;
+}
+
+.invoice-wrapper .btn-download {
+  background: #3965e3;
+}
+
+.invoice-wrapper .btn-download:after {
+  background: #325cd5;
+}
+
+.invoice-wrapper .btn-print {
+  background: #3a3939;
+}
+
+.invoice-wrapper .btn-print:after {
+  background: #1d1c1c;
+}
+
+
+/** Invoice 1 Start **/
+.invoice-1 {
+  padding: 30px 0;
+  background: #fff6f6;
+}
+
+.invoice-1 .mb-30 {
+  margin-bottom: 30px;
+}
+
+.invoice-1 .invoice-info {
+  background: #fff;
+  position: relative;
+}
+
+.invoice-1 .name{
+  font-size: 18px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  color: #262525;
+  font-weight: 500;
+}
+
+.invoice-1 .mb-10{
+  margin-bottom: 10px;
+}
+
+.invoice-1 .invoice-headar {
+  height: 125px;
+  margin-bottom: 25px;
+  background: #f3f3f3;
+}
+
+.invoice-1 .invoice-headar p span{
+  float: right;
+}
+
+.invoice-1 .invoice-number-inner{
+  max-width: 200px;
+  margin-left: auto;
+}
+
+.invoice-1 .invoice-id .info{
+  max-width: 200px;
+  margin:0 50px 0 auto;
+  padding: 34px 0;
+}
+
+.invoice-1 .invoice-id{
+  border-radius: 75px 0 0 75px;
+  z-index: 0;
+  background-image: linear-gradient(to bottom, #ff0000, #ff8100);
+}
+
+.invoice-1 .payment-method-list-1{
+  padding: 0;
+}
+
+.invoice-1 .item-desc-1 span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.invoice-1 .payment-method{
+  max-width: 200px;
+  margin-left: auto;
+}
+
+.invoice-1 .payment-method ul {
+  list-style: none;
+}
+
+.invoice-1 .payment-method ul li strong{
+  font-weight: 500;
+}
+
+.invoice-1 .table-striped > tbody > tr:nth-of-type(odd) {
+  --bs-table-accent-bg: rgb(255 255 255 / 5%);
+  color: var(--bs-table-striped-color);
+}
+
+.invoice-1 table th {
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.invoice-1 .invoice-top {
+  padding: 40px 50px 10px;
+  font-size: 15px;
+}
+
+.invoice-1 .inv-title-1{
+  color: #ff3200;
+  margin-bottom: 5px;
+}
+
+.invoice-1 .invoice-logo{
+  padding: 50px;
+}
+
+.invoice-1 .invoice-logo img {
+  height: 25px;
+}
+
+.invoice-1 .table-section {
+  text-align: center;
+}
+
+.invoice-1 .invoice-center {
+  padding: 0 50px 40px;
+}
+
+.invoice-1 .table > :not(caption) > * > * {
+  padding: 13px 30px;
+}
+
+.invoice-1 .table > :not(caption) > * > * {
+  background-color: var(--bs-table-bg);
+  border-bottom-width: 0;
+}
+
+.invoice-1 .table .pl0{
+  padding-left: 0;
+}
+
+.invoice-1 .table td.pl0{
+  padding-left: 0;
+}
+
+.invoice-1 .table td, .invoice-1 .table th {
+  vertical-align: middle;
+  border: none !important;
+}
+
+.invoice-1 .table td {
+  font-size: 15px;
+  color: #555;
+}
+
+.invoice-1 p{
+  font-size: 14px;
+}
+
+.invoice-1 .invoice-info-buttom .table .invoice-1 .invoice-info-buttom .table tr, .table tr {
+  border: 1px solid #e9ecef;
+}
+
+.invoice-1 .caption-top {
+  caption-side: top;
+  text-align: right;
+  margin-bottom: 0;
+}
+
+.invoice-1 .invoice-bottom {
+  padding: 0 50px 10px;
+}
+
+.invoice-1 .bg-active {
+  background: #f3f3f3;
+  color: #535353!important;
+}
+
+.invoice-1 .active-color{
+  color: #ff3200!important;
+}
+
+.invoice-1 .invoice-bottom h3 {
+  margin-bottom: 7px;
+}
+
+.invoice-1 .contact-info {
+  padding: 30px 50px;
+  border-radius: 0 40px 40px 0;
+  background-image: linear-gradient(to bottom, #f3f3f3, #ffffff);
+}
+
+.invoice-1 .contact-info a {
+  margin-right: 20px;
+  color: #535353;
+  font-size: 14px;
+}
+
+.invoice-1 .contact-info .mr-0{
+  margin-right: 0;
+}
+
+.invoice-1 .inv-header-1 {
+  font-weight: 600;
+}
+
+.invoice-1 .invoice-contact::after {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30%;
+  height: 30px;
+  border-radius: 15px 0 0 15px;
+  z-index: 0;
+  background-image: linear-gradient(to bottom, #ff0000, #ff8100);
+}
+
+/** MEDIA **/
+@media (max-width: 992px) {
+  .invoice-1 {
+      padding: 30px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .invoice-1 .table > :not(caption) > * > * {
+      padding: 15px 10px;
+  }
+
+  .invoice-1.invoice-content .color-white {
+      color: #262525!important;
+  }
+
+  .invoice-1 .payment-method {
+      margin: 0 auto 30px 0;
+  }
+
+  .invoice-1 .invoice-top {
+      padding: 30px 30px 0;
+  }
+
+  .invoice-1 .contact-info {
+      padding: 30px;
+      border-radius: 0;
+  }
+
+  .invoice-1 .invoice-center {
+      padding: 0 30px 30px;
+  }
+
+  .invoice-1 .invoice-contact::after {
+      display: none;
+  }
+
+  .invoice-1 .invoice-bottom {
+      padding: 0 30px;
+  }
+
+  .invoice-1 .invoice-id {
+      background: transparent;
+  }
+
+  .invoice-1 .invoice-logo {
+      padding: 0;
+      margin-bottom: 10px;
+  }
+
+  .invoice-1 .invoice-headar {
+      height: auto;
+      margin-bottom: 0;
+      padding: 30px;
+  }
+
+  .invoice-1 .invoice-id .info {
+      margin: 0 auto 0 15px;
+      padding: 0;
+  }
+
+  .invoice-1 .invoice-number-inner {
+      margin: 0 auto 0 0;
+  }
+}
+
+@media (max-width: 580px){
+  .invoice-1 .invoice-id .info {
+      margin: 0 auto 0 15px;
+  }
+
+  .invoice-1 .invoice-id .info {
+      margin: 0 auto 0 0;
+  }
+
+  .invoice-1 .d-none-580{
+      display: none!important;
+  }
+}
+/** Invoice 1 end **/
