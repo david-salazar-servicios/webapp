@@ -111,7 +111,7 @@ const MaintenanceLayout = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+            <Sider className='maintSlider'collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                 <div className="demo-logo-vertical" />
                 <Menu
                     theme="dark"

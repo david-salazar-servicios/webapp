@@ -93,9 +93,8 @@ export default function Invoice() {
                                                     <td className="pl0">Application Interface Design</td>
                                                     <td className="text-center">$240</td>
                                                     <td className="text-center">3</td>
-                                                    <td className="text-end">$640.00</td>
+                                                    <td className="text-end">$720.00</td>
                                                 </tr>
-                                                {/* Rest of the table rows */}
                                             </tbody>
                                         </table>
                                     </div>

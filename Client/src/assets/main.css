@@ -2356,3 +2356,49 @@ footer ul.menu-list li a:hover {
   }
 }
 /** Invoice 1 end **/
+@media print {
+  /* Hide specific elements such as sidebar and navigation */
+  .maintSlider, .sidebar, .header, .navbar, .footer {
+      display: none !important; /* Adjust class names as necessary */
+  }
+
+  /* Ensure the invoice is fully visible and takes full width */
+  .invoice-wrapper {
+      visibility: visible;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      position: relative;
+  }
+
+  /* Ensure no elements inside the invoice overlap */
+  .invoice-inner, .invoice-info, .invoice-headar, .invoice-top, .invoice-center, .invoice-bottom {
+      page-break-inside: avoid;
+  }
+
+  /* Make the invoice title, logo, and other headings fit properly */
+  .invoice-headar h1, .invoice-headar .info {
+      margin: 0;
+      padding: 0;
+      font-size: 18px;
+  }
+
+  /* Adjust table styling for print */
+  table.invoice-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+  }
+
+  table.invoice-table th, table.invoice-table td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: left;
+  }
+
+  /* Hide print-specific buttons */
+  .invoice-btn-section {
+      display: none;
+  }
+}
+
