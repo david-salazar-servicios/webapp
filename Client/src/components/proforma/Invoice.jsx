@@ -1,6 +1,12 @@
 import React from 'react';
+import { useGetSolicitudesQuery } from '../../features/RequestService/RequestServiceApiSlice';
 
 export default function Invoice() {
+    const { data: solicitudes, isLoading, isError } = useGetSolicitudesQuery();
+
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Error loading solicitudes</p>;
+
     return (
         <div className="invoice-1 invoice-wrapper">
             <div className="invoice-wrapper container">
@@ -56,6 +62,21 @@ export default function Invoice() {
                                                     </p>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Dropdown (Combo Box) */}
+                                    <div className="row">
+                                        <div className="col-sm-12 mb-30">
+                                            <label htmlFor="solicitudSelect">Select Solicitud:</label>
+                                            <select id="solicitudSelect" className="form-control">
+                                                <option value="">-- Select Solicitud --</option>
+                                                {solicitudes?.map((solicitud) => (
+                                                    <option key={solicitud.id_solicitud} value={solicitud.id_solicitud}>
+                                                        {solicitud.id_solicitud} - {solicitud.nombre} {solicitud.apellido}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
