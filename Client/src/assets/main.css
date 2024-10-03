@@ -2172,11 +2172,12 @@ footer ul.menu-list li a:hover {
 }
 
 .invoice-1 .invoice-logo{
-  padding: 50px;
+  padding-left: 50px;
+  padding-top: 10px;
 }
 
 .invoice-1 .invoice-logo img {
-  height: 25px;
+  height: 100px;
 }
 
 .invoice-1 .table-section {

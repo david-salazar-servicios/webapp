@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGetSolicitudesQuery } from '../../features/RequestService/RequestServiceApiSlice';
-
+import logo from '../../assets/images/Logo-removebg-preview.png';
 export default function Invoice() {
     const { data: solicitudes, isLoading, isError } = useGetSolicitudesQuery();
 
@@ -18,9 +18,11 @@ export default function Invoice() {
                                     <div className="row g-0">
                                         <div className="col-sm-6">
                                             <div className="invoice-logo">
-                                                <div className="logo">
-                                                    <img src="assets/img/logos/logo.png" alt="logo" />
-                                                </div>
+                                                <img
+                                                    src={logo}
+                                                    alt="logo"
+                                                    className="logo"
+                                                />
                                             </div>
                                         </div>
                                         <div className="col-sm-6 invoice-id">
@@ -70,7 +72,7 @@ export default function Invoice() {
                                         <div className="col-sm-12 mb-30">
                                             <label htmlFor="solicitudSelect">Select Solicitud:</label>
                                             <select id="solicitudSelect" className="form-control">
-                                                <option value="">-- Select Solicitud --</option>
+                                                <option value="">-- Seleccionar Solicitud --</option>
                                                 {solicitudes?.map((solicitud) => (
                                                     <option key={solicitud.id_solicitud} value={solicitud.id_solicitud}>
                                                         {solicitud.id_solicitud} - {solicitud.nombre} {solicitud.apellido}
