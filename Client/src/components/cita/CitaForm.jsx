@@ -3,7 +3,7 @@ import { Modal, Form, Input, ConfigProvider, Select, Button, Space, Spin, Row, C
 import { DatePicker as AntDatePicker } from 'antd';
 import { useGetUsersQuery } from '../../features/users/UsersApiSlice';
 import { useGetUsersRolesQuery, useGetRolesQuery } from '../../features/roles/RolesApiSlice';
-import { useCreateCitaMutation, useUpdateCitaMutation, useGetAllCitasQuery } from '../../features/cita/CitaApiSlice';
+import { useCreateCitaMutation, useUpdateCitaMutation, useGetAllCitasQuery, useUpdateCitaEstadoMutation } from '../../features/cita/CitaApiSlice';
 import { useUpdateSolicitudEstadoMutation, useGetSolicitudByIdQuery, useUpdateSolicitudFechaPreferenciaMutation } from '../../features/RequestService/RequestServiceApiSlice';
 import dayjs from 'dayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
@@ -33,6 +33,7 @@ const buddhistLocale = {
 };
 
 export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) {
+    const [updateCitaEstado] = useUpdateCitaEstadoMutation();
     const [form] = Form.useForm();
     const [technicians, setTechnicians] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -51,6 +52,9 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
     const [updateCita, { isLoading: isUpdating }] = useUpdateCitaMutation();
     const [updateSolicitudEstado] = useUpdateSolicitudEstadoMutation();
     const [updateSolicitudFechaPreferencia] = useUpdateSolicitudFechaPreferenciaMutation();
+
+    // Define filteredCita in the outer scope
+    const filteredCita = citaData?.find(cita => cita.id_solicitud === solicitudData?.id_solicitud);
 
     useEffect(() => {
         if (users && userRolesData && rolesData) {
@@ -84,8 +88,6 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
 
             const preferredDate = solicitudDetails.fecha_preferencia ? dayjs(solicitudDetails.fecha_preferencia) : null;
 
-            const filteredCita = citaData?.find(cita => cita.id_solicitud === solicitudDetails.id_solicitud);
-
             form.resetFields();
             form.setFieldsValue({
                 id_solicitud: solicitudDetails.id_solicitud,
@@ -99,12 +101,9 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
         try {
             const values = await form.validateFields();
 
-            const filteredCita = citaData.find(cita => cita.id_solicitud === solicitudData.id_solicitud);
-
             const formattedDateTime = values.datetime ? dayjs(values.datetime).format('YYYY-MM-DDTHH:mm:ssZ') : null;
 
             if (isUpdate && filteredCita) {
-
                 await updateCita({ ...values, id_cita: filteredCita.id_cita, datetime: formattedDateTime, estado: 'En Agenda' }).unwrap();
 
                 if (formattedDateTime) {
@@ -154,7 +153,7 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                 onCancel={onClose}
                 footer={null}
                 width={800}
-                bodyStyle={{ padding: '20px', backgroundColor: '#f6f9fc' }}
+                style={{ padding: '20px', backgroundColor: '#f6f9fc' }}
             >
                 {loading ? (
                     <Spin tip="Cargando..." />
@@ -193,9 +192,86 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                             </Col>
                         </Row>
                         <Form.Item>
-                            <Button type="primary" onClick={handleSubmit} loading={isCreating || isUpdating}>
-                                {isUpdate ? "Actualizar" : "Enviar"}
-                            </Button>
+                            <Space>
+                                <Button type="primary" onClick={handleSubmit} loading={isCreating || isUpdating}>
+                                    {isUpdate ? "Actualizar" : "Enviar"}
+                                </Button>
+
+                                {isUpdate && filteredCita ? (
+                                    <>
+
+                                        <Button type="defaut" style={{ backgroundColor: '#22c55e', color: 'white' }}  onClick={async () => {
+                                            try {
+                                                await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Completada' }).unwrap();
+                                                await updateCitaEstado({ id: filteredCita.id_cita, estado: 'Completada' }).unwrap();
+                                                toast.current.show({
+                                                    severity: 'success',
+                                                    summary: 'Completada',
+                                                    detail: 'La solicitud y cita han sido completadas',
+                                                    life: 3000
+                                                });
+                                                onClose();
+                                            } catch (error) {
+                                                toast.current.show({
+                                                    severity: 'error',
+                                                    summary: 'Error',
+                                                    detail: 'Error al completar la solicitud y cita',
+                                                    life: 5000
+                                                });
+                                            }
+                                        }}>
+                                            Completar
+                                        </Button>
+                                        <Button type="primary" danger onClick={async () => {
+                                            try {
+                                                await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Rechazada' }).unwrap();
+                                                await updateCitaEstado({ id: filteredCita.id_cita, estado: 'Rechazada' }).unwrap();
+                                                toast.current.show({
+                                                    severity: 'success',
+                                                    summary: 'Rechazada',
+                                                    detail: 'La solicitud y cita han sido rechazadas',
+                                                    life: 3000
+                                                });
+                                                onClose();
+                                            } catch (error) {
+                                                console.log(error);
+                                                toast.current.show({
+                                                    severity: 'error',
+                                                    summary: 'Error',
+                                                    detail: 'Error al rechazar la solicitud',
+                                                    life: 5000
+                                                });
+                                            }
+                                        }}>
+                                            Rechazar
+                                        </Button>
+
+                                        
+                                    </>
+                                ) : (
+                                    <Button type="primary" danger onClick={async () => {
+                                        try {
+                                            await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Rechazada' }).unwrap();
+                                            toast.current.show({
+                                                severity: 'success',
+                                                summary: 'Rechazada',
+                                                detail: 'La solicitud ha sido rechazada',
+                                                life: 3000
+                                            });
+                                            onClose();
+                                        } catch (error) {
+                                            toast.current.show({
+                                                severity: 'error',
+                                                summary: 'Error',
+                                                detail: 'Error al rechazar la solicitud',
+                                                life: 5000
+                                            });
+                                        }
+                                    }}>
+                                        Rechazar
+                                    </Button>
+                                )}
+                            </Space>
                         </Form.Item>
                     </Form>
                 )}
@@ -214,7 +290,7 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                 <List
                                     dataSource={servicio.detalles || []}
                                     renderItem={(detalle) => (
-                                        <List.Item style={{ justifyContent: 'start'}}>
+                                        <List.Item style={{ justifyContent: 'start' }}>
                                             <CheckCircleOutlined style={{ color: 'green', marginRight: 30 }} />
                                             <Text>{detalle}</Text>
                                         </List.Item>
@@ -228,3 +304,4 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
         </>
     );
 }
+

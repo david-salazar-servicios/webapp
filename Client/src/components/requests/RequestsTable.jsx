@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { useGetSolicitudesQuery } from '../../features/RequestService/RequestServiceApiSlice';
+import { useGetSolicitudesQuery, useUpdateSolicitudEstadoMutation } from '../../features/RequestService/RequestServiceApiSlice';
+import { useDeleteCitaMutation, useGetAllCitasQuery } from '../../features/cita/CitaApiSlice';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ProgressBar } from 'primereact/progressbar';
@@ -14,10 +15,13 @@ import { Row, Col, Card } from 'antd';
 
 export default function SolicitudesTable() {
     const { data, isLoading, isError, error, refetch } = useGetSolicitudesQuery();
+    const { data: citaData } = useGetAllCitasQuery();
+    const [updateSolicitudEstado] = useUpdateSolicitudEstadoMutation();
+    const [deleteCita] = useDeleteCitaMutation();
     const [globalFilter, setGlobalFilter] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentSolicitud, setCurrentSolicitud] = useState(null);
-    const [isUpdate, setIsUpdate] = useState(false); // New state to track if it's an update
+    const [isUpdate, setIsUpdate] = useState(false); 
     const dt = useRef(null);
     const toast = useRef(null);
 
@@ -25,13 +29,12 @@ export default function SolicitudesTable() {
 
     const showCitaForm = (solicitud, isUpdate) => {
         setCurrentSolicitud(solicitud);
-        setIsUpdate(isUpdate); // Set if it's an update or a new creation
+        setIsUpdate(isUpdate); 
         setIsModalVisible(true);
     };
 
     const handleConfirm = (solicitud) => {
-        // Logic for updating the solicitud (or any other logic)
-        const isUpdate = solicitud.estado === 'En Agenda'; // True if updating, false if creating new
+        const isUpdate = solicitud.estado === 'En Agenda'; 
         showCitaForm(solicitud, isUpdate);
     };
 
@@ -46,9 +49,56 @@ export default function SolicitudesTable() {
         }
     };
 
+    const handleRevertToEnAgenda = async (solicitud) => {
+        try {
+            // Update the solicitud to "En Agenda"
+            await updateSolicitudEstado({ id: solicitud.id_solicitud, estado: 'En Agenda' }).unwrap();
+    
+            toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud revertida a En Agenda', life: 3000 });
+            refetch(); // Refetch the solicitudes to update the table
+        } catch (error) {
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al revertir la solicitud', life: 5000 });
+        }
+    };
+    
+
+    const handleRestoreSolicitud = async (solicitud) => {
+        try {
+            // Restore the solicitud to "Pendiente"
+            await updateSolicitudEstado({ id: solicitud.id_solicitud, estado: 'Pendiente' }).unwrap();
+
+            // Check if there is a related cita and delete it
+            const relatedCita = citaData?.find(cita => cita.id_solicitud === solicitud.id_solicitud);
+            console.log(relatedCita)
+            if (relatedCita) {
+                await deleteCita( relatedCita.id_cita ).unwrap();
+            }
+
+            toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud restaurada correctamente', life: 3000 });
+            refetch(); // Refetch the solicitudes to update the table
+        } catch (error) {
+            toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al restaurar la solicitud', life: 5000 });
+        }
+    };
+
     const statusBodyTemplate = (rowData) => {
-        const status = rowData.estado === 'Pendiente' ? 'warning' :
-            rowData.estado === 'En Agenda' ? 'info' : 'success';
+        let statusColor;
+        switch (rowData.estado) {
+            case 'Pendiente':
+                statusColor = 'warning';
+                break;
+            case 'En Agenda':
+                statusColor = 'info';
+                break;
+            case 'Completada':
+                statusColor = 'success';
+                break;
+            case 'Rechazada':
+                statusColor = 'danger';
+                break;
+            default:
+                statusColor = 'neutral';
+        }
 
         if (rowData.estado === 'Pendiente' || rowData.estado === 'En Agenda') {
             const confirmText = rowData.estado === 'Pendiente' ?
@@ -58,7 +108,7 @@ export default function SolicitudesTable() {
             return (
                 <Popconfirm
                     title={confirmText}
-                    onConfirm={() => handleConfirm(rowData)} // Confirmation required before opening the form
+                    onConfirm={() => handleConfirm(rowData)}
                     onCancel={handleCancel}
                     okText="Sí"
                     cancelText="No"
@@ -66,15 +116,52 @@ export default function SolicitudesTable() {
                 >
                     <Tag
                         value={rowData.estado}
-                        severity={status}
-                        style={{ cursor: 'pointer' }} // Make it clear that this tag is interactive
+                        severity={statusColor}
+                        style={{ cursor: 'pointer' }}
                     />
                 </Popconfirm>
             );
         }
 
-        // Default case for other states
-        return <Tag value={rowData.estado} severity={status} />;
+        if (rowData.estado === 'Rechazada') {
+            return (
+                <Popconfirm
+                    title="¿Deseas restaurar esta solicitud?"
+                    onConfirm={() => handleRestoreSolicitud(rowData)} // Call handleRestoreSolicitud on confirmation
+                    onCancel={handleCancel}
+                    okText="Sí"
+                    cancelText="No"
+                    placement="top"
+                >
+                    <Tag
+                        value={rowData.estado}
+                        severity={statusColor}
+                        style={{ cursor: 'pointer' }}
+                    />
+                </Popconfirm>
+            );
+        }
+
+        if (rowData.estado === 'Completada') {
+            return (
+                <Popconfirm
+                    title="¿Deseas revertir el estado a 'En Agenda'?"
+                    onConfirm={() => handleRevertToEnAgenda(rowData)}  // Call handleRevertToEnAgenda on confirmation
+                    onCancel={handleCancel}
+                    okText="Sí"
+                    cancelText="No"
+                    placement="top"
+                >
+                    <Tag
+                        value={rowData.estado}
+                        severity={statusColor}
+                        style={{ cursor: 'pointer' }}
+                    />
+                </Popconfirm>
+            );
+        }
+
+        return <Tag value={rowData.estado} severity={statusColor} />;
     };
 
     const header = (
@@ -128,7 +215,6 @@ export default function SolicitudesTable() {
                             className="custom-hover-effect elegant-table"
                         >
                             <Column field="id_solicitud" header="Id Solicitud" sortable style={{ width: '8rem' }}></Column>
-                            
                             <Column field="fecha_preferencia" header="Fecha & Hora Cita" sortable body={rowData => format(new Date(rowData.fecha_preferencia), 'yyyy-dd-MM HH:mm')} style={{ width: '14rem' }}></Column>
                             <Column field="nombre" header="Nombre" sortable style={{ width: '10rem' }}></Column>
                             <Column field="apellido" header="Apellido" sortable style={{ width: '10rem' }}></Column>

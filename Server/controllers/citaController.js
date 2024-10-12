@@ -98,6 +98,8 @@ const updateCita = async (req, res) => {
 // @access Private
 const deleteCita = async (req, res) => {
     try {
+
+        console.log(req.params)
         const { id } = req.params;
 
         // Delete cita from the database
@@ -110,9 +112,33 @@ const deleteCita = async (req, res) => {
     }
 };
 
+
+const updateCitaEstado = async (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    try {
+        const queryResult = await pool.query(
+            'UPDATE cita SET estado = $1 WHERE id_cita = $2 RETURNING *',
+            [estado, id]
+        );
+
+        if (queryResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Cita not found' });
+        }
+
+        res.json(queryResult.rows[0]);
+    } catch (error) {
+        console.error('Error updating cita estado:', error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
+
+
 module.exports = {
     getAllCitas,
     createCita,
     updateCita,
+    updateCitaEstado,
     deleteCita
 };

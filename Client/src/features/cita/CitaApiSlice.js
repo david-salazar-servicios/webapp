@@ -56,6 +56,15 @@ export const citaApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Citas', id }],
         }),
+
+        updateCitaEstado: builder.mutation({
+            query: ({ id, estado }) => ({
+                url: `/citas/${id}/estado`,
+                method: 'PUT',
+                body: { estado },
+            }),
+            invalidatesTags: (result, error, { id }) => [{ type: 'Citas', id }],
+        }),
     }),
 });
 
@@ -65,4 +74,5 @@ export const {
     useCreateCitaMutation,
     useDeleteCitaMutation,
     useUpdateCitaMutation,
+    useUpdateCitaEstadoMutation,
 } = citaApiSlice;
