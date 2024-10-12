@@ -28,6 +28,9 @@ import Proyectos from './components/proyectos/proyectos';
 import Novedades from './components/novedades/novedades';
 import ScrollToTop from './components/ScrollToTop';
 import Invoice from './components/proforma/Invoice';
+import Catalogo from './components/Inventario/Catalogo'
+import Inventario from './components/Inventario/Inventario'
+import GestionInventario from './components/Inventario/GestionInventario'
 function App() {
     return (
         <div>
@@ -69,6 +72,9 @@ function App() {
                             <Route path="perfiles" element={<Users />} />
                             <Route path="roles" element={<Roles />} />
                             <Route path="facturacion" element={<Invoice />} />
+                            <Route path="Catalogo" element={<Catalogo />} />
+                            <Route path="Inventario" element={<Inventario />} />
+                            <Route path="GestionInventario" element={<GestionInventario />} />
                         </Route>
                     </Route>
 
