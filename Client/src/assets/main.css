@@ -2403,3 +2403,70 @@ footer ul.menu-list li a:hover {
   }
 }
 
+.gestion-inventario-container {
+    background-color: #f0f2f5;
+    padding: 20px;
+    border-radius: 15px 0 0 15px;
+}
+
+.bodega-card {
+    background-color: #ffffff;
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    padding: 20px;  /* Padding for better content spacing */
+    width: 100%;  /* Make the card width responsive */
+    max-width: 300px;  /* Ensure it has a good width on larger screens */
+}
+
+.bodega-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .bodega-card {
+        font-size: 14px;
+        max-width: 100%;  /* Take full width on mobile */
+    }
+}
+/* Custom styles for the PrimeReact InputNumber buttons */
+.custom-input-number .p-inputnumber-button {
+  background-color: #05579e; /* Custom blue color for buttons */
+  color: white;
+  border: none; /* Remove border around the buttons */
+  width: 35px;
+  margin-left: 5px;
+}
+
+/* Hover effect for both buttons */
+.custom-input-number .p-inputnumber-button:hover {
+  background-color: #034b7a; /* Darker blue on hover */
+  color: white;
+}
+
+/* Style for the input field itself */
+.custom-input-number .p-inputnumber-input {
+  border-color: #05579e; /* Match border color to button color */
+  box-shadow: 0 0 5px rgba(5, 87, 158, 0.5); /* Subtle shadow for focus */
+  border-radius: 5px; /* Rounded corners */
+  width: 70px;
+  text-align: center;
+}
+
+/* Style for focused state (outline effect) */
+.custom-input-number .p-inputnumber-input:focus {
+  border-color: #05579e; /* Maintain border color */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 5px rgba(5, 87, 158, 0.7); /* Stronger focus shadow */
+}
+
+/* Up/Down button hover specific */
+.custom-input-number .p-inputnumber-button-up:hover,
+.custom-input-number .p-inputnumber-button-down:hover {
+  background-color: #034b7a; /* Darker blue for hover */
+}

@@ -80,6 +80,8 @@ const MaintenanceLayout = () => {
                 { label: 'Categorias', key: 'mantenimiento/categorias' },
                 { label: 'Servicios', key: 'mantenimiento/servicios' },
                 { label: 'Roles', key: 'mantenimiento/roles' },
+                { label: 'Catalogo', key: 'mantenimiento/catalogo' },
+                { label: 'Inventario', key: 'mantenimiento/inventario' }
             ]
         },
         {
@@ -97,6 +99,7 @@ const MaintenanceLayout = () => {
             icon: <UserAddOutlined />
         },
         { label: 'Facturación', key: 'mantenimiento/facturacion', icon: <FormOutlined /> },
+        { label: 'Gestion Inventario', key: 'mantenimiento/GestionInventario', icon: <FormOutlined /> },
         { label: 'Cambiar a Cliente', key: '', icon: <UserSwitchOutlined /> },
         { label: 'Salir', key: 'logout', icon: <LoginOutlined /> },
     ];
