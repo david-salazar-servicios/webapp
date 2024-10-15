@@ -41,19 +41,45 @@ const getProductoById = async (req, res) => {
 };
 
 const createProducto = async (req, res) => {
+    const client = await pool.connect(); // Use a transaction for multiple queries
+    
     try {
-        const { codigo_producto , nombre_producto,unidad_medida,imagen } = req.body;
-        const newProducto = await pool.query(
-            'INSERT INTO producto (codigo_producto, nombre_producto,unidad_medida,imagen) VALUES ($1, $2, $3, $4) RETURNING *', 
-            [codigo_producto, nombre_producto, unidad_medida,imagen]
-        );
+        const { codigo_producto, nombre_producto, unidad_medida, imagen } = req.body;
 
-        res.json(newProducto.rows[0]);
+        await client.query('BEGIN'); // Begin the transaction
+
+        // Insert the new product into the producto table
+        const newProductoResult = await client.query(
+            'INSERT INTO producto (codigo_producto, nombre_producto, unidad_medida, imagen) VALUES ($1, $2, $3, $4) RETURNING *',
+            [codigo_producto, nombre_producto, unidad_medida, imagen]
+        );
+        const newProducto = newProductoResult.rows[0];
+        const newProductoId = newProducto.id_producto; // Get the newly created product's ID
+
+        // Fetch all existing inventories
+        const inventariosResult = await client.query('SELECT id_inventario FROM inventario');
+        const inventarios = inventariosResult.rows;
+
+        // Insert the new product into each inventario with cantidad = 0
+        for (const inventario of inventarios) {
+            await client.query(
+                'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad) VALUES ($1, $2, $3)',
+                [inventario.id_inventario, newProductoId, 0] // Set cantidad to 0
+            );
+        }
+
+        await client.query('COMMIT'); // Commit the transaction
+
+        res.json(newProducto); // Return the newly created product
     } catch (error) {
+        await client.query('ROLLBACK'); // Roll back the transaction in case of error
         console.error("Error creating new producto:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
+    } finally {
+        client.release(); // Release the client back to the pool
     }
 };
+
 
 const updateProducto = async (req, res) => {
     try {
