@@ -57,7 +57,7 @@ export default function RequestServices() {
         const date = new Date(values.fecha_preferencia);
         date.setSeconds(0);
         date.setMilliseconds(0);
-    
+
         // Prepare the request payload
         const solicitudDetails = {
             ...values,
@@ -70,52 +70,52 @@ export default function RequestServices() {
                 selectedOffers: detail.selectedOffers
             })),
         };
-    
+
         try {
             // Send the request to the API
             await createSolicitudWithDetails(solicitudDetails).unwrap();
-            
+
             // Show a success message
-            toast.current.show({ 
-                severity: 'success', 
-                summary: 'Éxito', 
-                detail: 'Solicitud enviada con éxito', 
-                life: 3000 
+            toast.current.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Solicitud enviada con éxito',
+                life: 3000
             });
-    
+
             // Reset the form and state
             form.resetFields();
             setCurrent(0); // Go back to the first step
-    
+
             // Clean up the specific `selectedOffers_<serviceId>` keys from localStorage
             updatedServicesDetails.forEach(service => {
                 localStorage.removeItem(`selectedOffers_${service.id_servicio}`);
             });
-    
+
             // Remove the main `serviceRequests` key from localStorage
             localStorage.removeItem('serviceRequests');
 
             // Set the flag to true after successful submission
             setIsSubmitted(true);
-    
+
             // Dispatch an event to update the component state
             const event = new Event('serviceUpdated');
             window.dispatchEvent(event);
 
             // Reset the flag after a short delay to avoid future interference
             setTimeout(() => setIsSubmitted(false), 1000);
-    
+
         } catch (error) {
             // Handle any errors and show an error message
-            toast.current.show({ 
-                severity: 'error', 
-                summary: 'Error', 
-                detail: 'Error al enviar la solicitud', 
-                life: 3000 
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al enviar la solicitud',
+                life: 3000
             });
         }
     };
-    
+
 
     const onReset = () => {
         form.resetFields();
@@ -240,14 +240,24 @@ export default function RequestServices() {
                                     </Form.Item>
                                 </Col>
                             </Row>
-                            <Row>
+                            <Row gutter={24}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Item
+                                        name="direccion"
+                                        label="Dirección"
+                                        rules={[{ required: true, message: 'Por favor ingrese su dirección completa' }]}
+                                    >
+                                        <Input placeholder="Provincia/Cantón/Distrito, Otro detalle" />
+                                    </Form.Item>
+                                </Col>
                                 <Col xs={24} sm={12}>
                                     <Form.Item
                                         name="fecha_preferencia"
                                         label="Fecha Preferencia"
                                         rules={[{ required: true, message: 'Por favor seleccione la fecha y hora de preferencia' }]}
+                                        
                                     >
-                                        <Calendar showTime hourFormat="12" stepMinute={15} />
+                                        <Calendar showTime hourFormat="12" stepMinute={15} style={{height:'32px'}} />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -273,6 +283,7 @@ export default function RequestServices() {
                             </Row>
                         </Form>
                     </Card>
+
                     <Button type="primary" style={{ margin: "20px" }} onClick={prev}>
                         <LeftOutlined /> Anterior
                     </Button>

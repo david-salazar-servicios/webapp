@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Card, Col, Row, Table, Space } from 'antd';
+import { Card, Col, Row, Table, Modal, Button } from 'antd';
 import { FileImageTwoTone } from '@ant-design/icons';
 import { InputNumber } from 'primereact/inputnumber'; // Importing the PrimeReact InputNumber component
 import { useNavigate } from 'react-router-dom';
+import Catalogo from './Catalogo'; // Import your CatalogoModal component
 
 const columns = (handleInputChange) => [
   {
@@ -40,17 +41,7 @@ const columns = (handleInputChange) => [
         className="custom-input-number" // Adding custom class for button styling
       />
     ),
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: (_, record) => (
-      <Space size="middle">
-        <a>Editar {record.nombre_producto}</a>
-        <a>Eliminar</a>
-      </Space>
-    ),
-  },
+  }
 ];
 
 const initialData = [
@@ -80,6 +71,7 @@ const initialData = [
 const GestionInventario = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(initialData);
+  const [isModalVisible, setIsModalVisible] = useState(false); // State to control modal visibility
 
   // Function to handle InputNumber change
   const handleInputChange = (key, value) => {
@@ -93,9 +85,16 @@ const GestionInventario = () => {
   };
 
   const handleCardClick = (bodega) => {
-    // Navigate to the specific bodega
-    console.log(`Navigating to ${bodega}`);
-    // navigate(`/inventario/${bodega.toLowerCase().replace(' ', '-')}`);
+    if (bodega === 'Catalogo') {
+      setIsModalVisible(true); // Show the modal for "Catalogo"
+    } else {
+      console.log(`Navigating to ${bodega}`);
+      // navigate(`/inventario/${bodega.toLowerCase().replace(' ', '-')}`);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false); // Hide the modal when closed
   };
 
   return (
@@ -145,6 +144,17 @@ const GestionInventario = () => {
             Bodega 3
           </Card>
         </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card
+            className="bodega-card"
+            title="Catalogo"
+            bordered={false}
+            hoverable
+            onClick={() => handleCardClick('Catalogo')}
+          >
+            Ver Productos
+          </Card>
+        </Col>
       </Row>
 
       {/* Table Component below the cards */}
@@ -157,6 +167,22 @@ const GestionInventario = () => {
           }}
         />
       </div>
+
+      {/* Modal Component to show Catalogo */}
+      <Modal
+        title="Catálogo de Productos"
+        visible={isModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="close" onClick={handleCancel}>
+            Cerrar
+          </Button>,
+        ]}
+        width={1000}
+      >
+        {/* Render CatalogoModal inside the modal */}
+        <Catalogo productos={initialData} />
+      </Modal>
     </div>
   );
 };
