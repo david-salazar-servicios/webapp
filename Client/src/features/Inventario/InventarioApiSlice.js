@@ -4,7 +4,7 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         // Fetch all inventarios
         getInventarios: builder.query({
-            query: () => '/inventario',
+            query: () => '/inventarios',
             transformResponse: (responseData) => {
                 return responseData;
             },
@@ -20,7 +20,7 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
 
         // Fetch a single inventario by ID
         getInventarioById: builder.query({
-            query: (id) => `/inventario/${id}`,
+            query: (id) => `/inventarios/${id}`,
             transformResponse: (responseData) => {
                 return responseData;
             },
@@ -30,7 +30,7 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
         // Create a new inventario
         createInventario: builder.mutation({
             query: (newInventario) => ({
-                url: '/inventario',
+                url: '/inventarios',
                 method: 'POST',
                 body: newInventario,
             }),
@@ -40,17 +40,17 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
         // Update an existing inventario
         updateInventario: builder.mutation({
             query: ({ id, ...rest }) => ({
-                url: `/inventario/${id}`,
+                url: `/inventarios/${id}`,
                 method: 'PUT',
                 body: rest,
             }),
-            invalidatesTags: [{ type: 'Inventario', id }],
+            invalidatesTags: (result, error, { id }) => [{ type: 'Inventario', id }],
         }),
 
         // Delete an inventario
         deleteInventario: builder.mutation({
             query: (id) => ({
-                url: `/inventario/${id}`,
+                url: `/inventarios/${id}`,
                 method: 'DELETE',
             }),
             invalidatesTags: [{ type: 'Inventario', id: 'LIST' }],
@@ -58,7 +58,7 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
 
         // Fetch all inventario-producto relationships
         getInventariosProductos: builder.query({
-            query: () => '/inventario/productos',
+            query: () => '/inventarios/productos',
             transformResponse: (responseData) => {
                 return responseData;
             },
@@ -68,7 +68,7 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
         // Update the cantidad in inventario-producto
         updateCantidadInventarioProducto: builder.mutation({
             query: ({ id_inventario, id_producto, cantidad }) => ({
-                url: `/inventario/${id_inventario}/producto/${id_producto}`,
+                url: `/inventarios/${id_inventario}/producto/${id_producto}`,
                 method: 'PUT',
                 body: { cantidad },
             }),
