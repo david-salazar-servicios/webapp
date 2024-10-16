@@ -118,6 +118,7 @@ const getAllInventariosProductos = async (req, res) => {
                 .filter(producto => producto.id_inventario === inventario.id_inventario)
                 .map(producto => ({
                     id_producto: producto.id_producto,
+                    codigo_producto: producto.codigo_producto,
                     nombre_producto: producto.nombre_producto,
                     unidad_medida: producto.unidad_medida,
                     imagen: producto.imagen,

@@ -7,9 +7,9 @@ import PropTypes from 'prop-types'; // For prop types
 const GestionInventarioTable = ({ data, handleInputChange }) => {
   const columns = [
     {
-      title: 'ID Producto',
-      dataIndex: 'id_producto',
-      key: 'id_producto',
+      title: 'Código Producto',
+      dataIndex: 'codigo_producto',
+      key: 'codigo_producto',
     },
     {
       title: 'Nombre del Producto',

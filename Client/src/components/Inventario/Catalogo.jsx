@@ -6,24 +6,18 @@ import { useGetProductosQuery, useCreateProductoMutation, useDeleteProductoMutat
 
 const { Option } = Select;
 
-const ProductoForm = () => {
+const ProductoForm = ({ onProductChange }) => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const [formChanged, setFormChanged] = useState(false);
-    const [editingProductId, setEditingProductId] = useState(null); // To track the product being edited
-    const [isEmpty, setIsEmpty] = useState(true); // To track if the form fields are empty
+    const [editingProductId, setEditingProductId] = useState(null);
+    const [isEmpty, setIsEmpty] = useState(true);
 
-    // Fetch products using the API slice
     const { data: productos = [], refetch } = useGetProductosQuery();
-
-    // Mutation to create and update products
     const [createProducto, { isLoading: creating }] = useCreateProductoMutation();
     const [updateProducto, { isLoading: updating }] = useUpdateProductoMutation();
-    
-    // Mutation to delete a product
     const [deleteProducto] = useDeleteProductoMutation();
 
-    // Columns for Ant Design table
     const columns = [
         {
             title: 'Código del Producto',
@@ -69,7 +63,8 @@ const ProductoForm = () => {
         try {
             await deleteProducto(record.id_producto).unwrap();
             message.success('Producto eliminado correctamente');
-            refetch(); // Refetch product list after deletion
+            refetch();
+            if (onProductChange) onProductChange(); // Trigger refresh after deletion
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
             message.error('Error al eliminar el producto');
@@ -77,38 +72,32 @@ const ProductoForm = () => {
     };
 
     const handleEdit = (record) => {
-        // Set the values for the form fields explicitly, including codigo_producto
         form.setFieldsValue({
             codigo_producto: record.codigo_producto,
             nombre_producto: record.nombre_producto,
             unidad_medida: record.unidad_medida,
             imagen: record.imagen,
         });
-
-        setEditingProductId(record.id_producto); // Set the product ID you're editing
+        setEditingProductId(record.id_producto);
         setFormChanged(true);
-        setIsEmpty(false); // Since form is being filled, it's not empty
+        setIsEmpty(false);
     };
 
     const onFinish = async (values) => {
         try {
             if (editingProductId) {
-                // Update product if editing
                 await updateProducto({ id_producto: editingProductId, ...values }).unwrap();
                 message.success('Producto actualizado correctamente');
             } else {
-                // Create new product
                 await createProducto(values).unwrap();
                 message.success('Producto guardado correctamente');
             }
-
             form.resetFields();
             setFormChanged(false);
-            setEditingProductId(null); // Reset editing state
-            setIsEmpty(true); // Reset the form status to empty
-
-            // Refetch the product list after a product is added or updated
+            setEditingProductId(null);
+            setIsEmpty(true);
             refetch();
+            if (onProductChange) onProductChange(); // Trigger refresh after adding/updating
         } catch (error) {
             console.error('Error al procesar el producto:', error);
             message.error('Error al procesar el producto');
@@ -116,13 +105,12 @@ const ProductoForm = () => {
     };
 
     const handleCancel = () => {
-        form.resetFields(); // Reset form fields
-        setFormChanged(false); // No form changes
-        setEditingProductId(null); // Reset the editing state
-        setIsEmpty(true); // Reset the form status to empty so button shows "Guardar Producto"
+        form.resetFields();
+        setFormChanged(false);
+        setEditingProductId(null);
+        setIsEmpty(true);
     };
 
-    // Track if any form field has a value or not
     const handleValuesChange = (_, allValues) => {
         const isEmpty = Object.values(allValues).every((value) => !value);
         setIsEmpty(isEmpty);
@@ -141,7 +129,7 @@ const ProductoForm = () => {
                             form={form}
                             name="producto_form"
                             onFinish={onFinish}
-                            onValuesChange={handleValuesChange} // Track changes in form values
+                            onValuesChange={handleValuesChange}
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 16 }}
                         >
@@ -191,14 +179,13 @@ const ProductoForm = () => {
                         </Form>
                     </Card>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={8} xl={8}> {/* Tamaño de columna para la imagen */}
+                <Col xs={24} sm={24} md={12} lg={8} xl={8}>
                     <div className="text-center">
                         <img src={image} alt="logo" style={{ maxWidth: '100%', height: 'auto' }} />
                     </div>
                 </Col>
             </Row>
 
-            {/* Table displaying the products */}
             <Row gutter={[16, 16]} style={{ marginTop: '30px' }}>
                 <Col span={24}>
                     <Card title="Lista de Productos" bordered={false}>

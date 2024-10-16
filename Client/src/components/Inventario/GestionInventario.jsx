@@ -1,75 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'antd';
 import { useGetInventariosProductosQuery, useGetInventariosQuery } from '../../features/Inventario/InventarioApiSlice';
-import Catalogo from './Catalogo'; // Assuming this is the catalog component
-import GestionInventarioTable from './GestionInventarioTable'; // Import the table component
-import GestionInventarioCard from './GestionInventarioCard'; // Import the cards component
+import GestionInventarioTable from './GestionInventarioTable'; 
+import GestionInventarioCard from './GestionInventarioCard'; 
+import Catalogo from './Catalogo'; // Ensure this is correctly imported
 
 const GestionInventario = () => {
-  const [selectedBodega, setSelectedBodega] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedBodega, setSelectedBodega] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // Fetch inventarios and their productos
-  const { data: inventariosProductos } = useGetInventariosProductosQuery();
-  const { data: inventarios } = useGetInventariosQuery();
+    const { data: inventariosProductos, refetch: refetchProductos, isSuccess: isProductosSuccess } = useGetInventariosProductosQuery();
+    const { data: inventarios, refetch: refetchInventarios, isSuccess: isInventariosSuccess } = useGetInventariosQuery();
 
-  // Function to handle card click
-  const handleCardClick = (bodega) => {
-    if (bodega === 'Catalogo') {
-      setIsModalVisible(true);
-    } else {
-      setSelectedBodega(bodega);
-    }
-  };
+    useEffect(() => {
+        if (isInventariosSuccess && inventarios.length > 0) {
+            setSelectedBodega(inventarios[0].nombre_inventario);
+        }
+    }, [isInventariosSuccess, inventarios]);
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
+    const handleProductChange = () => {
+        refetchProductos(); // Refetch productos when product is added, updated, or deleted
+        refetchInventarios(); // Optionally refetch inventarios
+    };
 
-  // Function to handle quantity change in the table
-  const handleInputChange = (key, value) => {
-    const updatedData = inventariosProductos.map((item) => {
-      if (item.key === key) {
-        return { ...item, cantidad: value };
-      }
-      return item;
-    });
-    // Logic to update the API could go here
-  };
+    const handleCardClick = (nombre_inventario) => {
+        if (nombre_inventario === 'Catalogo') {
+            setIsModalVisible(true);
+        } else {
+            setSelectedBodega(nombre_inventario);
+        }
+    };
 
-  // Filter data for the selected bodega
-  const filteredData = selectedBodega
-    ? inventariosProductos.filter(
-        (item) => item.bodega === selectedBodega
-      )
-    : [];
+    const handleCancel = () => {
+        setIsModalVisible(false);
+        handleProductChange(); // Refetch data when modal is closed
+    };
 
-  return (
-    <div className="gestion-inventario-container">
-      {/* Render the GestionInventarioCard component */}
-      <GestionInventarioCard bodegas={inventarios || []} handleCardClick={handleCardClick} />
+    const handleInputChange = (key, value) => {
+        const updatedData = inventariosProductos.map((item) => {
+            if (item.key === key) {
+                return { ...item, cantidad: value };
+            }
+            return item;
+        });
+        // Logic to update API here if needed
+    };
 
-      {/* Render the GestionInventarioTable based on selected Bodega */}
-      {selectedBodega && (
-        <GestionInventarioTable data={filteredData} handleInputChange={handleInputChange} />
-      )}
+    const filteredData = selectedBodega
+        ? inventariosProductos?.filter((inventario) => inventario.nombre_inventario === selectedBodega)
+        : [];
 
-      {/* Modal for Catalogo */}
-      <Modal
-        title="Catálogo de Productos"
-        visible={isModalVisible}
-        onCancel={handleCancel}
-        footer={[
-          <Button key="close" onClick={handleCancel}>
-            Cerrar
-          </Button>,
-        ]}
-        width={1000}
-      >
-        <Catalogo productos={inventariosProductos} />
-      </Modal>
-    </div>
-  );
+    const enhancedInventarios = [
+        { nombre_inventario: 'Catalogo' },
+        ...(inventarios || []),
+    ];
+
+    return (
+        <div className="gestion-inventario-container">
+            {/* GestionInventarioCard component with enhanced inventories */}
+            <GestionInventarioCard inventarios={enhancedInventarios} handleCardClick={handleCardClick} />
+
+            {/* Render the GestionInventarioTable based on selected Bodega */}
+            {selectedBodega && isProductosSuccess && selectedBodega !== 'Catalogo' && (
+                <GestionInventarioTable data={filteredData[0]?.productos || []} handleInputChange={handleInputChange} />
+            )}
+
+            {/* Modal for Catalogo */}
+            <Modal
+                title="Catálogo de Productos"
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="close" onClick={handleCancel}>
+                        Cerrar
+                    </Button>,
+                ]}
+                width={1000}
+            >
+                <Catalogo productos={inventariosProductos} onProductChange={handleProductChange} />
+            </Modal>
+        </div>
+    );
 };
 
 export default GestionInventario;
