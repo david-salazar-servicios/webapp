@@ -41,20 +41,46 @@ const getInventarioById = async (req, res) => {
     }
 };
 
-const createInventario = async (req, res) => {
+const createInventario = async (req, res) => {  
+    const client = await pool.connect(); // Use a transaction for multiple queries
+
     try {
-        const { nombre_inventario} = req.body;
-        const newInventario = await pool.query(
-            'INSERT INTO inventario (nombre_inventario) VALUES ($1) RETURNING *', 
+        const { nombre_inventario } = req.body;
+
+        await client.query('BEGIN'); // Begin the transaction
+
+        // Insert the new inventario into the inventario table
+        const newInventarioResult = await client.query(
+            'INSERT INTO inventario (nombre_inventario) VALUES ($1) RETURNING *',
             [nombre_inventario]
         );
+        const newInventario = newInventarioResult.rows[0];
+        const newInventarioId = newInventario.id_inventario; // Get the new inventario's ID
 
-        res.json(newInventario.rows[0]);
+        // Fetch all existing products from the producto table
+        const productosResult = await client.query('SELECT id_producto FROM producto');
+        const productos = productosResult.rows;
+
+        // Associate each product with the new inventario and set cantidad to 0
+        for (const producto of productos) {
+            await client.query(
+                'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad) VALUES ($1, $2, $3)',
+                [newInventarioId, producto.id_producto, 0]
+            );
+        }
+
+        await client.query('COMMIT'); // Commit the transaction
+
+        res.json(newInventario); // Return the newly created inventario
     } catch (error) {
+        await client.query('ROLLBACK'); // Rollback the transaction in case of error
         console.error("Error creating new inventario:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
+    } finally {
+        client.release(); // Release the client back to the pool
     }
 };
+
 
 const updateInventario = async (req, res) => {
     try {
@@ -77,16 +103,53 @@ const updateInventario = async (req, res) => {
 };
 
 const deleteInventario = async (req, res) => {
+    const client = await pool.connect(); // Use a transaction for multiple queries
+
     try {
         const { id } = req.params;
-        await pool.query('DELETE FROM inventario WHERE id_inventario = $1', [id]);
+
+        await client.query('BEGIN'); // Begin transaction
+
+        // Check if the inventario is referenced in detalleproforma
+        const detalleProformaCheck = await client.query(
+            'SELECT COUNT(*) FROM detalleproforma WHERE id_inventario = $1',
+            [id]
+        );
+
+        const countInDetalleProforma = parseInt(detalleProformaCheck.rows[0].count, 10);
+
+        // If the inventario is referenced, rollback and return an error
+        if (countInDetalleProforma > 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({
+                message: 'Inventario cannot be deleted because it is associated with a registered detalleproforma.'
+            });
+        }
+
+        // Delete related data from inventario_producto
+        await client.query(
+            'DELETE FROM inventario_producto WHERE id_inventario = $1',
+            [id]
+        );
+
+        // Delete the inventario
+        await client.query(
+            'DELETE FROM inventario WHERE id_inventario = $1',
+            [id]
+        );
+
+        await client.query('COMMIT'); // Commit transaction
 
         res.json({ message: 'Inventario deleted successfully' });
     } catch (error) {
+        await client.query('ROLLBACK'); // Rollback transaction on error
         console.error("Error deleting Inventario:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
+    } finally {
+        client.release(); // Release the client back to the pool
     }
 };
+
 
 
 ////////// TABLA INTERMEDIA inventario_producto //////////
