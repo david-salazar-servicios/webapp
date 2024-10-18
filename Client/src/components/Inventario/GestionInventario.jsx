@@ -3,7 +3,7 @@ import { Modal, Button } from 'antd';
 import { useGetInventariosProductosQuery, useGetInventariosQuery } from '../../features/Inventario/InventarioApiSlice';
 import GestionInventarioTable from './GestionInventarioTable'; 
 import GestionInventarioCard from './GestionInventarioCard'; 
-import Catalogo from './Catalogo'; // Ensure this is correctly imported
+import Catalogo from './Catalogo';
 
 const GestionInventario = () => {
     const [selectedBodega, setSelectedBodega] = useState(null);
@@ -12,11 +12,17 @@ const GestionInventario = () => {
     const { data: inventariosProductos, refetch: refetchProductos, isSuccess: isProductosSuccess } = useGetInventariosProductosQuery();
     const { data: inventarios, refetch: refetchInventarios, isSuccess: isInventariosSuccess } = useGetInventariosQuery();
 
+    // Ensure selectedBodega is updated when inventories load successfully
     useEffect(() => {
-        if (isInventariosSuccess && inventarios.length > 0) {
-            setSelectedBodega(inventarios[0].nombre_inventario);
+        if (isProductosSuccess && isInventariosSuccess && inventarios.length > 0) {
+            refetchProductos();
+            setSelectedBodega((prev) =>
+                prev || inventarios[0].nombre_inventario
+            );
         }
-    }, [isInventariosSuccess, inventarios]);
+    }, [isInventariosSuccess, inventarios, isProductosSuccess, inventariosProductos]);
+
+
 
     const handleProductChange = () => {
         refetchProductos(); // Refetch productos when product is added, updated, or deleted
@@ -58,11 +64,17 @@ const GestionInventario = () => {
     return (
         <div className="gestion-inventario-container">
             {/* GestionInventarioCard component with enhanced inventories */}
-            <GestionInventarioCard inventarios={enhancedInventarios} handleCardClick={handleCardClick} />
+            <GestionInventarioCard 
+                inventarios={enhancedInventarios} 
+                handleCardClick={handleCardClick} 
+            />
 
             {/* Render the GestionInventarioTable based on selected Bodega */}
             {selectedBodega && isProductosSuccess && selectedBodega !== 'Catalogo' && (
-                <GestionInventarioTable data={filteredData[0]?.productos || []} handleInputChange={handleInputChange} />
+                <GestionInventarioTable 
+                    data={filteredData[0]?.productos || []} 
+                    handleInputChange={handleInputChange} 
+                />
             )}
 
             {/* Modal for Catalogo */}
