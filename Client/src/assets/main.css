@@ -2404,36 +2404,57 @@ footer ul.menu-list li a:hover {
 }
 
 .gestion-inventario-container {
-    background-color: #f0f2f5;
-    padding: 20px;
-    border-radius: 15px 0 0 15px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  height: 100vh;
 }
 
-.bodega-card {
-    background-color: #ffffff;
-    text-align: center;
-    font-size: 16px;
-    font-weight: normal;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    padding: 20px;  /* Padding for better content spacing */
-    width: 100%;  /* Make the card width responsive */
-    max-width: 300px;  /* Ensure it has a good width on larger screens */
+.content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
-.bodega-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+.sales-activity {
+  flex: 3;
+  margin-right: 20px;
 }
 
-/* Media query for smaller screens */
-@media (max-width: 768px) {
-    .bodega-card {
-        font-size: 14px;
-        max-width: 100%;  /* Take full width on mobile */
-    }
+.inventory-summary {
+  flex: 1;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chart-container {
+  width: 100%; /* Ensures it takes the full width of its parent */
+  max-width: 400px; /* Optional: Limit the maximum width */
+  margin: 0 auto; /* Center the chart horizontally */
+  padding: 10px; /* Add some padding to give space around the chart */
+}
+
+.equal-height-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px; /* Adjust the height to ensure equal height for cards */
+}
+
+.summary-card div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+
 /* Custom styles for the PrimeReact InputNumber buttons */
 .custom-input-number .p-inputnumber-button {
   background-color: #05579e; /* Custom blue color for buttons */
@@ -2469,4 +2490,101 @@ footer ul.menu-list li a:hover {
 .custom-input-number .p-inputnumber-button-up:hover,
 .custom-input-number .p-inputnumber-button-down:hover {
   background-color: #034b7a; /* Darker blue for hover */
+}
+
+.gestion-inventario-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+.summary-chart-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.equal-height-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 300px; /* Set a consistent height */
+    max-height: 300px;
+}
+
+.table-card-container {
+    margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    .equal-height-card {
+        height: auto;
+        max-height: none;
+    }
+}
+
+.table-card-container {
+  width: 100%; /* Take the full width of the column */
+  height: 100%; /* Ensure it stretches within its container */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.table-container {
+  width: 100%; 
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-scroll-wrapper {
+
+  max-width: 100%; 
+}
+
+.gestion-inventario-table {
+  width: 100%; /* Ensure the table fits the container */
+  max-height: 300px; /* Limit the table height */
+  overflow-y: auto; /* Allow vertical scrolling */
+  border-radius: 8px;
+
+}
+
+.gestion-inventario-table .ant-table {
+  border: none; 
+  overflow-x: auto; 
+}
+
+.equal-height-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%; /* Ensure consistent height */
+}
+
+@media (max-width: 768px) {
+  .table-card-container {
+      height: auto; /* Adjust for smaller screens */
+  }
+
+  .gestion-inventario-table {
+      max-height: none;
+  }
+}
+
+
+.pie-inventario-cantmin{
+    box-sizing: border-box;
+    display: block;
+    height: 200px;
+    width: 380px;
+}
+
+.equal-height-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.equal-height-card {
+  flex: 1;
+  max-height: 500px;
 }

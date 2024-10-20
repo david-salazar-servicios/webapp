@@ -1,8 +1,13 @@
 import React from 'react';
-import { Card, Col, Row } from 'antd';
-import PropTypes from 'prop-types'; // For prop types
+import { Card, Col, Row, Empty } from 'antd'; // Added 'Empty' component from antd
+import PropTypes from 'prop-types';
 
 const GestionInventarioCard = ({ inventarios, handleCardClick }) => {
+  // Check if there are inventories to display
+  if (inventarios.length === 0) {
+    return <Empty description="No Inventories Available" />;
+  }
+
   return (
     <Row gutter={[16, 16]} justify="center">
       {inventarios.map((inventario) => (
@@ -22,9 +27,9 @@ const GestionInventarioCard = ({ inventarios, handleCardClick }) => {
   );
 };
 
-// Prop types to ensure proper use of the component
+// Prop types for type checking
 GestionInventarioCard.propTypes = {
-    inventarios: PropTypes.array.isRequired,
+  inventarios: PropTypes.array.isRequired,
   handleCardClick: PropTypes.func.isRequired,
 };
 
