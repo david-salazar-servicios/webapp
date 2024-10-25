@@ -11,10 +11,9 @@ const GestionInventarioCard = ({ inventarios, handleCardClick }) => {
   return (
     <Row gutter={[16, 16]} justify="center">
       {inventarios.map((inventario) => (
-        <Col key={inventario.id_inventario} xs={24} sm={12} md={8} lg={6}>
+        <Col key={inventario.id_inventario} xs={24} sm={12} md={8} lg={12}>
           <Card
             className="bodega-card"
-            title={inventario.nombre_inventario}
             bordered={false}
             hoverable
             onClick={() => handleCardClick(inventario.nombre_inventario)}

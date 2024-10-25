@@ -2544,7 +2544,12 @@ footer ul.menu-list li a:hover {
 .gestion-inventario-table {
   width: 100%; /* Ensure the table fits the container */
   max-height: 300px; /* Limit the table height */
-  overflow-y: auto; /* Allow vertical scrolling */
+  border-radius: 8px;
+
+}
+.summary-inventario-table {
+  width: 100%; /* Ensure the table fits the container */
+  max-height: 300px; /* Limit the table height */
   border-radius: 8px;
 
 }
@@ -2566,9 +2571,6 @@ footer ul.menu-list li a:hover {
       height: auto; /* Adjust for smaller screens */
   }
 
-  .gestion-inventario-table {
-      max-height: none;
-  }
 }
 
 

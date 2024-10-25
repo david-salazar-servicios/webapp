@@ -1,16 +1,35 @@
-import React from 'react';
-import { Table, Button } from 'antd';
-import { FileImageTwoTone } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Table, Button, Input } from 'antd';
+import { FileImageTwoTone, SearchOutlined } from '@ant-design/icons';
 import { InputNumber } from 'primereact/inputnumber';
 import PropTypes from 'prop-types';
 
-const GestionInventarioTable = ({ data, handleInputChange, onOpenCatalogo }) => {
+const GestionInventarioTable = ({
+    data,
+    handleInputChange,
+    onOpenCatalogo,
+    onRowSelect,
+}) => {
+    const [searchText, setSearchText] = useState('');
+    const [filteredData, setFilteredData] = useState(data);
+
+    const handleSearch = (value) => {
+        setSearchText(value);
+
+        const filtered = data.filter((item) =>
+            item.id_producto.toString().includes(value) || // Filter by ID
+            item.nombre_producto.toLowerCase().includes(value.toLowerCase()) ||
+            item.unidad_medida.toLowerCase().includes(value.toLowerCase())
+        );
+
+        setFilteredData(filtered);
+    };
+
     const columns = [
         {
             title: 'Código Producto',
             dataIndex: 'codigo_producto',
             key: 'codigo_producto',
-            responsive: ['sm'],
         },
         {
             title: 'Nombre del Producto',
@@ -31,41 +50,45 @@ const GestionInventarioTable = ({ data, handleInputChange, onOpenCatalogo }) => 
         {
             title: 'Cantidad',
             key: 'cantidad',
-            render: (_, record) => (
-                <InputNumber
-                    value={record.cantidad}
-                    onValueChange={(e) => handleInputChange(record.key, e.value)}
-                    mode="decimal"
-                    showButtons
-                    min={0}
-                    max={100}
-                    className="custom-input-number"
-                />
-            ),
+            dataIndex: 'cantidad',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
         },
     ];
 
     return (
         <div className="table-container">
             <div className="table-header">
-                <Button 
-                    type="primary" 
-                    onClick={onOpenCatalogo} 
-                    style={{ marginBottom: '10px' }}
+                <Input
+                    placeholder="Buscar por ID, nombre o unidad de medida"
+                    value={searchText}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    style={{ marginBottom: 10, width: '300px' }}
+                    prefix={<SearchOutlined />}
+                />
+                <Button
+                    type="primary"
+                    onClick={onOpenCatalogo}
+                    style={{ marginBottom: '10px', marginLeft: '10px' }}
                 >
                     Ver Catálogo
                 </Button>
             </div>
-            <div>
-                <Table
-                    columns={columns}
-                    dataSource={data}
-                    pagination={{ position: ['bottomRight'], pageSize: 5 }}
-                    scroll={{ x: 'max-content' }}
-                    rowKey="id_producto"
-                    className="gestion-inventario-table" // Added className
-                />
-            </div>
+            <Table
+                columns={columns}
+                dataSource={filteredData}
+                pagination={{ position: ['bottomRight'], pageSize: 5 }}
+                scroll={{ x: 'max-content', y: '100%' }} // Ensures the table scrolls vertically
+                rowKey="id_producto"
+                className="gestion-inventario-table"
+                onRow={(record) => ({
+                    onClick: () => onRowSelect(record), // Set the selected product on row click
+                })}
+                style={{ height: '100%' }} // Ensures the table fills the available space
+            />
         </div>
     );
 };
@@ -74,6 +97,7 @@ GestionInventarioTable.propTypes = {
     data: PropTypes.array.isRequired,
     handleInputChange: PropTypes.func.isRequired,
     onOpenCatalogo: PropTypes.func.isRequired,
+    onRowSelect: PropTypes.func.isRequired,
 };
 
 export default GestionInventarioTable;
