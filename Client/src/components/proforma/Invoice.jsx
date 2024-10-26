@@ -1,195 +1,353 @@
-import React from 'react';
-import { useGetSolicitudesQuery } from '../../features/RequestService/RequestServiceApiSlice';
+import React, { useState, useEffect } from 'react';
+import { Table, Checkbox, Input, Button, Space, Card , Select} from 'antd';
+import { useGetSolicitudesQuery, useGetSolicitudByIdQuery, } from '../../features/RequestService/RequestServiceApiSlice';
+import { useGetInventariosProductosQuery, useGetInventariosQuery } from '../../features/Inventario/InventarioApiSlice';
 import logo from '../../assets/images/Logo-removebg-preview.png';
-export default function Invoice() {
-    const { data: solicitudes, isLoading, isError } = useGetSolicitudesQuery();
+import { DeleteOutlined,SearchOutlined,CheckOutlined } from '@ant-design/icons';
 
-    if (isLoading) return <p>Loading...</p>;
-    if (isError) return <p>Error loading solicitudes</p>;
+export default function Invoice() {
+    const { data: solicitudes, isLoading: isSolicitudesLoading, isError: isSolicitudesError } = useGetSolicitudesQuery();
+    const [selectedSolicitudId, setSelectedSolicitudId] = useState('');
+    const [selectedDetalles, setSelectedDetalles] = useState({});
+    const [newDetalles, setNewDetalles] = useState([]);
+    const [selectedInventario, setSelectedInventario] = useState(null);
+    const [selectedProducts, setSelectedProducts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const { data: solicitudDetails, refetch } = useGetSolicitudByIdQuery(selectedSolicitudId, { skip: !selectedSolicitudId });
+    const { data: inventarios } = useGetInventariosQuery();
+    const { data: inventariosProductos } = useGetInventariosProductosQuery();
+
+    const handleSolicitudChange = (event) => setSelectedSolicitudId(event.target.value);
+
+    useEffect(() => {
+        if (selectedSolicitudId) refetch();
+    }, [selectedSolicitudId, refetch]);
+
+    const handleCheckboxChange = (servicioId, detalle) => {
+        setSelectedDetalles((prevState) => {
+            const currentService = prevState[servicioId] || [];
+            const isChecked = currentService.includes(detalle);
+            return {
+                ...prevState,
+                [servicioId]: isChecked
+                    ? currentService.filter((d) => d !== detalle)
+                    : [...currentService, detalle],
+            };
+        });
+    };
+
+    const handleAddRow = () => {
+        setNewDetalles((prev) => [...prev, { key: prev.length, detalle: '' }]);
+    };
+
+    const handleNewDetalleChange = (index, value) => {
+        const updatedDetalles = [...newDetalles];
+        updatedDetalles[index].detalle = value;
+        setNewDetalles(updatedDetalles);
+    };
+
+    const handleDeleteRow = (index) => {
+        const updatedDetalles = newDetalles.filter((_, i) => i !== index);
+        setNewDetalles(updatedDetalles);
+    };
+
+    const columns_servicio = [
+        {
+            title: 'Servicio',
+            dataIndex: 'servicio_nombre',
+            key: 'servicio_nombre',
+        },
+        {
+            title: 'Detalles',
+            dataIndex: 'detalles',
+            key: 'detalles',
+            render: (detalles, record) => (
+                <Space direction="vertical">
+                    {detalles.map((detalle, i) => (
+                        <Checkbox
+                            key={i}
+                            checked={selectedDetalles[record.id_servicio]?.includes(detalle) || false}
+                            onChange={() => handleCheckboxChange(record.id_servicio, detalle)}
+                        >
+                            {detalle}
+                        </Checkbox>
+                    ))}
+                </Space>
+            ),
+        },
+    ];
+
+    const handleInventarioChange = (value) => setSelectedInventario(value);
+
+    const filteredProducts = inventariosProductos
+        ?.filter((item) => item.nombre_inventario === selectedInventario)
+        .flatMap((inventario) => inventario.productos)
+        .filter((producto) => {
+            const nombre = producto?.nombre_producto?.toLowerCase() || '';
+            const codigo = producto?.codigo_producto || '';
+            return nombre.includes(searchTerm.toLowerCase()) || codigo.includes(searchTerm);
+        });
+
+    const handleAddProduct = (product) => {
+        if (selectedProducts.some((p) => p.codigo_producto === product.codigo_producto)) {
+            message.warning('Este producto ya está agregado.');
+            return;
+        }
+        setSelectedProducts([...selectedProducts, { ...product, cantidad: 1 }]);
+    };
+
+    const handleDeleteProduct = (index) => {
+        setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const columns_proforma = [
+        { title: 'L', render: (_, __, index) => index + 1 },
+        { title: 'COD', dataIndex: 'codigo_producto' },
+        { title: 'DESCRIPCIÓN', dataIndex: 'nombre_producto' },
+        {
+            title: 'CANT.',
+            render: (_, record, index) => (
+                <Input
+                    type="number"
+                    min={1}
+                    value={record.cantidad}
+                    onChange={(e) => {
+                        const updatedProducts = [...selectedProducts];
+                        updatedProducts[index].cantidad = e.target.value;
+                        setSelectedProducts(updatedProducts);
+                    }}
+                />
+            ),
+        },
+        { title: 'Unidad Medida', dataIndex: 'unidad_medida' },
+        { title: 'PRECIO', dataIndex: 'precio' },
+        { title: 'EXENTO', dataIndex: 'exento' },
+        { title: 'I.V 13%', dataIndex: 'impuesto' },
+        { title: 'TOTAL', dataIndex: 'total' },
+        {
+            title: 'Acciones',
+            render: (_, __, index) => (
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleDeleteProduct(index)}
+                />
+            ),
+        },
+    ];
+
+    const todayDate = new Date();
+    const formattedDate = `${todayDate.getDate().toString().padStart(2, '0')}-${(todayDate.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}-${todayDate.getFullYear()}`;
+
+
+    if (isSolicitudesLoading) return <p>Loading solicitudes...</p>;
+    if (isSolicitudesError) return <p>Error loading solicitudes</p>;
 
     return (
         <div className="invoice-1 invoice-wrapper">
-            <div className="invoice-wrapper container">
-                <div className="row">
-                    <div className="col-lg-12">
-                        <div className="invoice-inner clearfix">
-                            <div className="invoice-info clearfix" id="invoice_wrapper">
-                                <div className="invoice-headar">
-                                    <div className="row g-0">
-                                        <div className="col-sm-6">
-                                            <div className="invoice-logo">
-                                                <img
-                                                    src={logo}
-                                                    alt="logo"
-                                                    className="logo"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-6 invoice-id">
-                                            <div className="info">
-                                                <h1 className="invoice-wrapper color-white inv-header-1">Invoice</h1>
-                                                <p className="invoice-wrapper color-white mb-1">
-                                                    Invoice Number <span>#45613</span>
-                                                </p>
-                                                <p className="invoice-wrapper color-white mb-0">
-                                                    Invoice Date <span>21 Sep 2021</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="invoice-top">
-                                    <div className="row">
-                                        <div className="col-sm-6">
-                                            <div className="invoice-number invoice-wrapper mb-30">
-                                                <h4 className="invoice-wrapper inv-title-1">Invoice To</h4>
-                                                <h2 className="invoice-wrapper name mb-10">Jhon Smith</h2>
-                                                <p className="invoice-wrapper invo-addr-1">
-                                                    Theme Vessel <br />
-                                                    info@themevessel.com <br />
-                                                    21-12 Green Street, Meherpur, Bangladesh <br />
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-6">
-                                            <div className="invoice-number invoice-wrapper mb-30">
-                                                <div className="invoice-number-inner">
-                                                    <h4 className="invoice-wrapper inv-title-1">Invoice From</h4>
-                                                    <h2 className="invoice-wrapper name mb-10">Animas Roky</h2>
-                                                    <p className="invoice-wrapper invo-addr-1">
-                                                        Apexo Inc <br />
-                                                        billing@apexo.com <br />
-                                                        169 Teroghoria, Bangladesh <br />
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Dropdown (Combo Box) */}
-                                    <div className="row">
-                                        <div className="col-sm-12 mb-30">
-                                            <label htmlFor="solicitudSelect">Select Solicitud:</label>
-                                            <select id="solicitudSelect" className="form-control">
-                                                <option value="">-- Seleccionar Solicitud --</option>
-                                                {solicitudes?.map((solicitud) => (
-                                                    <option key={solicitud.id_solicitud} value={solicitud.id_solicitud}>
-                                                        {solicitud.id_solicitud} - {solicitud.nombre} {solicitud.apellido}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="invoice-center">
-                                    <div className="table-responsive">
-                                        <table className="invoice-wrapper table mb-0 table-striped invoice-table">
-                                            <thead className="bg-active">
-                                                <tr className="tr">
-                                                    <th>No.</th>
-                                                    <th className="pl0 text-start">Item Description</th>
-                                                    <th className="text-center">Price</th>
-                                                    <th className="text-center">Quantity</th>
-                                                    <th className="text-end">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr className="tr">
-                                                    <td>
-                                                        <div className="invoice-wrapper item-desc-1">
-                                                            <span>01</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="pl0">Businesscard Design</td>
-                                                    <td className="text-center">$300</td>
-                                                    <td className="text-center">2</td>
-                                                    <td className="text-end">$600.00</td>
-                                                </tr>
-                                                <tr className="tr">
-                                                    <td>
-                                                        <div className="invoice-wrapper item-desc-1">
-                                                            <span>03</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="pl0">Application Interface Design</td>
-                                                    <td className="text-center">$240</td>
-                                                    <td className="text-center">3</td>
-                                                    <td className="text-end">$720.00</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div className="invoice-bottom">
-                                    <div className="row">
-                                        <div className="col-lg-6 col-md-8 col-sm-7">
-                                            <div className="invoice-wrapper mb-30 dear-client">
-                                                <h3 className="invoice-wrapper inv-title-1">Terms & Conditions</h3>
-                                                <p>
-                                                    Lorem Ipsum is simply dummy text of the printing and
-                                                    typesetting industry. Lorem Ipsum has been typesetting
-                                                    industry. Lorem Ipsum
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-6 col-md-4 col-sm-5">
-                                            <div className="invoice-wrapper mb-30 payment-method">
-                                                <h3 className="invoice-wrapper inv-title-1">Payment Method</h3>
-                                                <ul className="invoice-wrapper payment-method-list-1 text-14">
-                                                    <li>
-                                                        <strong>Account No:</strong> 00 123 647 840
-                                                    </li>
-                                                    <li>
-                                                        <strong>Account Name:</strong> Jhon Doe
-                                                    </li>
-                                                    <li>
-                                                        <strong>Branch Name:</strong> xyz
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="invoice-contact clearfix">
-                                    <div className="row g-0">
-                                        <div className="col-lg-9 col-md-11 col-sm-12">
-                                            <div className="invoice-wrapper contact-info">
-                                                <a href="tel:+55-4XX-634-7071">
-                                                    <i className="fa fa-phone"></i> +00 123 647 840
-                                                </a>
-                                                <a href="mailto:info@themevessel.com">
-                                                    <i className="fa fa-envelope"></i> info@themevessel.com
-                                                </a>
-                                                <a
-                                                    href="mailto:info@themevessel.com"
-                                                    className="mr-0 d-none-580"
-                                                >
-                                                    <i className="fa fa-map-marker"></i> 169 Teroghoria,
-                                                    Bangladesh
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="invoice-btn-section clearfix d-print-none">
-                                    <button
-                                        onClick={() => window.print()}
-                                        className="invoice-wrapper btn btn-lg btn-print"
-                                    >
-                                        <i className="fa fa-print"></i> Print Invoice
-                                    </button>
-                                    <button className="invoice-wrapper btn btn-lg btn-download btn-theme">
-                                        <i className="fa fa-download"></i> Download Invoice
-                                    </button>
-                                </div>
+            <div className="invoice-container container">
+                {/* Header Section */}
+                <Card className="mb-4 color-white"> 
+                    <div className="row g-0">
+                        <div className="col-sm-4">
+                            <div className="invoice-logo">
+                                <img src={logo} alt="logo" className="logo" />
+                            </div>
+                        </div>
+                        <div className="col-sm-8 text-right invoice-id p-4">
+                            <h2 className='color-white'>Proforma</h2>
+                            <h4 className='color-white'>Servicios Residenciales y Comerciales CR LTDA</h4>
+                            <div className="d-flex justify-content-end align-items-center gap-4">
+                                <div><i className="fa fa-envelope me-2"></i> servicios.rc.cr@gmail.com</div>
+                                <div><i className="fa fa-phone me-2"></i> 2239-6042 / 8609-6382</div>
+                                <div><i className="fa fa-calendar me-2"></i> <strong>Fecha:</strong> {formattedDate}</div>
                             </div>
                         </div>
                     </div>
+                </Card>
+
+
+                {/* Información del Archivo */}
+                <Card className="mb-4" title="Información del Archivo">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <div className="d-flex flex-column">
+                            <strong>Número Archivo:</strong>
+                            <Input
+                                style={{
+                                    width: '150px',
+                                    border: 'none',
+                                    borderBottom: '1px solid #d9d9d9',
+                                    borderRadius: 0,
+                                    padding: '0 4px'
+                                }}
+                            />
+                        </div>
+
+                        <div className="d-flex flex-column">
+                            <strong>Cotización:</strong>
+                            <Input
+                                style={{
+                                    width: '150px',
+                                    border: 'none',
+                                    borderBottom: '1px solid #d9d9d9',
+                                    borderRadius: 0,
+                                    padding: '0 4px'
+                                }}
+                            />
+                        </div>
+
+                        <div className="d-flex flex-column">
+                            <strong>NC/F-E:</strong>
+                            <Input
+                                style={{
+                                    width: '150px',
+                                    border: 'none',
+                                    borderBottom: '1px solid #d9d9d9',
+                                    borderRadius: 0,
+                                    padding: '0 4px'
+                                }}
+                            />
+                        </div>
+
+                        <div className="d-flex flex-column">
+                            <strong>Oferta Válida:</strong>
+                            <Input
+                                style={{
+                                    width: '150px',
+                                    border: 'none',
+                                    borderBottom: '1px solid #d9d9d9',
+                                    borderRadius: 0,
+                                    padding: '0 4px'
+                                }}
+                            />
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Solicitud Selection */}
+                <Card className="mb-4" title="Seleccionar Solicitud">
+                    <select
+                        id="solicitudSelect"
+                        className="form-control"
+                        onChange={handleSolicitudChange}
+                        value={selectedSolicitudId}
+                    >
+                        <option value="">-- Seleccionar Solicitud --</option>
+                        {solicitudes?.map((solicitud) => (
+                            <option key={solicitud.id_solicitud} value={solicitud.id_solicitud}>
+                                {solicitud.id_solicitud} - {solicitud.nombre} {solicitud.apellido}
+                            </option>
+                        ))}
+                    </select>
+                </Card>
+
+                
+
+                {/* Información del Cliente */}
+                <Card className="mb-4" title="Información del Cliente">
+                    <div className="d-flex justify-content-between">
+                        <span><strong>Nombre:</strong> {solicitudDetails?.nombre} {solicitudDetails?.apellido}</span>
+                        <span><strong>Teléfono:</strong> {solicitudDetails?.telefono}</span>
+                        <span><strong>Email:</strong> {solicitudDetails?.correo_electronico}</span>
+                        <span><strong>Dirección:</strong> {solicitudDetails?.direccion || '-'}</span>
+                    </div>
+                </Card>
+
+                {/* Información de Servicio(s) */}
+                <Card className="mb-4" title="Información de Servicio(s)">
+                    <Table
+                        columns={columns_servicio}
+                        dataSource={solicitudDetails?.servicios || []}
+                        pagination={false}
+                        rowKey="id_servicio"
+                    />
+                    <div className="d-flex align-items-center mt-2">
+                        <Button
+                            type="primary"
+                            onClick={handleAddRow}
+                            style={{ marginRight: '8px' }}
+                        >
+                            Añadir Detalle
+                        </Button>
+                    </div>
+
+                    <div className="mt-4">
+                        {newDetalles.map((detalle, index) => (
+                            <div key={index} className="d-flex mb-2">
+                                <Input
+                                    placeholder={`Nuevo Detalle`}
+                                    value={detalle.detalle}
+                                    onChange={(e) => handleNewDetalleChange(index, e.target.value)}
+                                    style={{ flex: 1, marginRight: '8px' }}
+                                />
+                                <Button
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    onClick={() => handleDeleteRow(index)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+
+                {/* Detalle Proforma */}
+                <Card className="mb-4" title="Detalle Proforma">
+                    <Space style={{ marginBottom: 16 }}>
+                        <Select
+                            placeholder="Seleccionar Inventario"
+                            onChange={handleInventarioChange}
+                            options={inventarios?.map((inv) => ({
+                                value: inv.nombre_inventario,
+                                label: inv.nombre_inventario,
+                            }))}
+                        />
+                        <Input
+                            placeholder="Buscar por nombre o código"
+                            prefix={<SearchOutlined />}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </Space>
+
+                    <Table
+                        dataSource={filteredProducts}
+                        columns={[
+                            { title: 'Código', dataIndex: 'codigo_producto' },
+                            { title: 'Nombre', dataIndex: 'nombre_producto' },
+                           
+                            {
+                                title: 'Acciones',
+                                render: (_, product) => (
+                                    <Button
+                    type="primary"
+                    icon={<CheckOutlined />}
+                    onClick={() => handleAddProduct(product)}
+                    disabled={selectedProducts.some((p) => p.codigo_producto === product.codigo_producto)}
+                />
+                                ),
+                            },
+                        ]}
+                        pagination={false}
+                    />
+
+                    <Table
+                        dataSource={selectedProducts}
+                        columns={columns_proforma}
+                        pagination={false}
+                    />
+                </Card>
+
+                {/* Buttons Section */}
+                <div className="text-center mt-4">
+                    <button onClick={() => window.print()} className="btn btn-lg btn-print">
+                        <i className="fa fa-print"></i> Imprimir Factura
+                    </button>
+                    <button className="btn btn-lg btn-download btn-theme">
+                        <i className="fa fa-download"></i> Descargar Factura
+                    </button>
                 </div>
             </div>
         </div>
