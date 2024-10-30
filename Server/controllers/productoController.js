@@ -1,20 +1,11 @@
-
-// solicitudController.js
 const socketManager = require('../socket'); // Adjust the path as necessary
 const pool = require('../db');
-// solicitudController.js
 const moment = require('moment-timezone');
 
 const getAllProductos = async (req, res) => {
-    
     try {
-        // Execute the SQL query to fetch all services
         const queryResult = await pool.query('SELECT * FROM producto');
-
-        // Extract the service data from the query result
-        const productos = queryResult.rows; 
-
-        // Return the list of services
+        const productos = queryResult.rows;
         res.json(productos);
     } catch (error) {
         console.error("Error retrieving productos:", error);
@@ -24,12 +15,9 @@ const getAllProductos = async (req, res) => {
 
 const getProductoById = async (req, res) => {
     const { id } = req.params;
-    
-    // Validate that the ID is an integer
-    const productoId = id;
 
     try {
-        const producto = await pool.query('SELECT * FROM producto WHERE id_producto = $1', [productoId]);
+        const producto = await pool.query('SELECT * FROM producto WHERE id_producto = $1', [id]);
         if (producto.rows.length === 0) {
             return res.status(404).json({ message: "Producto not found." });
         }
@@ -41,53 +29,54 @@ const getProductoById = async (req, res) => {
 };
 
 const createProducto = async (req, res) => {
-    const client = await pool.connect(); // Use a transaction for multiple queries
-    
+    const client = await pool.connect();
+
     try {
-        const { codigo_producto, nombre_producto, unidad_medida, imagen } = req.body;
+        const { codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta } = req.body;
 
-        await client.query('BEGIN'); // Begin the transaction
+        await client.query('BEGIN');
 
-        // Insert the new product into the producto table
         const newProductoResult = await client.query(
-            'INSERT INTO producto (codigo_producto, nombre_producto, unidad_medida, imagen) VALUES ($1, $2, $3, $4) RETURNING *',
-            [codigo_producto, nombre_producto, unidad_medida, imagen]
+            `INSERT INTO producto (codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta]
         );
-        const newProducto = newProductoResult.rows[0];
-        const newProductoId = newProducto.id_producto; // Get the newly created product's ID
 
-        // Fetch all existing inventories
+        const newProducto = newProductoResult.rows[0];
+        const newProductoId = newProducto.id_producto;
+
         const inventariosResult = await client.query('SELECT id_inventario FROM inventario');
         const inventarios = inventariosResult.rows;
 
-        // Insert the new product into each inventario with cantidad = 0
         for (const inventario of inventarios) {
             await client.query(
                 'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad) VALUES ($1, $2, $3)',
-                [inventario.id_inventario, newProductoId, 0] // Set cantidad to 0
+                [inventario.id_inventario, newProductoId, 0]
             );
         }
 
-        await client.query('COMMIT'); // Commit the transaction
-
-        res.json(newProducto); // Return the newly created product
+        await client.query('COMMIT');
+        res.json(newProducto);
     } catch (error) {
-        await client.query('ROLLBACK'); // Roll back the transaction in case of error
+        await client.query('ROLLBACK');
         console.error("Error creating new producto:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     } finally {
-        client.release(); // Release the client back to the pool
+        client.release();
     }
 };
-
 
 const updateProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const { codigo_producto , nombre_producto,unidad_medida,imagen } = req.body;
+        const { codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta } = req.body;
+
         const updatedProducto = await pool.query(
-            'UPDATE producto SET codigo_producto = $1, nombre_producto = $2, unidad_medida = $3 , imagen = $4  WHERE id_producto = $5 RETURNING *',
-            [codigo_producto, nombre_producto, unidad_medida,imagen,id]
+            `UPDATE producto 
+            SET codigo_producto = $1, nombre_producto = $2, unidad_medida = $3, imagen = $4, 
+                precio_costo = $5, precio_venta = $6 
+            WHERE id_producto = $7 RETURNING *`,
+            [codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, id]
         );
 
         if (updatedProducto.rows.length === 0) {
@@ -102,14 +91,13 @@ const updateProducto = async (req, res) => {
 };
 
 const deleteProducto = async (req, res) => {
-    const client = await pool.connect(); // Use a transaction for multiple queries
+    const client = await pool.connect();
 
     try {
         const { id } = req.params;
 
-        await client.query('BEGIN'); // Begin the transaction
+        await client.query('BEGIN');
 
-        // Check if the product is associated with any detalleproforma
         const detalleProformaResult = await client.query(
             'SELECT COUNT(*) FROM detalleproforma WHERE id_producto = $1',
             [id]
@@ -118,11 +106,10 @@ const deleteProducto = async (req, res) => {
         const countInDetalleProforma = parseInt(detalleProformaResult.rows[0].count, 10);
 
         if (countInDetalleProforma > 0) {
-            await client.query('ROLLBACK'); // Rollback the transaction if the product is associated
+            await client.query('ROLLBACK');
             return res.status(400).json({ message: 'Producto is associated with a registered detalleproforma and cannot be deleted.' });
         }
 
-        // Check if the product's cantidad is 0 in all inventories
         const cantidadCheckResult = await client.query(
             'SELECT COUNT(*) FROM inventario_producto WHERE id_producto = $1 AND cantidad > 0',
             [id]
@@ -131,32 +118,23 @@ const deleteProducto = async (req, res) => {
         const countWithPositiveCantidad = parseInt(cantidadCheckResult.rows[0].count, 10);
 
         if (countWithPositiveCantidad > 0) {
-            await client.query('ROLLBACK'); // Rollback the transaction if any cantidad is greater than 0
+            await client.query('ROLLBACK');
             return res.status(400).json({ message: 'Producto has non-zero cantidad in one or more inventories and cannot be deleted.' });
         }
 
-        // If no associations in detalleproforma and all cantidades are 0, proceed with deletion
-        // Delete from inventario_producto
         await client.query('DELETE FROM inventario_producto WHERE id_producto = $1', [id]);
-
-        // Delete the product from the producto table
         await client.query('DELETE FROM producto WHERE id_producto = $1', [id]);
 
-        await client.query('COMMIT'); // Commit the transaction
-
+        await client.query('COMMIT');
         res.json({ message: 'Producto deleted successfully' });
     } catch (error) {
-        await client.query('ROLLBACK'); // Rollback the transaction in case of error
+        await client.query('ROLLBACK');
         console.error("Error deleting Producto:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     } finally {
-        client.release(); // Release the client back to the pool
+        client.release();
     }
 };
-
-
-
-
 
 module.exports = {
     getAllProductos,

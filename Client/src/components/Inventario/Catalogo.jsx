@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Row, Col, message, Select, Table, Popconfirm } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import image from '../../assets/images/Logo-removebg-preview.png'; // Ensure this path is correct
-import { useGetProductosQuery, useCreateProductoMutation, useDeleteProductoMutation, useUpdateProductoMutation } from '../../features/Productos/ProductoApiSlice'; // Import your API slice
+import image from '../../assets/images/Logo-removebg-preview.png';
+import { useGetProductosQuery, useCreateProductoMutation, useDeleteProductoMutation, useUpdateProductoMutation } from '../../features/Productos/ProductoApiSlice';
 
 const { Option } = Select;
 
@@ -35,6 +35,16 @@ const ProductoForm = ({ onProductChange }) => {
             key: 'unidad_medida',
         },
         {
+            title: 'Precio Costo',
+            dataIndex: 'precio_costo',
+            key: 'precio_costo',
+        },
+        {
+            title: 'Precio Venta',
+            dataIndex: 'precio_venta',
+            key: 'precio_venta',
+        },
+        {
             title: 'Imagen',
             dataIndex: 'imagen',
             key: 'imagen',
@@ -64,7 +74,7 @@ const ProductoForm = ({ onProductChange }) => {
             await deleteProducto(record.id_producto).unwrap();
             message.success('Producto eliminado correctamente');
             refetch();
-            if (onProductChange) onProductChange(); // Trigger refresh after deletion
+            if (onProductChange) onProductChange();
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
             message.error('Error al eliminar el producto');
@@ -76,6 +86,8 @@ const ProductoForm = ({ onProductChange }) => {
             codigo_producto: record.codigo_producto,
             nombre_producto: record.nombre_producto,
             unidad_medida: record.unidad_medida,
+            precio_costo: record.precio_costo,
+            precio_venta: record.precio_venta,
             imagen: record.imagen,
         });
         setEditingProductId(record.id_producto);
@@ -97,7 +109,7 @@ const ProductoForm = ({ onProductChange }) => {
             setEditingProductId(null);
             setIsEmpty(true);
             refetch();
-            if (onProductChange) onProductChange(); // Trigger refresh after adding/updating
+            if (onProductChange) onProductChange();
         } catch (error) {
             console.error('Error al procesar el producto:', error);
             message.error('Error al procesar el producto');
@@ -161,16 +173,48 @@ const ProductoForm = ({ onProductChange }) => {
                             </Form.Item>
 
                             <Form.Item
+                                name="precio_costo"
+                                label={<span>Precio Costo</span>}
+                                rules={[{ required: true, message: 'Por favor ingresa el precio costo!' }]}
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 16 }}
+                            >
+                                <Input
+                                    onChange={(e) => {
+                                        const { value } = e.target;
+                                        const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
+                                        e.target.value = numericValue;
+                                    }}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="precio_venta"
+                                label={<span>Precio Venta</span>}
+                                rules={[{ required: true, message: 'Por favor ingresa el precio venta!' }]}
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 16 }}
+                            >
+                                <Input
+                                    onChange={(e) => {
+                                        const { value } = e.target;
+                                        const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
+                                        e.target.value = numericValue;
+                                    }}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
                                 name="imagen"
                                 label="URL de la Imagen"
-                                rules={[{ required: true, message: 'Por favor ingresa un enlace a la imagen del producto!' }, { type: 'url', message: 'Por favor ingresa un URL válido!' }]}
+                                rules={[{ required: true, message: 'Por favor ingresa un enlace a la imagen!' }, { type: 'url', message: 'Por favor ingresa un URL válido!' }]}
                             >
                                 <Input />
                             </Form.Item>
 
                             <Form.Item wrapperCol={{ span: 16, offset: 8 }}>
                                 <Button type="primary" htmlType="submit" loading={creating || updating}>
-                                    {editingProductId ? 'Actualizar Producto' : isEmpty ? 'Guardar Producto' : 'Guardar Producto'}
+                                    {editingProductId ? 'Actualizar Producto' : 'Guardar Producto'}
                                 </Button>
                                 <Button style={{ marginLeft: '10px' }} onClick={handleCancel}>
                                     Cancelar
@@ -179,7 +223,7 @@ const ProductoForm = ({ onProductChange }) => {
                         </Form>
                     </Card>
                 </Col>
-                <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+                <Col xs={24} sm={24} md={12} lg={8}>
                     <div className="text-center">
                         <img src={image} alt="logo" style={{ maxWidth: '100%', height: 'auto' }} />
                     </div>
