@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Row, Col, Card, Table } from 'antd';
+import { Modal, Row, Col, Card, Table, Tabs } from 'antd';
 import {
   useGetInventariosProductosQuery,
   useGetInventariosQuery,
@@ -10,10 +10,12 @@ import Catalogo from './Catalogo';
 import InventarioPieChart from './InventarioPieChart';
 import MoverProductosForm from './MoverProductosForm';
 
+const { TabPane } = Tabs;
+
 const GestionInventario = () => {
   const [selectedBodega, setSelectedBodega] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null); // New state for product
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const { data: inventariosProductos = [], refetch: refetchProductos, isSuccess: isProductosSuccess } =
     useGetInventariosProductosQuery();
@@ -51,8 +53,7 @@ const GestionInventario = () => {
   };
 
   const onRowSelect = (product) => {
-    console.log(product)
-    setSelectedProduct(product); // Populate form with selected product
+    setSelectedProduct(product);
   };
 
   const handleMoveProduct = (targetInventory) => {
@@ -62,8 +63,8 @@ const GestionInventario = () => {
 
   const filteredData = selectedBodega
     ? inventariosProductos?.filter(
-      (inventario) => inventario.nombre_inventario === selectedBodega
-    ) || []
+        (inventario) => inventario.nombre_inventario === selectedBodega
+      ) || []
     : [];
 
   const totalProducts = useMemo(() => {
@@ -109,53 +110,61 @@ const GestionInventario = () => {
 
         <Col xs={24} md={8}>
           <Card bordered={false} className="equal-height-card">
-            <h3>Productos con Cantidad Mínima</h3>
-            {isProductosSuccess ? (
-              <InventarioPieChart productos={inventariosProductos || []} />
-            ) : (
-              <p>Loading products...</p>
-            )}
+            <h3>Move Product</h3>
+            <MoverProductosForm
+              selectedProduct={selectedProduct}
+              inventarios={inventarios}
+              selectedBodega={selectedBodega}
+              handleMoveProduct={handleMoveProduct}
+            />
           </Card>
         </Col>
 
         <Col xs={24} md={8}>
           <Card bordered={false} className="equal-height-card">
-            <h3>Total de Productos</h3>
-            <Table columns={summaryColumns} dataSource={totalProducts} pagination={false}/>
+            <Tabs defaultActiveKey="1">
+              <TabPane tab="Total de Productos" key="1">
+                <Table
+                  columns={summaryColumns}
+                  dataSource={totalProducts}
+                  pagination={false}
+                />
+              </TabPane>
+              <TabPane tab="Productos con Cantidad Mínima" key="2">
+                {isProductosSuccess ? (
+                  <InventarioPieChart productos={inventariosProductos || []} />
+                ) : (
+                  <p>Loading products...</p>
+                )}
+              </TabPane>
+            </Tabs>
           </Card>
         </Col>
       </Row>
 
       <Row gutter={[16, 16]}>
-        <Col xs={24} md={16} className="equal-height-col">
-          <Card bordered={false} className="equal-height-card">
-            <h3>{`Productos en ${selectedBodega || 'Inventario'}`}</h3>
-            {selectedBodega && isProductosSuccess ? (
-              <GestionInventarioTable
-                data={filteredData[0]?.productos || []}
-                handleInputChange={handleInputChange}
-                onRowSelect={onRowSelect}
-                onOpenCatalogo={() => setIsModalVisible(true)}
-              />
-            ) : (
-              <p>Select an inventory to view products.</p>
-            )}
-          </Card>
-        </Col>
+  <Col xs={24} md={24}>
+    <Card 
+      bordered={false} 
+      style={{ height: '100%', overflow: 'hidden' }} // Ensure the Card takes full space and hides overflow
+    >
+      <h3>{`Productos en ${selectedBodega || 'Inventario'}`}</h3>
+      {selectedBodega && isProductosSuccess ? (
+        <div> {/* Scroll if content overflows */}
+          <GestionInventarioTable
+            data={filteredData[0]?.productos || []}
+            handleInputChange={handleInputChange}
+            onRowSelect={onRowSelect}
+            onOpenCatalogo={() => setIsModalVisible(true)}
+          />
+        </div>
+      ) : (
+        <p>Select an inventory to view products.</p>
+      )}
+    </Card>
+  </Col>
+</Row>
 
-        <Col xs={24} md={8} className="equal-height-col">
-          <Card bordered={false} className="equal-height-card">
-            <h3>Move Product</h3>
-            <MoverProductosForm
-              selectedProduct={selectedProduct}
-              inventarios={inventarios}
-              selectedBodega={selectedBodega} // Pass the selected inventory here
-              handleMoveProduct={handleMoveProduct}
-            />
-
-          </Card>
-        </Col>
-      </Row>
 
       <Modal
         title="Catálogo de Productos"
