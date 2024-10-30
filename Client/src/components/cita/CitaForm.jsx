@@ -202,12 +202,12 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
 
                                         <Button type="defaut" style={{ backgroundColor: '#22c55e', color: 'white' }}  onClick={async () => {
                                             try {
-                                                await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Completada' }).unwrap();
-                                                await updateCitaEstado({ id: filteredCita.id_cita, estado: 'Completada' }).unwrap();
+                                                await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Confirmada' }).unwrap();
+                                                await updateCitaEstado({ id: filteredCita.id_cita, estado: 'Confirmada' }).unwrap();
                                                 toast.current.show({
                                                     severity: 'success',
-                                                    summary: 'Completada',
-                                                    detail: 'La solicitud y cita han sido completadas',
+                                                    summary: 'Confirmada',
+                                                    detail: 'La solicitud y cita han sido confirmadas',
                                                     life: 3000
                                                 });
                                                 onClose();
@@ -215,12 +215,12 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                                 toast.current.show({
                                                     severity: 'error',
                                                     summary: 'Error',
-                                                    detail: 'Error al completar la solicitud y cita',
+                                                    detail: 'Error al Confirmadar la solicitud y cita',
                                                     life: 5000
                                                 });
                                             }
                                         }}>
-                                            Completar
+                                            Confirmar
                                         </Button>
                                         <Button type="primary" danger onClick={async () => {
                                             try {

@@ -90,7 +90,7 @@ export default function SolicitudesTable() {
             case 'En Agenda':
                 statusColor = 'info';
                 break;
-            case 'Completada':
+            case 'Confirmada':
                 statusColor = 'success';
                 break;
             case 'Rechazada':
@@ -142,7 +142,7 @@ export default function SolicitudesTable() {
             );
         }
 
-        if (rowData.estado === 'Completada') {
+        if (rowData.estado === 'Confirmada') {
             return (
                 <Popconfirm
                     title="¿Deseas revertir el estado a 'En Agenda'?"
