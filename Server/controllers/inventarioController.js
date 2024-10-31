@@ -64,8 +64,8 @@ const createInventario = async (req, res) => {
         // Associate each product with the new inventario and set cantidad to 0
         for (const producto of productos) {
             await client.query(
-                'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad) VALUES ($1, $2, $3)',
-                [newInventarioId, producto.id_producto, 0]
+                'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad, cantidad_recomendada) VALUES ($1, $2, $3, $4)',
+                [newInventarioId, producto.id_producto, 0, 0]
             );
         }
 
@@ -167,7 +167,7 @@ const getAllInventariosProductos = async (req, res) => {
 
         // Now, fetch all productos with their associated inventarios and cantidad
         const productosResult = await pool.query(`
-            SELECT p.*, ip.id_inventario, ip.cantidad
+            SELECT p.*, ip.id_inventario, ip.cantidad, ip.cantidad_recomendada
             FROM producto p
             INNER JOIN inventario_producto ip ON p.id_producto = ip.id_producto
         `);
@@ -183,9 +183,12 @@ const getAllInventariosProductos = async (req, res) => {
                     id_producto: producto.id_producto,
                     codigo_producto: producto.codigo_producto,
                     nombre_producto: producto.nombre_producto,
+                    precio_costo: producto.precio_costo,
+                    precio_venta: producto.precio_venta,
                     unidad_medida: producto.unidad_medida,
                     imagen: producto.imagen,
-                    cantidad: producto.cantidad // Add cantidad from inventario_producto
+                    cantidad: producto.cantidad, // Add cantidad from inventario_producto
+                    cantidad_recomendada: producto.cantidad_recomendada // Add cantidad_recomendada from inventario_producto
                 }));
 
             return {

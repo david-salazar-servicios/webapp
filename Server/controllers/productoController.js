@@ -50,8 +50,8 @@ const createProducto = async (req, res) => {
 
         for (const inventario of inventarios) {
             await client.query(
-                'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad) VALUES ($1, $2, $3)',
-                [inventario.id_inventario, newProductoId, 0]
+                'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad, cantidad_recomendada) VALUES ($1, $2, $3, $4)',
+                [inventario.id_inventario, newProductoId, 0, 0]
             );
         }
 

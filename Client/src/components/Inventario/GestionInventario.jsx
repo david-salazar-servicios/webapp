@@ -16,88 +16,53 @@ const GestionInventario = () => {
   const [selectedBodega, setSelectedBodega] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [filteredData, setFilteredData] = useState([]);
 
+  // Fetch products and inventories using RTK Query
   const { data: inventariosProductos = [], refetch: refetchProductos, isSuccess: isProductosSuccess } =
     useGetInventariosProductosQuery();
-  const { data: inventarios = [], refetch: refetchInventarios, isSuccess: isInventariosSuccess } =
+  
+  const { data: inventarios = [], isSuccess: isInventariosSuccess } =
     useGetInventariosQuery();
 
+  // Effect to update filtered data when selected inventory changes
   useEffect(() => {
-    if (isProductosSuccess && isInventariosSuccess && inventarios.length > 0) {
-      refetchProductos();
-      setSelectedBodega((prev) => prev || inventarios[0].nombre_inventario);
+    if (selectedBodega && isProductosSuccess) {
+      const selectedInventoryProducts = inventariosProductos.find(
+        (inventario) => inventario.nombre_inventario === selectedBodega
+      );
+      setFilteredData(selectedInventoryProducts?.productos || []);
     }
-  }, [isInventariosSuccess, inventarios, isProductosSuccess, inventariosProductos]);
+  }, [inventariosProductos, selectedBodega, isProductosSuccess]);
 
-  const handleProductChange = () => {
-    refetchProductos();
-    refetchInventarios();
-  };
+  // Automatically select the first inventory on load
+  useEffect(() => {
+    if (isInventariosSuccess && inventarios.length > 0) {
+      setSelectedBodega(inventarios[0].nombre_inventario);
+    }
+  }, [isInventariosSuccess, inventarios]);
 
+  // Handle selection of inventory card
   const handleCardClick = (nombre_inventario) => {
     setSelectedBodega(nombre_inventario);
+    refetchProductos(); // Ensure we fetch the latest product data
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-    handleProductChange();
-  };
-
-  const handleInputChange = (key, value) => {
-    const updatedData = inventariosProductos.map((item) => {
-      if (item.key === key) {
-        return { ...item, cantidad: value };
-      }
-      return item;
-    });
   };
 
   const onRowSelect = (product) => {
     setSelectedProduct(product);
   };
 
-  const handleMoveProduct = (targetInventory) => {
-    console.log(`Moving product to ${targetInventory}`);
-    // Implement the API call or logic to move the product here
-  };
-
-  const filteredData = selectedBodega
-    ? inventariosProductos?.filter(
-        (inventario) => inventario.nombre_inventario === selectedBodega
-      ) || []
-    : [];
-
-  const totalProducts = useMemo(() => {
-    const productMap = new Map();
-    inventariosProductos?.forEach((inventario) => {
-      inventario.productos.forEach((producto) => {
-        const currentQuantity = productMap.get(producto.nombre_producto) || 0;
-        productMap.set(
-          producto.nombre_producto,
-          currentQuantity + parseFloat(producto.cantidad)
-        );
-      });
-    });
-
-    return Array.from(productMap.entries()).map(([nombre, cantidad]) => ({
-      key: nombre,
-      nombre,
-      cantidad,
-    }));
-  }, [inventariosProductos]);
-
-  const summaryColumns = [
-    { title: 'Producto', dataIndex: 'nombre', key: 'nombre' },
-    { title: 'Cantidad Total', dataIndex: 'cantidad', key: 'cantidad' },
-  ];
-
   return (
-    <div className="gestion-inventario-container">
-      <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>
-        <Col xs={24} md={8}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Row gutter={[16, 16]} style={{ flex: 1, marginBottom: '16px' }}>
+        <Col xs={24} md={8} style={{ height: '100%' }}>
           <Card bordered={false} className="equal-height-card">
             <h3>Inventarios</h3>
-            {inventarios?.length ? (
+            {inventarios.length ? (
               <GestionInventarioCard
                 inventarios={inventarios}
                 handleCardClick={handleCardClick}
@@ -108,31 +73,65 @@ const GestionInventario = () => {
           </Card>
         </Col>
 
-        <Col xs={24} md={8}>
+        <Col xs={24} md={8} style={{ height: '100%' }}>
           <Card bordered={false} className="equal-height-card">
             <h3>Move Product</h3>
             <MoverProductosForm
               selectedProduct={selectedProduct}
               inventarios={inventarios}
               selectedBodega={selectedBodega}
-              handleMoveProduct={handleMoveProduct}
+              handleMoveProduct={(targetInventory) =>
+                console.log(`Moving product to ${targetInventory}`)
+              }
             />
           </Card>
         </Col>
 
-        <Col xs={24} md={8}>
+        <Col xs={24} md={8} style={{ height: '100%' }}>
           <Card bordered={false} className="equal-height-card">
             <Tabs defaultActiveKey="1">
-              <TabPane tab="Total de Productos" key="1">
-                <Table
-                  columns={summaryColumns}
-                  dataSource={totalProducts}
-                  pagination={false}
-                />
-              </TabPane>
+            <TabPane tab="Total de Productos" key="1">
+  <Table
+    columns={[
+      { title: 'Producto', dataIndex: 'nombre', key: 'nombre' },
+      
+      { title: 'Cantidad Total', dataIndex: 'cantidad', key: 'cantidad' },
+      { title: 'Unidad Medida', dataIndex: 'unidad_medida', key: 'unidad_medida' },
+    ]}
+    dataSource={useMemo(() => {
+      const productMap = new Map();
+
+      // Ensure correct grouping and numeric summation
+      inventariosProductos.forEach((inv) => {
+        inv.productos.forEach((prod) => {
+          const key = `${prod.nombre_producto}-${prod.unidad_medida}`; // Unique key for each product-unit combination
+          const existingQuantity = productMap.get(key) || 0;
+
+          // Convert the quantity to a number before summing
+          const newQuantity = existingQuantity + Number(prod.cantidad);
+          productMap.set(key, newQuantity);
+        });
+      });
+
+      // Convert the Map to an array suitable for the Table
+      return Array.from(productMap.entries()).map(([key, cantidad]) => {
+        const [nombre, unidad_medida] = key.split('-'); // Extract product name and unit of measurement
+        return {
+          key,
+          nombre,
+          unidad_medida,
+          cantidad: cantidad.toFixed(2), // Format as number with 2 decimal places
+        };
+      });
+    }, [inventariosProductos])}
+    pagination={false}
+  />
+</TabPane>
+
+
               <TabPane tab="Productos con Cantidad Mínima" key="2">
                 {isProductosSuccess ? (
-                  <InventarioPieChart productos={inventariosProductos || []} />
+                  <InventarioPieChart productos={inventariosProductos} />
                 ) : (
                   <p>Loading products...</p>
                 )}
@@ -142,29 +141,31 @@ const GestionInventario = () => {
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]}>
-  <Col xs={24} md={24}>
-    <Card 
-      bordered={false} 
-      style={{ height: '100%', overflow: 'hidden' }} // Ensure the Card takes full space and hides overflow
-    >
-      <h3>{`Productos en ${selectedBodega || 'Inventario'}`}</h3>
-      {selectedBodega && isProductosSuccess ? (
-        <div> {/* Scroll if content overflows */}
-          <GestionInventarioTable
-            data={filteredData[0]?.productos || []}
-            handleInputChange={handleInputChange}
-            onRowSelect={onRowSelect}
-            onOpenCatalogo={() => setIsModalVisible(true)}
-          />
-        </div>
-      ) : (
-        <p>Select an inventory to view products.</p>
-      )}
-    </Card>
-  </Col>
-</Row>
-
+      <Row gutter={[16, 16]} style={{ flex: 1 }}>
+        <Col xs={24} md={24} style={{ height: '100%' }}>
+          <Card
+            bordered={false}
+            style={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            <h3>{`Productos en ${selectedBodega || 'Inventario'}`}</h3>
+            {selectedBodega && isProductosSuccess ? (
+              <GestionInventarioTable
+                data={filteredData}
+                handleInputChange={() => {}}
+                onRowSelect={onRowSelect}
+                onOpenCatalogo={() => setIsModalVisible(true)}
+              />
+            ) : (
+              <p>Select an inventory to view products.</p>
+            )}
+          </Card>
+        </Col>
+      </Row>
 
       <Modal
         title="Catálogo de Productos"
@@ -173,7 +174,7 @@ const GestionInventario = () => {
         footer={null}
         width={1000}
       >
-        <Catalogo productos={inventariosProductos} onProductChange={handleProductChange} />
+        <Catalogo productos={inventariosProductos} onProductChange={() => refetchProductos()} />
       </Modal>
     </div>
   );
