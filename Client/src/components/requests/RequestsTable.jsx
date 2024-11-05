@@ -21,7 +21,7 @@ export default function SolicitudesTable() {
     const [globalFilter, setGlobalFilter] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentSolicitud, setCurrentSolicitud] = useState(null);
-    const [isUpdate, setIsUpdate] = useState(false); 
+    const [isUpdate, setIsUpdate] = useState(false);
     const dt = useRef(null);
     const toast = useRef(null);
 
@@ -29,12 +29,12 @@ export default function SolicitudesTable() {
 
     const showCitaForm = (solicitud, isUpdate) => {
         setCurrentSolicitud(solicitud);
-        setIsUpdate(isUpdate); 
+        setIsUpdate(isUpdate);
         setIsModalVisible(true);
     };
 
     const handleConfirm = (solicitud) => {
-        const isUpdate = solicitud.estado === 'En Agenda'; 
+        const isUpdate = solicitud.estado === 'En Agenda';
         showCitaForm(solicitud, isUpdate);
     };
 
@@ -53,14 +53,14 @@ export default function SolicitudesTable() {
         try {
             // Update the solicitud to "En Agenda"
             await updateSolicitudEstado({ id: solicitud.id_solicitud, estado: 'En Agenda' }).unwrap();
-    
+
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud revertida a En Agenda', life: 3000 });
             refetch(); // Refetch the solicitudes to update the table
         } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al revertir la solicitud', life: 5000 });
         }
     };
-    
+
 
     const handleRestoreSolicitud = async (solicitud) => {
         try {
@@ -71,7 +71,7 @@ export default function SolicitudesTable() {
             const relatedCita = citaData?.find(cita => cita.id_solicitud === solicitud.id_solicitud);
             console.log(relatedCita)
             if (relatedCita) {
-                await deleteCita( relatedCita.id_cita ).unwrap();
+                await deleteCita(relatedCita.id_cita).unwrap();
             }
 
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud restaurada correctamente', life: 3000 });
@@ -219,11 +219,14 @@ export default function SolicitudesTable() {
                             <Column field="nombre" header="Nombre" sortable style={{ width: '10rem' }}></Column>
                             <Column field="apellido" header="Apellido" sortable style={{ width: '10rem' }}></Column>
                             <Column field="correo_electronico" header="Correo Electrónico" sortable style={{ width: '14rem' }}></Column>
-                            <Column field="telefono" header="Teléfono" sortable style={{ width: '10rem' }}></Column>
+                            <Column field="telefono" header="Teléfono Móvil" sortable style={{ width: '10rem' }}></Column>
+                            <Column field="telefono_fijo" header="Teléfono Fijo" sortable style={{ width: '10rem' }}></Column>
+                            <Column field="direccion" header="Dirección" sortable style={{ width: '15rem' }}></Column>
                             <Column field="observacion" header="Observación" sortable style={{ width: '12rem' }}></Column>
                             <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'yyyy-dd-MM')} style={{ width: '12rem' }}></Column>
                             <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '10rem' }}></Column>
                         </DataTable>
+
                     </Col>
                 </Card>
                 <CitaForm key={currentSolicitud?.id_solicitud} visible={isModalVisible} onClose={() => handleFormClose(true)} solicitudData={currentSolicitud} isUpdate={isUpdate} />

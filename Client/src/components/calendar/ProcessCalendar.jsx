@@ -78,25 +78,25 @@ const ProcessCalendar = () => {
         }}
       />
 
-<Calendar
-  localizer={localizer}
-  events={events}
-  startAccessor="start"
-  endAccessor="end"
-  defaultView='month'
-  views={['month', 'week', 'day', 'agenda']}
-  onSelectEvent={handleEventClick}
-  style={{ height: 600, backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}
-  components={{
-    event: ({ event }) => (
-      <span>{`Solicitud ${event.solicitudId} - ${event.tecnicoNombre} ${event.tecnicoApellido}`}</span>
-    ),
-  }}
-  formats={{
-    timeGutterFormat: 'h:mm A', // Only shows one time in the gutter
-    eventTimeRangeFormat: ({ start }) => moment(start).format('h:mm A'), // Custom format for event time
-  }}
-/>
+      <Calendar
+        localizer={localizer}
+        events={events}
+        startAccessor="start"
+        endAccessor="end"
+        defaultView='month'
+        views={['month', 'week', 'day', 'agenda']}
+        onSelectEvent={handleEventClick}
+        style={{ height: 600, backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}
+        components={{
+          event: ({ event }) => (
+            <span>{`Solicitud ${event.solicitudId} - ${event.tecnicoNombre} ${event.tecnicoApellido}`}</span>
+          ),
+        }}
+        formats={{
+          timeGutterFormat: 'h:mm A', // Only shows one time in the gutter
+          eventTimeRangeFormat: ({ start }) => moment(start).format('h:mm A'), // Custom format for event time
+        }}
+      />
 
       {/* Modal for displaying solicitud details */}
       {selectedEvent && (
@@ -132,9 +132,17 @@ const ProcessCalendar = () => {
                     <Text strong>Técnico: </Text>
                     <Text>{selectedEvent.tecnicoNombre} {selectedEvent.tecnicoApellido || 'Desconocido'}</Text>
                   </Col>
+                  <Col span={12}>
+                    <Text strong>Dirección: </Text>
+                    <Text>{solicitudDetails?.direccion}</Text>
+                  </Col>
 
                   <Col span={12}>
-                    <Text strong>Teléfono: </Text>
+                    <Text strong>Teléfono Fijo: </Text>
+                    <Text>{solicitudDetails?.telefono_fijo}</Text>
+                  </Col>
+                  <Col span={12}>
+                    <Text strong>Teléfono Móvil: </Text>
                     <Text>{solicitudDetails?.telefono}</Text>
                   </Col>
 

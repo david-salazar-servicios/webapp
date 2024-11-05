@@ -114,7 +114,7 @@ const MaintenanceLayout = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider className='maintSlider'collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+            <Sider className='maintSlider' collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                 <div className="demo-logo-vertical" />
                 <Menu
                     theme="dark"
@@ -125,88 +125,97 @@ const MaintenanceLayout = () => {
                 />
             </Sider>
             <Layout>
-            <Content style={{ padding: '20px' }}>
-    <Outlet />
-    <Modal
-        title={<Title level={3} style={{ marginBottom: 0 }}>Nueva Solicitud Creada</Title>}
-        open={modalVisible}
-        onOk={() => setModalVisible(false)}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        bodyStyle={{ padding: '20px' }}
-        width={850}
-    >
-        {/* Card for Solicitud Information */}
-        <Card
-            title={<Title level={4}>Información de la Solicitud</Title>}
-            bordered={false}
-            style={{ marginBottom: '20px', backgroundColor: '#f6f9fc', borderRadius: '8px' }}
-        >
-            <Row gutter={[16, 16]}>
-                <Col span={12}>
-                    <Text strong>ID Solicitud: </Text>
-                    <Text>{notificationData.solicitud?.id_solicitud}</Text>
-                </Col>
-                <Col span={12}>
-                    <Text strong>Nombre: </Text>
-                    <Text>{notificationData.solicitud?.nombre}</Text>
-                </Col>
-                <Col span={12}>
-                    <Text strong>Apellido: </Text>
-                    <Text>{notificationData.solicitud?.apellido}</Text>
-                </Col>
-                <Col span={12}>
-                    <Text strong>Correo Electrónico: </Text>
-                    <Text>{notificationData.solicitud?.correo_electronico}</Text>
-                </Col>
-                <Col span={12}>
-                    <Text strong>Teléfono: </Text>
-                    <Text>{notificationData.solicitud?.telefono}</Text>
-                </Col>
-                <Col span={12}>
-                    <Text strong>Fecha Creación: </Text>
-                    <Text>{formatFechaCreacion(notificationData.solicitud?.fecha_creacion)}</Text>
-                </Col>
-                {notificationData.solicitud?.observacion && (
-                    <Col span={24}>
-                        <Text strong>Observación: </Text>
-                        <Text>{notificationData.solicitud?.observacion}</Text>
-                    </Col>
-                )}
-            </Row>
-        </Card>
+                <Content style={{ padding: '20px' }}>
+                    <Outlet />
+                    <Modal
+                        title={<Title level={3} style={{ marginBottom: 0 }}>Nueva Solicitud Creada</Title>}
+                        open={modalVisible}
+                        onOk={() => setModalVisible(false)}
+                        onCancel={() => setModalVisible(false)}
+                        footer={null}
+                        bodyStyle={{ padding: '20px' }}
+                        width={850}
+                    >
+                        {/* Card for Solicitud Information */}
+                        <Card
+                            title={<Title level={4}>Información de la Solicitud</Title>}
+                            bordered={false}
+                            style={{ marginBottom: '20px', backgroundColor: '#f6f9fc', borderRadius: '8px' }}
+                        >
+                            <Row gutter={[16, 16]}>
+                                <Col span={12}>
+                                    <Text strong>ID Solicitud: </Text>
+                                    <Text>{notificationData.solicitud?.id_solicitud}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Nombre: </Text>
+                                    <Text>{notificationData.solicitud?.nombre}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Apellido: </Text>
+                                    <Text>{notificationData.solicitud?.apellido}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Correo Electrónico: </Text>
+                                    <Text>{notificationData.solicitud?.correo_electronico}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Teléfono: </Text>
+                                    <Text>{notificationData.solicitud?.telefono}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Teléfono Fijo: </Text>
+                                    <Text>{notificationData.solicitud?.telefono_fijo}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Dirección: </Text>
+                                    <Text>{notificationData.solicitud?.direccion}</Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Text strong>Fecha Creación: </Text>
+                                    <Text>{formatFechaCreacion(notificationData.solicitud?.fecha_creacion)}</Text>
+                                </Col>
+                                {notificationData.solicitud?.observacion && (
+                                    <Col span={24}>
+                                        <Text strong>Observación: </Text>
+                                        <Text>{notificationData.solicitud?.observacion}</Text>
+                                    </Col>
+                                )}
+                            </Row>
 
-        {/* Title for Servicios */}
-        <Title level={4} style={{ marginBottom: '16px' }}>Servicios Solicitados</Title>
+                        </Card>
 
-        {/* Card for Each Servicio */}
-        {notificationData.solicitud?.servicios?.map((servicio, index) => (
-            <Card
-                key={index}
-                title={servicio.servicio_nombre}
-                bordered={true}
-                style={{ marginBottom: '20px', borderRadius: '8px' }}
-            >
-                <List
-                    itemLayout="horizontal"
-                    dataSource={servicio.detalles || []}
-                    renderItem={detalle => (
-                        <List.Item>
-                            <List.Item.Meta
-                                description={
-                                    <span>
-                                        <CheckCircleOutlined style={{ color: 'green', marginRight: 30 }} />
-                                        {detalle}
-                                    </span>
-                                }
-                            />
-                        </List.Item>
-                    )}
-                />
-            </Card>
-        ))}
-    </Modal>
-</Content>
+                        {/* Title for Servicios */}
+                        <Title level={4} style={{ marginBottom: '16px' }}>Servicios Solicitados</Title>
+
+                        {/* Card for Each Servicio */}
+                        {notificationData.solicitud?.servicios?.map((servicio, index) => (
+                            <Card
+                                key={index}
+                                title={servicio.servicio_nombre}
+                                bordered={true}
+                                style={{ marginBottom: '20px', borderRadius: '8px' }}
+                            >
+                                <List
+                                    itemLayout="horizontal"
+                                    dataSource={servicio.detalles || []}
+                                    renderItem={detalle => (
+                                        <List.Item>
+                                            <List.Item.Meta
+                                                description={
+                                                    <span>
+                                                        <CheckCircleOutlined style={{ color: 'green', marginRight: 30 }} />
+                                                        {detalle}
+                                                    </span>
+                                                }
+                                            />
+                                        </List.Item>
+                                    )}
+                                />
+                            </Card>
+                        ))}
+                    </Modal>
+                </Content>
             </Layout>
         </Layout>
     );

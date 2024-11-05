@@ -24,13 +24,18 @@ const getAllSolicitudes = async (req, res) => {
 
 const crearSolicitud_AgregarServicios = async (req, res) => {
     try {
-        let { fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico, telefono, observacion, fecha_preferencia, servicios } = req.body;
+        let {
+            fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico,
+            telefono, telefono_fijo, direccion, observacion, fecha_preferencia, servicios
+        } = req.body;
+
         fecha_preferencia = moment(fecha_preferencia).tz('America/Costa_Rica').format();
 
         // Insert into the solicitud table
         const newSolicitud = await pool.query(
-            'INSERT INTO solicitud (fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico, telefono, observacion, fecha_preferencia) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-            [fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico, telefono, observacion, fecha_preferencia]
+            'INSERT INTO solicitud (fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico, telefono, telefono_fijo, direccion, observacion, fecha_preferencia) ' +
+            'VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
+            [fecha_creacion, estado, id_usuario, nombre, apellido, correo_electronico, telefono, telefono_fijo, direccion, observacion, fecha_preferencia]
         );
 
         const solicitudId = newSolicitud.rows[0].id_solicitud;
@@ -47,13 +52,13 @@ const crearSolicitud_AgregarServicios = async (req, res) => {
         }
 
         // Fetch full details of the solicitud after insertion
-        const fullSolicitudDetails = await getSolicitudByIdForEmit(solicitudId); // Assume this function retrieves full details
+        const fullSolicitudDetails = await getSolicitudByIdForEmit(solicitudId);
         const io = socketManager.getIO();
 
         // Emit the newly created solicitud
         io.emit('solicitudCreada', {
             message: 'Nueva solicitud creada',
-            solicitud: fullSolicitudDetails // Emit the full details
+            solicitud: fullSolicitudDetails
         });
 
         // Respond with success and full solicitud details

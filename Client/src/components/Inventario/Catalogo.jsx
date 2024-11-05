@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Card, Row, Col, message, Select, Table, Popconfirm } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import image from '../../assets/images/Logo-removebg-preview.png';
@@ -12,6 +12,7 @@ const ProductoForm = ({ onProductChange }) => {
     const [formChanged, setFormChanged] = useState(false);
     const [editingProductId, setEditingProductId] = useState(null);
     const [isEmpty, setIsEmpty] = useState(true);
+    const [excedente, setExcedente] = useState(null);
 
     const { data: productos = [], refetch } = useGetProductosQuery();
     const [createProducto, { isLoading: creating }] = useCreateProductoMutation();
@@ -89,10 +90,19 @@ const ProductoForm = ({ onProductChange }) => {
             precio_costo: record.precio_costo,
             precio_venta: record.precio_venta,
             imagen: record.imagen,
+            excedente: record.excedente,
         });
         setEditingProductId(record.id_producto);
         setFormChanged(true);
         setIsEmpty(false);
+    };
+
+    const calculatePrecioVenta = (precioCosto, excedente) => {
+        if (precioCosto && excedente) {
+            const percentage = parseFloat(excedente) / 100;
+            return (precioCosto * (1 + percentage)).toFixed(2); // Fixed to 2 decimal places
+        }
+        return '';
     };
 
     const onFinish = async (values) => {
@@ -126,6 +136,9 @@ const ProductoForm = ({ onProductChange }) => {
     const handleValuesChange = (_, allValues) => {
         const isEmpty = Object.values(allValues).every((value) => !value);
         setIsEmpty(isEmpty);
+        const { precio_costo, excedente } = allValues;
+        const precioVenta = calculatePrecioVenta(precio_costo, excedente);
+        form.setFieldsValue({ precio_venta: precioVenta });
     };
 
     return (
@@ -176,8 +189,6 @@ const ProductoForm = ({ onProductChange }) => {
                                 name="precio_costo"
                                 label={<span>Precio Costo</span>}
                                 rules={[{ required: true, message: 'Por favor ingresa el precio costo!' }]}
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
                             >
                                 <Input
                                     onChange={(e) => {
@@ -186,30 +197,27 @@ const ProductoForm = ({ onProductChange }) => {
                                         e.target.value = numericValue;
                                     }}
                                 />
+                            </Form.Item>
+
+                            <Form.Item
+                                name="excedente"
+                                label="Excedente"
+                                rules={[{ required: true, message: 'Por favor selecciona el excedente!' }]}
+                            >
+                                <Select placeholder="Selecciona el porcentaje de excedente">
+                                    <Option value="0">0%</Option>
+                                    <Option value="10">10%</Option>
+                                    <Option value="15">15%</Option>
+                                    <Option value="20">20%</Option>
+                                    <Option value="25">25%</Option>
+                                </Select>
                             </Form.Item>
 
                             <Form.Item
                                 name="precio_venta"
-                                label={<span>Precio Venta</span>}
-                                rules={[{ required: true, message: 'Por favor ingresa el precio venta!' }]}
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
+                                label="Precio Venta"
                             >
-                                <Input
-                                    onChange={(e) => {
-                                        const { value } = e.target;
-                                        const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
-                                        e.target.value = numericValue;
-                                    }}
-                                />
-                            </Form.Item>
-
-                            <Form.Item
-                                name="imagen"
-                                label="URL de la Imagen"
-                                rules={[{ required: true, message: 'Por favor ingresa un enlace a la imagen!' }, { type: 'url', message: 'Por favor ingresa un URL válido!' }]}
-                            >
-                                <Input />
+                                <Input disabled />
                             </Form.Item>
 
                             <Form.Item wrapperCol={{ span: 16, offset: 8 }}>

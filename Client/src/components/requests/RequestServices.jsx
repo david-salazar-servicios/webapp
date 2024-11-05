@@ -222,6 +222,13 @@ export default function RequestServices() {
                                     >
                                         <Input placeholder="Ingrese su apellido" />
                                     </Form.Item>
+                                    <Form.Item
+                                        name="direccion"
+                                        label="Dirección"
+                                        rules={[{ required: true, message: 'Por favor ingrese su dirección completa' }]}
+                                    >
+                                        <Input placeholder="Provincia/Cantón/Distrito, Otro detalle" />
+                                    </Form.Item>
                                 </Col>
                                 <Col xs={24} sm={12}>
                                     <Form.Item
@@ -233,31 +240,29 @@ export default function RequestServices() {
                                     </Form.Item>
                                     <Form.Item
                                         name="telefono"
-                                        label="Teléfono"
-                                        rules={[{ required: true, message: 'Por favor ingrese su número de teléfono' }]}
+                                        label="Teléfono Móvil"
+                                        rules={[{ required: true, message: 'Por favor ingrese su número de teléfono móvil' }]}
                                     >
                                         <Input placeholder="Ingrese su número de teléfono" />
                                     </Form.Item>
+                                    <Form.Item
+                                        name="telefono_fijo"
+                                        label="Teléfono Fijo (Casa/Empresa)"
+                                        rules={[{ required: true, message: 'Por favor ingrese su número de teléfono fijo' }]}
+                                    >
+                                        <Input placeholder="Ingrese su número de teléfono fijo" />
+                                    </Form.Item>
+                                    
                                 </Col>
                             </Row>
                             <Row gutter={24}>
                                 <Col xs={24} sm={12}>
                                     <Form.Item
-                                        name="direccion"
-                                        label="Dirección"
-                                        rules={[{ required: true, message: 'Por favor ingrese su dirección completa' }]}
-                                    >
-                                        <Input placeholder="Provincia/Cantón/Distrito, Otro detalle" />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24} sm={12}>
-                                    <Form.Item
                                         name="fecha_preferencia"
                                         label="Fecha Preferencia"
                                         rules={[{ required: true, message: 'Por favor seleccione la fecha y hora de preferencia' }]}
-                                        
                                     >
-                                        <Calendar showTime hourFormat="12" stepMinute={15} style={{height:'32px'}} />
+                                        <Calendar showTime hourFormat="12" stepMinute={15} style={{ height: '32px' }} />
                                     </Form.Item>
                                 </Col>
                             </Row>
