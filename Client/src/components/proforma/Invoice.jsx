@@ -293,10 +293,11 @@ export default function Invoice() {
 
                     {/* Modal for Producto Catalog */}
                     <CatalogoDialog
-                        visible={showCatalog}
-                        onHide={() => setShowCatalog(false)}
-                        onSelectProduct={handleAddProduct}
-                    />
+                    visible={showCatalog}
+                    onHide={() => setShowCatalog(false)}
+                    onSelectProduct={handleAddProduct}
+                    selectedProducts={selectedProducts} // Pass the selected products
+                />
                 </Card>
 
                 {/* Buttons Section */}
