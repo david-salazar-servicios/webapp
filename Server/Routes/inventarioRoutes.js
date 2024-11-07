@@ -11,7 +11,7 @@ router.post("/", inventarioController.createInventario);
 router.get("/productos", [isAdmin], inventarioController.getAllInventariosProductos);
 router.delete("/:id", inventarioController.deleteInventario);
 router.get("/:id", inventarioController.getInventarioById);
-router.put("/:id_inventario/:id_producto", inventarioController.updateCantidadInventarioProducto);
+router.put("/:id_inventario/producto/:id_producto", inventarioController.updateCantidadInventarioProducto);
 router.put("/:id", inventarioController.updateInventario);
 
 module.exports = router

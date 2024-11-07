@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Radio, Select, Row, Col, Tooltip } from 'antd';
-import { InputNumber } from 'primereact/inputnumber'; // PrimeReact InputNumber
+import { useUpdateCantidadInventarioProductoMutation } from '../../features/Inventario/InventarioApiSlice';
 
 const { Option } = Select;
 
@@ -8,22 +8,63 @@ const MoverProductosForm = ({
   selectedProduct,
   inventarios,
   selectedBodega,
-  handleMoveProduct,
   handleInputChange,
+  onClearSelection, // New prop to notify parent to clear selection
 }) => {
-  const [action, setAction] = useState('agregar'); // Manage selected action
-  const [cantidad, setCantidad] = useState(0); // State for InputNumber
+  const [updateCantidadInventarioProducto] = useUpdateCantidadInventarioProductoMutation();
+  const [action, setAction] = useState('agregar');
+  const [cantidad, setCantidad] = useState(0.00);
+  const [destinoInventario, setDestinoInventario] = useState(null);
 
   const filteredInventarios = inventarios.filter(
-    (inv) => inv.nombre_inventario !== selectedBodega
+    (inv) => inv.id_inventario !== selectedBodega?.id_inventario
   );
 
+  useEffect(() => {
+    setCantidad(0);
+    setDestinoInventario(null); // Clear destination inventory when selectedBodega changes
+  }, [selectedBodega]);
+
   const handleCantidadChange = (e) => {
-    setCantidad(e.value); // PrimeReact's InputNumber passes event with value
-    handleInputChange(selectedProduct?.id, e.value); // Notify parent about the input change
+    const value = e.target.value;
+    if (/^\d*(\.\d{0,2})?$/.test(value)) {
+      setCantidad(value);
+      if (handleInputChange) {
+        handleInputChange(selectedProduct?.id_producto, parseFloat(value) || 0);
+      }
+    }
   };
 
-  const isConfirmDisabled = !cantidad || cantidad <= 0; // Disable button if invalid
+  const handleConfirm = async () => {
+    if (!action) {
+      console.error("Action is required.");
+      return;
+    }
+
+    const payload = {
+      id_inventario: selectedBodega?.id_inventario,
+      id_producto: selectedProduct?.id_producto,
+      cantidad,
+      action,
+      destino_inventario: action === 'mover' ? destinoInventario : null,
+    };
+
+    try {
+      const result = await updateCantidadInventarioProducto(payload).unwrap();
+      console.log("Update Successful:", result);
+
+      // Clear form fields upon successful update
+      setCantidad(0);
+      setDestinoInventario(null);
+      if (onClearSelection) {
+        onClearSelection(); // Notify parent to clear selected product
+      }
+    } catch (error) {
+      console.error("Failed to update:", error);
+    }
+  };
+
+  const isConfirmDisabled = cantidad <= 0 || (action === 'mover' && (!cantidad || !destinoInventario));
 
   return (
     <Form layout="vertical">
@@ -47,58 +88,53 @@ const MoverProductosForm = ({
 
         <Col span={12}>
           <Form.Item label="Unidad de Medida">
-            <Input 
-              value={selectedProduct?.unidad_medida || 'N/A'} 
-              readOnly 
-            />
+            <Input value={selectedProduct?.unidad_medida || 'N/A'} readOnly />
           </Form.Item>
         </Col>
       </Row>
 
-      <Form.Item label="Cantidad">
-        <InputNumber
-          value={cantidad}
-          onValueChange={handleCantidadChange}
-          mode="decimal"
-          showButtons
-          min={0}
-          placeholder="Ingrese la cantidad"
-          style={{ width: '50%' }}
-          className="custom-input-number"
-        />
-      </Form.Item>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item label="Cantidad">
+            <Input
+              value={cantidad}
+              onChange={handleCantidadChange}
+              placeholder="Ingrese la cantidad"
+            />
+          </Form.Item>
+        </Col>
 
-      {action === 'mover' && (
-        <Form.Item label="Mover a Inventario">
-          <Select
-            placeholder="Selecciona el inventario destino"
-            onChange={handleMoveProduct}
-          >
-            {filteredInventarios.map((inv) => (
-              <Option key={inv.id} value={inv.nombre_inventario}>
-                {inv.nombre_inventario}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-      )}
+        <Col span={12}>
+          {action === 'mover' && (
+            <Form.Item label="Mover a Inventario">
+              <Select
+                placeholder="Inventario destino"
+                onChange={setDestinoInventario}
+                value={destinoInventario}
+              >
+                {filteredInventarios.map((inv) => (
+                  <Option key={inv.id_inventario} value={inv.id_inventario}>
+                    {inv.nombre_inventario}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+        </Col>
+      </Row>
 
-      <Form.Item style={{ textAlign: 'right', marginTop: 16 }}>
+      <Form.Item style={{ textAlign: 'left', marginTop: 16 }}>
         <Tooltip
           title={
             isConfirmDisabled
-              ? 'Ingrese una cantidad válida para continuar'
+              ? 'Ingrese una cantidad válida y seleccione un inventario destino para continuar'
               : ''
           }
         >
           <Button
             type="primary"
             disabled={isConfirmDisabled}
-            onClick={() =>
-              handleMoveProduct(
-                action === 'mover' ? 'Mover' : 'Acción Realizada'
-              )
-            }
+            onClick={handleConfirm}
           >
             Confirmar
           </Button>
