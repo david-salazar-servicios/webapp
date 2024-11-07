@@ -65,15 +65,21 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
             providesTags: [{ type: 'InventarioProducto', id: 'LIST' }],
         }),
 
-        // Update the cantidad in inventario-producto
         updateCantidadInventarioProducto: builder.mutation({
-            query: ({ id_inventario, id_producto, cantidad }) => ({
+            query: ({ id_inventario, id_producto, cantidad, cantidadRecomendada, action, destino_inventario }) => ({
                 url: `/inventarios/${id_inventario}/producto/${id_producto}`,
                 method: 'PUT',
-                body: { cantidad },
+                body: {
+                    cantidad,
+                    cantidadRecomendada,
+                    action,
+                    destino_inventario
+                },
             }),
             invalidatesTags: [{ type: 'InventarioProducto', id: 'LIST' }],
         }),
+    
+        
     }),
 });
 

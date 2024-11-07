@@ -207,35 +207,129 @@ const getAllInventariosProductos = async (req, res) => {
 
 
 const updateCantidadInventarioProducto = async (req, res) => {
-    const { id_inventario, id_producto } = req.params; // Get inventario and producto IDs from the URL params
-    const { cantidad } = req.body; // Get the new cantidad from the request body
+    const { id_inventario, id_producto } = req.params;
+    const { cantidad, cantidadRecomendada, action, destino_inventario } = req.body;
 
     try {
-        // Validate that the IDs and cantidad are provided and valid
-        if (!id_inventario || !id_producto || cantidad == null) {
-            return res.status(400).json({ message: 'Missing required parameters: id_inventario, id_producto, and cantidad are required.' });
+        if (!id_inventario || !id_producto) {
+            return res.status(400).json({ message: 'Missing required parameters: id_inventario and id_producto are required.' });
+        }
+        
+        if (cantidad != null && !action) {
+            return res.status(400).json({ message: 'Missing required parameter: action is required.' });
         }
 
-        // Update the cantidad for the specific product in the specific inventario
-        const updateResult = await pool.query(`
-            UPDATE inventario_producto
-            SET cantidad = $1
-            WHERE id_inventario = $2 AND id_producto = $3
-            RETURNING *
-        `, [cantidad, id_inventario, id_producto]);
+        const currentQuantityResult = await pool.query(`
+            SELECT cantidad, cantidad_recomendada FROM inventario_producto
+            WHERE id_inventario = $1 AND id_producto = $2
+        `, [id_inventario, id_producto]);
 
-        // If no rows were updated, return a 404 error
-        if (updateResult.rowCount === 0) {
-            return res.status(404).json({ message: 'Inventario or Producto not found or no changes made.' });
+        if (currentQuantityResult.rowCount === 0) {
+            return res.status(404).json({ message: 'Inventario or Producto not found.' });
         }
 
-        // Return the updated row
-        res.json(updateResult.rows[0]);
+        let newQuantity = parseFloat(currentQuantityResult.rows[0].cantidad);
+        let newCantidadRecomendada = currentQuantityResult.rows[0].cantidad_recomendada;
+
+        console.log("Incoming cantidad:", cantidad, "Type:", typeof cantidad);
+        console.log("Current cantidad in DB:", newQuantity, "Type:", typeof newQuantity);
+
+        let updateSourceResult;
+        
+        if (cantidad != null) {
+            const incomingCantidad = parseFloat(cantidad);
+
+            switch (action) {
+                case 'agregar':
+                    const incrementValue = parseFloat(cantidad); 
+                    if (isNaN(incrementValue)) {
+                        return res.status(400).json({ message: 'Invalid cantidad value. Please enter a numeric value.' });
+                    }
+                    newQuantity = parseFloat((newQuantity + incrementValue).toFixed(2)); 
+                    updateSourceResult = await pool.query(`
+                        UPDATE inventario_producto
+                        SET cantidad = $1
+                        WHERE id_inventario = $2 AND id_producto = $3
+                        RETURNING *
+                    `, [newQuantity, id_inventario, id_producto]);
+                    break;
+
+                case 'eliminar':
+                    newQuantity = Math.max(0, newQuantity - incomingCantidad);
+                    updateSourceResult = await pool.query(`
+                        UPDATE inventario_producto
+                        SET cantidad = $1
+                        WHERE id_inventario = $2 AND id_producto = $3
+                        RETURNING *
+                    `, [newQuantity, id_inventario, id_producto]);
+                    break;
+
+                case 'mover':
+                    if (incomingCantidad > newQuantity) {
+                        return res.status(400).json({ message: 'Insufficient quantity to move.' });
+                    }
+                    newQuantity -= incomingCantidad;
+                    updateSourceResult = await pool.query(`
+                        UPDATE inventario_producto
+                        SET cantidad = $1
+                        WHERE id_inventario = $2 AND id_producto = $3
+                        RETURNING *
+                    `, [newQuantity, id_inventario, id_producto]);
+
+                    const updateDestinationResult = await pool.query(`
+                        UPDATE inventario_producto
+                        SET cantidad = cantidad + $1
+                        WHERE id_inventario = $2 AND id_producto = $3
+                        RETURNING *
+                    `, [incomingCantidad, destino_inventario, id_producto]);
+
+                    if (updateDestinationResult.rowCount === 0) {
+                        return res.status(404).json({ message: 'Destination inventario not found.' });
+                    }
+                    return res.json({
+                        source: updateSourceResult.rows[0],
+                        destination: updateDestinationResult.rows[0]
+                    });
+
+                default:
+                    return res.status(400).json({ message: 'Invalid action specified.' });
+            }
+
+            if (updateSourceResult.rowCount === 0) {
+                return res.status(404).json({ message: 'Inventario or Producto not found or no changes made in source inventory.' });
+            }
+        }
+
+        if (cantidadRecomendada != null) {
+            const updateRecommendedResult = await pool.query(`
+                UPDATE inventario_producto
+                SET cantidad_recomendada = $1
+                WHERE id_inventario = $2 AND id_producto = $3
+                RETURNING *
+            `, [cantidadRecomendada, id_inventario, id_producto]);
+
+            if (updateRecommendedResult.rowCount === 0) {
+                return res.status(404).json({ message: 'Inventario or Producto not found or no changes made for cantidadRecomendada.' });
+            }
+            newCantidadRecomendada = cantidadRecomendada;
+        }
+
+        return res.json({
+            source: {
+                cantidad_recomendada: newCantidadRecomendada
+            }
+        });
+
     } catch (error) {
-        console.error("Error updating cantidad:", error);
-        res.status(500).json({ message: "Internal Server Error", error: error.message });
+        console.error("Error updating inventario_producto:", error);
+        return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+
+
+
+
 
 
 module.exports = {

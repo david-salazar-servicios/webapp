@@ -2589,3 +2589,8 @@ footer ul.menu-list li a:hover {
   flex: 1;
   max-height: 500px;
 }
+
+
+.selected-row {
+  background-color: #98bdf2 !important;
+}
