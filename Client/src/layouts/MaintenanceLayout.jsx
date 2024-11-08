@@ -98,7 +98,8 @@ const MaintenanceLayout = () => {
                 { label: 'Servicios', key: 'mantenimiento/servicios' },
                 { label: 'Roles', key: 'mantenimiento/roles' },
                 { label: 'Catalogo', key: 'mantenimiento/catalogo' },
-                { label: 'Inventario', key: 'mantenimiento/inventario' }
+                { label: 'Inventario', key: 'mantenimiento/inventario' },
+                { label: 'Cuentas IBAN', key: 'mantenimiento/cuentaiban' }
             ]
         },
         

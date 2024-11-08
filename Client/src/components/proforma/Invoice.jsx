@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Checkbox, Input, Button, Space, Card, Select, message } from 'antd';
 import { useGetSolicitudesQuery, useGetSolicitudByIdQuery } from '../../features/RequestService/RequestServiceApiSlice';
-import { useGetInventariosQuery } from '../../features/Inventario/InventarioApiSlice';
+import { useGetCuentasIbanQuery } from '../../features/Cuentaiban/CuentaibanApiSlice';
 import logo from '../../assets/images/Logo-removebg-preview.png';
 import { DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import CatalogoDialog from '../proforma/CatalogoDialog'; // Adjust the import path as necessary
@@ -14,6 +14,7 @@ export default function Invoice() {
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [showCatalog, setShowCatalog] = useState(false);
     const { data: solicitudDetails, refetch } = useGetSolicitudByIdQuery(selectedSolicitudId, { skip: !selectedSolicitudId });
+    const { data: cuentasIban = [], isLoading: isCuentasIbanLoading } = useGetCuentasIbanQuery();
 
     useEffect(() => {
         if (selectedSolicitudId) refetch();
@@ -93,7 +94,7 @@ export default function Invoice() {
                         setSelectedProducts(updatedProducts);
                     }}
                     style={{
-                        width: '150px',
+                        width: '100px',
                         border: 'none',
                         borderBottom: '1px solid #d9d9d9',
                         borderRadius: 0,
@@ -299,6 +300,39 @@ export default function Invoice() {
                     selectedProducts={selectedProducts} // Pass the selected products
                 />
                 </Card>
+
+                <Card className="mb-4" title="Cuentas Bancarias">
+    {isCuentasIbanLoading ? (
+        <p>Loading cuentas bancarias...</p>
+    ) : (
+        <>
+            <table className="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>IBAN</th>
+                        <th>Banco</th>
+                        <th>Moneda</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {cuentasIban.map((cuenta) => (
+                        <tr key={cuenta.id_cuenta}>
+                            <td><strong>{cuenta.id_iban}</strong></td>
+                            <td>{cuenta.tipobanco}</td>
+                            <td>{cuenta.moneda}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="sinpe-movil-info mt-3" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <h5>SINPEMOVIL:</h5>
+    <h5 style={{ fontSize: '18px' }}><strong>88206326</strong> - Mariela Mejías M</h5>
+</div>
+
+        </>
+    )}
+</Card>
+
 
                 {/* Buttons Section */}
                 <div className="text-center mt-4">
