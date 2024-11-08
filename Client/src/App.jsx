@@ -31,6 +31,7 @@ import Invoice from './components/proforma/Invoice';
 import Catalogo from './components/Inventario/Catalogo'
 import Inventario from './components/Inventario/Inventario'
 import GestionInventario from './components/Inventario/GestionInventario'
+import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
 function App() {
     return (
         <div>
@@ -74,6 +75,7 @@ function App() {
                             <Route path="facturacion" element={<Invoice />} />
                             <Route path="Catalogo" element={<Catalogo />} />
                             <Route path="Inventario" element={<Inventario />} />
+                            <Route path="cuentaiban" element={<CuentaIbanForm />} />
                             <Route path="GestionInventario" element={<GestionInventario />} />
                         </Route>
                     </Route>

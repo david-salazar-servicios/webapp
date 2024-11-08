@@ -34,6 +34,7 @@ app.use("/solicitudes", require("./Routes/solicitudRoutes"));
 app.use("/citas", require("./Routes/citaRoutes"));
 app.use("/productos", require("./Routes/productoRoutes"));
 app.use("/inventarios", require("./Routes/inventarioRoutes"));
+app.use("/cuentaiban", require("./Routes/cuentaibanRoutes"));
 // Socket.IO connection handler
 io.on('connection', (socket) => {
   console.log('Socket Server successfully connected');
