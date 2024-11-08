@@ -10,7 +10,8 @@ import {
     SettingOutlined,
     FormOutlined,
     LoginOutlined,
-    UserSwitchOutlined
+    UserSwitchOutlined,
+    CalendarOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Modal, List, Badge, Card, Typography, Row, Col } from 'antd';
 import io from 'socket.io-client';
@@ -69,21 +70,7 @@ const MaintenanceLayout = () => {
     };
 
     const items = [
-        { label: 'Home', key: 'mantenimiento/index', icon: <HomeOutlined /> },
-        { label: 'Reportes', key: 'mantenimiento/reportes', icon: <PieChartOutlined /> },
-        { label: 'Perfiles', key: 'mantenimiento/perfiles', icon: <UserAddOutlined /> },
-        {
-            label: 'Mantenimiento',
-            key: 'sub1',
-            icon: <SettingOutlined />,
-            children: [
-                { label: 'Categorias', key: 'mantenimiento/categorias' },
-                { label: 'Servicios', key: 'mantenimiento/servicios' },
-                { label: 'Roles', key: 'mantenimiento/roles' },
-                { label: 'Catalogo', key: 'mantenimiento/catalogo' },
-                { label: 'Inventario', key: 'mantenimiento/inventario' }
-            ]
-        },
+        { label: 'Calendario', key: 'mantenimiento/index', icon: <CalendarOutlined /> },
         {
             label: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -98,8 +85,25 @@ const MaintenanceLayout = () => {
             key: 'mantenimiento/solicitudes',
             icon: <UserAddOutlined />
         },
-        { label: 'Facturación', key: 'mantenimiento/facturacion', icon: <FormOutlined /> },
         { label: 'Gestion Inventario', key: 'mantenimiento/GestionInventario', icon: <FormOutlined /> },
+        { label: 'Proforma', key: 'mantenimiento/facturacion', icon: <FormOutlined /> },
+        { label: 'Reportes', key: 'mantenimiento/reportes', icon: <PieChartOutlined /> },
+        
+        {
+            label: 'Mantenimiento',
+            key: 'sub1',
+            icon: <SettingOutlined />,
+            children: [
+                { label: 'Categorias', key: 'mantenimiento/categorias' },
+                { label: 'Servicios', key: 'mantenimiento/servicios' },
+                { label: 'Roles', key: 'mantenimiento/roles' },
+                { label: 'Catalogo', key: 'mantenimiento/catalogo' },
+                { label: 'Inventario', key: 'mantenimiento/inventario' }
+            ]
+        },
+        
+        { label: 'Perfiles', key: 'mantenimiento/perfiles', icon: <UserAddOutlined /> },
+        
         { label: 'Cambiar a Cliente', key: '', icon: <UserSwitchOutlined /> },
         { label: 'Salir', key: 'logout', icon: <LoginOutlined /> },
     ];

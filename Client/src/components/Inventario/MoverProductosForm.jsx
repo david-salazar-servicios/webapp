@@ -64,7 +64,24 @@ const MoverProductosForm = ({
     }
   };
 
-  const isConfirmDisabled = cantidad <= 0 || (action === 'mover' && (!cantidad || !destinoInventario));
+  // Determine if Confirm button should be disabled and the tooltip message
+  const isConfirmDisabled =
+    !cantidad ||
+    !selectedProduct ||
+    (action === 'mover' && !destinoInventario);
+
+  const tooltipMessage = (() => {
+    if (!cantidad) {
+      return action === 'mover' ? 'Ingrese una cantidad y seleccione un inventario destino' : 'Ingrese una cantidad';
+    }
+    if (!selectedProduct) {
+      return 'Seleccione un producto';
+    }
+    if (action === 'mover' && !destinoInventario) {
+      return 'Seleccione un inventario destino';
+    }
+    return '';
+  })();
 
   return (
     <Form layout="vertical">
@@ -124,13 +141,7 @@ const MoverProductosForm = ({
       </Row>
 
       <Form.Item style={{ textAlign: 'left', marginTop: 16 }}>
-        <Tooltip
-          title={
-            isConfirmDisabled
-              ? 'Ingrese una cantidad válida y seleccione un inventario destino para continuar'
-              : ''
-          }
-        >
+        <Tooltip title={tooltipMessage}>
           <Button
             type="primary"
             disabled={isConfirmDisabled}
