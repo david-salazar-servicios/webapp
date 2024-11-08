@@ -3,14 +3,18 @@ import { Card, Table, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useGetBitacoraQuery } from '../../features/bitacora/bitacoraApiSlice';
 
-const BitacoraMovimientosTable = () => {
-  const { data: bitacora, error, isLoading } = useGetBitacoraQuery();
+const BitacoraMovimientosTable = ({ refreshKey }) => {
+  const { data: bitacora, error, isLoading, refetch } = useGetBitacoraQuery();
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
+    // Refetch data whenever refreshKey changes
+    refetch();
+  }, [refreshKey, refetch]);
+
+  useEffect(() => {
     if (bitacora) {
-      // Filter data to include only entries where module is "Inventario"
       const inventarioData = bitacora
         .filter((item) => item.module === 'Inventario')
         .map((item) => ({
@@ -20,7 +24,7 @@ const BitacoraMovimientosTable = () => {
           fecha: item.date_performed,
           modulo: item.module,
         }))
-        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Sort by date, newest first
+        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
       setFilteredData(inventarioData);
     }
@@ -30,7 +34,6 @@ const BitacoraMovimientosTable = () => {
     setSearchText(value);
 
     if (value.trim() === '') {
-      // Reset to original filtered data if search text is empty
       setFilteredData(
         bitacora
           .filter((item) => item.module === 'Inventario')
@@ -45,7 +48,6 @@ const BitacoraMovimientosTable = () => {
       return;
     }
 
-    // Filter based on search text by description or username
     const filtered = filteredData.filter((item) =>
       item.descripcion.toLowerCase().includes(value.toLowerCase()) ||
       item.usuario.toLowerCase().includes(value.toLowerCase())

@@ -17,16 +17,8 @@ const MoverProductosForm = ({
   const [action, setAction] = useState('agregar');
   const [cantidad, setCantidad] = useState(0.00);
   const [destinoInventario, setDestinoInventario] = useState(null);
-  const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const openDialog = () => {
-    setIsDialogVisible(true);
-  };
-
-  const closeDialog = () => {
-    setIsDialogVisible(false);
-  };
+  const [refreshKey, setRefreshKey] = useState(0); // New refreshKey state
 
   const openModal = () => {
     setIsModalVisible(true);
@@ -35,6 +27,7 @@ const MoverProductosForm = ({
   const closeModal = () => {
     setIsModalVisible(false);
   };
+
   const filteredInventarios = inventarios.filter(
     (inv) => inv.id_inventario !== selectedBodega?.id_inventario
   );
@@ -82,6 +75,9 @@ const MoverProductosForm = ({
       if (onClearSelection) {
         onClearSelection();
       }
+
+      // Update refreshKey to trigger refetch in BitacoraMovimientosTable
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
       if (error.status === 400) {
         toast.current.show({
@@ -204,16 +200,17 @@ const MoverProductosForm = ({
           </Button>
         </Tooltip>
         <Button type="primary" onClick={openModal} style={{ marginLeft: '10px' }}>
-            Ver Movimientos de Inventario
-          </Button>
-          <Modal
-            visible={isModalVisible}
-            onCancel={closeModal}
-            footer={null}
-            width="80vw"
-          >
-            <BitacoraMovimientosTable />
-          </Modal>
+          Ver Movimientos de Inventario
+        </Button>
+        <Modal
+          visible={isModalVisible}
+          onCancel={closeModal}
+          footer={null}
+          width="80vw"
+        >
+          {/* Pass refreshKey to BitacoraMovimientosTable */}
+          <BitacoraMovimientosTable refreshKey={refreshKey} />
+        </Modal>
       </Form.Item>
     </Form>
   );
