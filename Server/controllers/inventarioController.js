@@ -238,6 +238,9 @@ const updateCantidadInventarioProducto = async (req, res) => {
                 break;
 
             case 'eliminar':
+                if (incomingCantidad > newQuantity) {
+                    return res.status(400).json({ message: 'Cantidad a eliminar es mayor a la existente' });
+                }
                 newQuantity = Math.max(0, newQuantity - incomingCantidad);
                 updateSourceResult = await pool.query(`
                     UPDATE inventario_producto SET cantidad = $1 WHERE id_inventario = $2 AND id_producto = $3 RETURNING *
