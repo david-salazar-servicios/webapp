@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Card, Row, Col, message, Select, Table, Popconfirm } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { FileImageTwoTone } from '@ant-design/icons';
 import image from '../../assets/images/Logo-removebg-preview.png';
 import { useGetProductosQuery, useCreateProductoMutation, useDeleteProductoMutation, useUpdateProductoMutation } from '../../features/Productos/ProductoApiSlice';
 
@@ -12,7 +13,6 @@ const ProductoForm = ({ onProductChange }) => {
     const [formChanged, setFormChanged] = useState(false);
     const [editingProductId, setEditingProductId] = useState(null);
     const [isEmpty, setIsEmpty] = useState(true);
-    const [excedente, setExcedente] = useState(null);
 
     const { data: productos = [], refetch } = useGetProductosQuery();
     const [createProducto, { isLoading: creating }] = useCreateProductoMutation();
@@ -49,7 +49,14 @@ const ProductoForm = ({ onProductChange }) => {
             title: 'Imagen',
             dataIndex: 'imagen',
             key: 'imagen',
-            render: (text) => <img src={text} alt="Producto" style={{ width: '50px', height: '50px' }} />,
+            render: (text) => (
+                <FileImageTwoTone
+                    style={{ fontSize: '24px', cursor: 'pointer' }}
+                    onClick={() => {
+                        if (text) window.open(text, '_blank');
+                    }}
+                />
+            ),
         },
         {
             title: 'Acciones',
@@ -220,6 +227,13 @@ const ProductoForm = ({ onProductChange }) => {
                                 <Input disabled />
                             </Form.Item>
 
+                            <Form.Item
+                                name="imagen"
+                                label="URL de la Imagen"
+                            >
+                                <Input placeholder="https://example.com/imagen.jpg" />
+                            </Form.Item>
+
                             <Form.Item wrapperCol={{ span: 16, offset: 8 }}>
                                 <Button type="primary" htmlType="submit" loading={creating || updating}>
                                     {editingProductId ? 'Actualizar Producto' : 'Guardar Producto'}
@@ -256,3 +270,4 @@ const ProductoForm = ({ onProductChange }) => {
 };
 
 export default ProductoForm;
+    

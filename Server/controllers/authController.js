@@ -47,6 +47,14 @@ const login = async (req, res) => {
             { expiresIn: "15m" }
         );
 
+        global.CURRENT_USER = {
+            userId: user.id_usuario,
+            username: user.nombre,
+            email: user.correo_electronico,
+            roles: userRoles,
+        };
+        
+
         const refreshToken = jwt.sign(
             { username: user.nombre,
               email: user.correo_electronico},

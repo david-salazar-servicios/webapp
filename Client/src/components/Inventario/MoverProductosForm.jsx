@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Radio, Select, Row, Col, Tooltip } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Form, Input, Button, Radio, Select, Row, Col, Tooltip, Modal } from 'antd';
+import { Toast } from 'primereact/toast';
 import { useUpdateCantidadInventarioProductoMutation } from '../../features/Inventario/InventarioApiSlice';
-
+import BitacoraMovimientosTable from './GestionInventarioBitacoraTable';
 const { Option } = Select;
 
 const MoverProductosForm = ({
@@ -9,20 +10,38 @@ const MoverProductosForm = ({
   inventarios,
   selectedBodega,
   handleInputChange,
-  onClearSelection, // New prop to notify parent to clear selection
+  onClearSelection,
 }) => {
+  const toast = useRef(null); // Add toast ref
   const [updateCantidadInventarioProducto] = useUpdateCantidadInventarioProductoMutation();
   const [action, setAction] = useState('agregar');
   const [cantidad, setCantidad] = useState(0.00);
   const [destinoInventario, setDestinoInventario] = useState(null);
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const openDialog = () => {
+    setIsDialogVisible(true);
+  };
+
+  const closeDialog = () => {
+    setIsDialogVisible(false);
+  };
+
+  const openModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
   const filteredInventarios = inventarios.filter(
     (inv) => inv.id_inventario !== selectedBodega?.id_inventario
   );
 
   useEffect(() => {
     setCantidad(0);
-    setDestinoInventario(null); // Clear destination inventory when selectedBodega changes
+    setDestinoInventario(null);
   }, [selectedBodega]);
 
   const handleCantidadChange = (e) => {
@@ -51,20 +70,52 @@ const MoverProductosForm = ({
 
     try {
       const result = await updateCantidadInventarioProducto(payload).unwrap();
-      console.log("Update Successful:", result);
+      toast.current.show({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'Actualización realizada con éxito.',
+        life: 3000,
+      });
 
-      // Clear form fields upon successful update
       setCantidad(0);
       setDestinoInventario(null);
       if (onClearSelection) {
-        onClearSelection(); // Notify parent to clear selected product
+        onClearSelection();
       }
     } catch (error) {
+      if (error.status === 400) {
+        toast.current.show({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: error.data.message || 'Solicitud incorrecta.',
+          life: 3000,
+        });
+      } else if (error.status === 404) {
+        toast.current.show({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: error.data.message || 'Recurso no encontrado.',
+          life: 3000,
+        });
+      } else if (error.status === 500) {
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error interno del servidor. Intente nuevamente más tarde.',
+          life: 3000,
+        });
+      } else {
+        toast.current.show({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error inesperado. Por favor, revise la consola para más detalles.',
+          life: 3000,
+        });
+      }
       console.error("Failed to update:", error);
     }
   };
 
-  // Determine if Confirm button should be disabled and the tooltip message
   const isConfirmDisabled =
     !cantidad ||
     !selectedProduct ||
@@ -85,6 +136,8 @@ const MoverProductosForm = ({
 
   return (
     <Form layout="vertical">
+      <Toast ref={toast} /> {/* Toast Component */}
+
       <Radio.Group
         value={action}
         onChange={(e) => setAction(e.target.value)}
@@ -150,6 +203,17 @@ const MoverProductosForm = ({
             Confirmar
           </Button>
         </Tooltip>
+        <Button type="primary" onClick={openModal} style={{ marginLeft: '10px' }}>
+            Ver Movimientos de Inventario
+          </Button>
+          <Modal
+            visible={isModalVisible}
+            onCancel={closeModal}
+            footer={null}
+            width="80vw"
+          >
+            <BitacoraMovimientosTable />
+          </Modal>
       </Form.Item>
     </Form>
   );

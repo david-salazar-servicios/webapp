@@ -1,9 +1,7 @@
-
-// solicitudController.js
-const socketManager = require('../socket'); // Adjust the path as necessary
+const socketManager = require('../socket');
 const pool = require('../db');
-// solicitudController.js
 const moment = require('moment-timezone');
+const { logMovement } = require('./bitacoraController');
 
 const getAllInventarios = async (req, res) => {
     
@@ -32,7 +30,7 @@ const getInventarioById = async (req, res) => {
     try {
         const inventario = await pool.query('SELECT * FROM inventario WHERE id_inventario = $1', [inventarioId]);
         if (inventario.rows.length === 0) {
-            return res.status(404).json({ message: "Inventario not found." });
+            return res.status(404).json({ message: "Inventario no encontrado." });
         }
         res.json(inventario.rows[0]);
     } catch (error) {
@@ -41,43 +39,38 @@ const getInventarioById = async (req, res) => {
     }
 };
 
-const createInventario = async (req, res) => {  
-    const client = await pool.connect(); // Use a transaction for multiple queries
-
+const createInventario = async (req, res) => {
+    const client = await pool.connect();
     try {
         const { nombre_inventario } = req.body;
+        await client.query('BEGIN');
 
-        await client.query('BEGIN'); // Begin the transaction
-
-        // Insert the new inventario into the inventario table
         const newInventarioResult = await client.query(
             'INSERT INTO inventario (nombre_inventario) VALUES ($1) RETURNING *',
             [nombre_inventario]
         );
         const newInventario = newInventarioResult.rows[0];
-        const newInventarioId = newInventario.id_inventario; // Get the new inventario's ID
+        const newInventarioId = newInventario.id_inventario;
 
-        // Fetch all existing products from the producto table
         const productosResult = await client.query('SELECT id_producto FROM producto');
         const productos = productosResult.rows;
 
-        // Associate each product with the new inventario and set cantidad to 0
         for (const producto of productos) {
             await client.query(
                 'INSERT INTO inventario_producto (id_inventario, id_producto, cantidad, cantidad_recomendada) VALUES ($1, $2, $3, $4)',
                 [newInventarioId, producto.id_producto, 0, 0]
             );
         }
+        await client.query('COMMIT');
+        res.json(newInventario);
 
-        await client.query('COMMIT'); // Commit the transaction
 
-        res.json(newInventario); // Return the newly created inventario
     } catch (error) {
-        await client.query('ROLLBACK'); // Rollback the transaction in case of error
+        await client.query('ROLLBACK');
         console.error("Error creating new inventario:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     } finally {
-        client.release(); // Release the client back to the pool
+        client.release();
     }
 };
 
@@ -85,17 +78,18 @@ const createInventario = async (req, res) => {
 const updateInventario = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre_inventario} = req.body;
+        const { nombre_inventario } = req.body;
         const updatedInventario = await pool.query(
             'UPDATE inventario SET nombre_inventario = $1 WHERE id_inventario = $2 RETURNING *',
             [nombre_inventario, id]
         );
 
         if (updatedInventario.rows.length === 0) {
-            return res.status(404).json({ message: 'Inventario not found' });
+            return res.status(404).json({ message: 'Inventario no encontrado.' });
         }
-
         res.json(updatedInventario.rows[0]);
+
+
     } catch (error) {
         console.error("Error updating Inventario:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -103,50 +97,35 @@ const updateInventario = async (req, res) => {
 };
 
 const deleteInventario = async (req, res) => {
-    const client = await pool.connect(); // Use a transaction for multiple queries
-
+    const client = await pool.connect();
     try {
         const { id } = req.params;
+        await client.query('BEGIN');
 
-        await client.query('BEGIN'); // Begin transaction
-
-        // Check if the inventario is referenced in detalleproforma
         const detalleProformaCheck = await client.query(
             'SELECT COUNT(*) FROM detalleproforma WHERE id_inventario = $1',
             [id]
         );
-
         const countInDetalleProforma = parseInt(detalleProformaCheck.rows[0].count, 10);
 
-        // If the inventario is referenced, rollback and return an error
         if (countInDetalleProforma > 0) {
             await client.query('ROLLBACK');
             return res.status(400).json({
-                message: 'Inventario cannot be deleted because it is associated with a registered detalleproforma.'
+                message: 'No se puede eliminar el inventario porque está asociado a una Proforma registrado.'
             });
         }
+        await client.query('DELETE FROM inventario_producto WHERE id_inventario = $1', [id]);
+        await client.query('DELETE FROM inventario WHERE id_inventario = $1', [id]);
+        await client.query('COMMIT');
+        res.json({ message: 'Inventario eliminado con éxito' });
 
-        // Delete related data from inventario_producto
-        await client.query(
-            'DELETE FROM inventario_producto WHERE id_inventario = $1',
-            [id]
-        );
 
-        // Delete the inventario
-        await client.query(
-            'DELETE FROM inventario WHERE id_inventario = $1',
-            [id]
-        );
-
-        await client.query('COMMIT'); // Commit transaction
-
-        res.json({ message: 'Inventario deleted successfully' });
     } catch (error) {
-        await client.query('ROLLBACK'); // Rollback transaction on error
+        await client.query('ROLLBACK');
         console.error("Error deleting Inventario:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     } finally {
-        client.release(); // Release the client back to the pool
+        client.release();
     }
 };
 
@@ -208,127 +187,117 @@ const getAllInventariosProductos = async (req, res) => {
 
 const updateCantidadInventarioProducto = async (req, res) => {
     const { id_inventario, id_producto } = req.params;
-    const { cantidad, cantidadRecomendada, action, destino_inventario } = req.body;
+    const { cantidad, action, destino_inventario } = req.body;
 
     try {
         if (!id_inventario || !id_producto) {
-            return res.status(400).json({ message: 'Missing required parameters: id_inventario and id_producto are required.' });
+            return res.status(400).json({ message: 'Faltan parámetros requeridos: se requieren id_inventario e id_producto.' });
         }
-        
-        if (cantidad != null && !action) {
-            return res.status(400).json({ message: 'Missing required parameter: action is required.' });
+
+        // Helper function to get inventory name by ID
+        const getInventarioById = async (id) => {
+            const result = await pool.query(`SELECT nombre_inventario FROM inventario WHERE id_inventario = $1`, [id]);
+            return result.rows.length ? result.rows[0].nombre_inventario : null;
+        };
+
+        // Helper function to get product details by ID
+        const getProductoById = async (id) => {
+            const result = await pool.query(`SELECT codigo_producto, nombre_producto FROM producto WHERE id_producto = $1`, [id]);
+            return result.rows.length ? result.rows[0] : null;
+        };
+
+        // Fetch details for the current inventory and product
+        const nombre_inventario = await getInventarioById(id_inventario);
+        const producto = await getProductoById(id_producto);
+
+        if (!nombre_inventario || !producto) {
+            return res.status(404).json({ message: 'Inventario o Producto no encontrado.' });
         }
+
+        const { codigo_producto, nombre_producto } = producto;
 
         const currentQuantityResult = await pool.query(`
-            SELECT cantidad, cantidad_recomendada FROM inventario_producto
-            WHERE id_inventario = $1 AND id_producto = $2
+            SELECT cantidad FROM inventario_producto WHERE id_inventario = $1 AND id_producto = $2
         `, [id_inventario, id_producto]);
 
-        if (currentQuantityResult.rowCount === 0) {
-            return res.status(404).json({ message: 'Inventario or Producto not found.' });
+        if (!currentQuantityResult || currentQuantityResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Inventario o Producto no encontrado.' });
         }
 
         let newQuantity = parseFloat(currentQuantityResult.rows[0].cantidad);
-        let newCantidadRecomendada = currentQuantityResult.rows[0].cantidad_recomendada;
+        const incomingCantidad = parseFloat(cantidad);
+        let updateSourceResult, description;
 
-        console.log("Incoming cantidad:", cantidad, "Type:", typeof cantidad);
-        console.log("Current cantidad in DB:", newQuantity, "Type:", typeof newQuantity);
+        switch (action) {
+            case 'agregar':
+                newQuantity += incomingCantidad;
+                updateSourceResult = await pool.query(`
+                    UPDATE inventario_producto SET cantidad = $1 WHERE id_inventario = $2 AND id_producto = $3 RETURNING *
+                `, [newQuantity, id_inventario, id_producto]);
+                description = `Producto ${codigo_producto} - ${nombre_producto} agregado al inventario ${nombre_inventario}: cantidad ${incomingCantidad}`;
+                break;
 
-        let updateSourceResult;
-        
-        if (cantidad != null) {
-            const incomingCantidad = parseFloat(cantidad);
+            case 'eliminar':
+                newQuantity = Math.max(0, newQuantity - incomingCantidad);
+                updateSourceResult = await pool.query(`
+                    UPDATE inventario_producto SET cantidad = $1 WHERE id_inventario = $2 AND id_producto = $3 RETURNING *
+                `, [newQuantity, id_inventario, id_producto]);
+                description = `Producto ${codigo_producto} - ${nombre_producto} eliminado del inventario ${nombre_inventario}: cantidad ${incomingCantidad}`;
+                break;
 
-            switch (action) {
-                case 'agregar':
-                    const incrementValue = parseFloat(cantidad); 
-                    if (isNaN(incrementValue)) {
-                        return res.status(400).json({ message: 'Invalid cantidad value. Please enter a numeric value.' });
-                    }
-                    newQuantity = parseFloat((newQuantity + incrementValue).toFixed(2)); 
-                    updateSourceResult = await pool.query(`
-                        UPDATE inventario_producto
-                        SET cantidad = $1
-                        WHERE id_inventario = $2 AND id_producto = $3
-                        RETURNING *
-                    `, [newQuantity, id_inventario, id_producto]);
-                    break;
+            case 'mover':
+                if (incomingCantidad > newQuantity) {
+                    return res.status(400).json({ message: 'Cantidad insuficiente para mover.' });
+                }
+                newQuantity -= incomingCantidad;
+                updateSourceResult = await pool.query(`
+                    UPDATE inventario_producto
+                    SET cantidad = $1
+                    WHERE id_inventario = $2 AND id_producto = $3
+                    RETURNING *
+                `, [newQuantity, id_inventario, id_producto]);
 
-                case 'eliminar':
-                    newQuantity = Math.max(0, newQuantity - incomingCantidad);
-                    updateSourceResult = await pool.query(`
-                        UPDATE inventario_producto
-                        SET cantidad = $1
-                        WHERE id_inventario = $2 AND id_producto = $3
-                        RETURNING *
-                    `, [newQuantity, id_inventario, id_producto]);
-                    break;
+                const updateDestinationResult = await pool.query(`
+                    UPDATE inventario_producto
+                    SET cantidad = cantidad + $1
+                    WHERE id_inventario = $2 AND id_producto = $3
+                    RETURNING *
+                `, [incomingCantidad, destino_inventario, id_producto]);
 
-                case 'mover':
-                    if (incomingCantidad > newQuantity) {
-                        return res.status(400).json({ message: 'Insufficient quantity to move.' });
-                    }
-                    newQuantity -= incomingCantidad;
-                    updateSourceResult = await pool.query(`
-                        UPDATE inventario_producto
-                        SET cantidad = $1
-                        WHERE id_inventario = $2 AND id_producto = $3
-                        RETURNING *
-                    `, [newQuantity, id_inventario, id_producto]);
+                if (updateDestinationResult.rowCount === 0) {
+                    return res.status(404).json({ message: 'Inventario de destino no encontrado.' });
+                }
 
-                    const updateDestinationResult = await pool.query(`
-                        UPDATE inventario_producto
-                        SET cantidad = cantidad + $1
-                        WHERE id_inventario = $2 AND id_producto = $3
-                        RETURNING *
-                    `, [incomingCantidad, destino_inventario, id_producto]);
+                const destino_inventario_nombre = await getInventarioById(destino_inventario);
+                description = `Producto ${codigo_producto} - ${nombre_producto} movido del inventario ${nombre_inventario} al inventario ${destino_inventario_nombre}: cantidad ${incomingCantidad}`;
+                
+                // Respond with both the source and destination updates
+                res.json({
+                    source: updateSourceResult.rows[0],
+                    destination: updateDestinationResult.rows[0]
+                });
+                
+                // Log movement
+                const currentUser = global.CURRENT_USER;
+                await logMovement(currentUser, description,"Inventario");
+                return;
 
-                    if (updateDestinationResult.rowCount === 0) {
-                        return res.status(404).json({ message: 'Destination inventario not found.' });
-                    }
-                    return res.json({
-                        source: updateSourceResult.rows[0],
-                        destination: updateDestinationResult.rows[0]
-                    });
-
-                default:
-                    return res.status(400).json({ message: 'Invalid action specified.' });
-            }
-
-            if (updateSourceResult.rowCount === 0) {
-                return res.status(404).json({ message: 'Inventario or Producto not found or no changes made in source inventory.' });
-            }
+            default:
+                return res.status(400).json({ message: 'Acción especificada no válida.' });
         }
 
-        if (cantidadRecomendada != null) {
-            const updateRecommendedResult = await pool.query(`
-                UPDATE inventario_producto
-                SET cantidad_recomendada = $1
-                WHERE id_inventario = $2 AND id_producto = $3
-                RETURNING *
-            `, [cantidadRecomendada, id_inventario, id_producto]);
+        // Return the result of the update for 'agregar' and 'eliminar' actions
+        res.json(updateSourceResult.rows[0]);
 
-            if (updateRecommendedResult.rowCount === 0) {
-                return res.status(404).json({ message: 'Inventario or Producto not found or no changes made for cantidadRecomendada.' });
-            }
-            newCantidadRecomendada = cantidadRecomendada;
-        }
-
-        return res.json({
-            source: {
-                cantidad_recomendada: newCantidadRecomendada
-            }
-        });
+        // Log the movement
+        const currentUser = global.CURRENT_USER;
+        await logMovement(currentUser, description,"Inventario");
 
     } catch (error) {
-        console.error("Error updating inventario_producto:", error);
-        return res.status(500).json({ message: "Internal Server Error", error: error.message });
+        console.error("Error al actualizar inventario_producto:", error);
+        res.status(500).json({ message: "Error interno del servidor", error: error.message });
     }
 };
-
-
-
-
 
 
 

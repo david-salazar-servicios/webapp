@@ -124,7 +124,20 @@ const GestionInventarioTable = ({
     },
     { title: 'Precio Costo', dataIndex: 'precio_costo', key: 'precio_costo', width: 150 },
     { title: 'Precio Venta', dataIndex: 'precio_venta', key: 'precio_venta', width: 150 },
-    { title: 'Imagen', dataIndex: 'imagen', key: 'imagen', render: () => <FileImageTwoTone style={{ fontSize: '24px' }} />, width: 70 },
+    {
+      title: 'Imagen',
+      dataIndex: 'imagen',
+      key: 'imagen',
+      render: (text) => (
+        <FileImageTwoTone
+          style={{ fontSize: '24px', cursor: 'pointer' }}
+          onClick={() => {
+            if (text) window.open(text, '_blank');
+          }}
+        />
+      ),
+      width: 70,
+    },
   ];
 
   return (
