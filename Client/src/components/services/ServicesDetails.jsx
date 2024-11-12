@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Accordion } from 'react-bootstrap';
 import { useGetServiceByIdQuery } from '../../features/services/ServicesApiSlice';
-import { Button, Skeleton, Tag, Timeline } from 'antd';
+import { Button, Skeleton, Tag, Timeline, Card } from 'antd';
 import { Toast } from 'primereact/toast';
 import ServicesCarousel from './ServicesCarousel';
 import { CheckCircleOutlined } from '@ant-design/icons';
@@ -16,14 +16,13 @@ export default function ServicesDetails() {
   const [activeKeys, setActiveKeys] = useState(['0', '1']);
   const [selectedOffers, setSelectedOffers] = useState([]);
 
-  // Load selected offers for the current service from localStorage when component mounts or serviceId changes
   useEffect(() => {
     const savedOffers = JSON.parse(localStorage.getItem(`selectedOffers_${serviceId}`)) || [];
     setSelectedOffers(savedOffers);
   }, [serviceId]);
 
   const handleServiceRequest = () => {
-    if (serviceId && selectedOffers.length > 0) { // Check if selectedOffers is not empty
+    if (serviceId && selectedOffers.length > 0) {
       try {
         let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
         const serviceExists = serviceRequests.some(req => req.id_servicio === serviceId);
@@ -50,19 +49,17 @@ export default function ServicesDetails() {
       } else {
         updatedOffers = [...prevSelected, offer];
       }
-  
-      // If updatedOffers is empty, remove the item from localStorage
+
       if (updatedOffers.length === 0) {
         localStorage.removeItem(`selectedOffers_${serviceId}`);
       } else {
-        // Otherwise, persist the updated selected offers in localStorage
         localStorage.setItem(`selectedOffers_${serviceId}`, JSON.stringify(updatedOffers));
       }
-  
+
       return updatedOffers;
     });
   };
-  
+
   const handleAccordionClick = (key) => {
     setActiveKeys((prevKeys) =>
       prevKeys.includes(key)
@@ -74,104 +71,96 @@ export default function ServicesDetails() {
   return (
     <section id="serviceDetail" className="serviceDetail section-bg">
       <div className="container-fluid">
-        <div className="row">
-          {isLoading ? (
-            <>
-              <div className="col-lg-7 d-flex flex-column justify-content-center align-items-stretch order-2 order-lg-1">
-                <Skeleton active />
-              </div>
-              <div className="col-lg-5 align-items-stretch order-1 order-lg-2">
-                <Skeleton active />
-              </div>
-            </>
-          ) : (
-            <>
-              <motion.div
-                key={serviceId} // Unique key to trigger animation on render
-                className="col-lg-7 d-flex flex-column justify-content-center align-items-stretch order-2 order-lg-1"
-                initial={{ opacity: 0, x: -100 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <div className="">
-                  <div style={{ display: 'flex' }}>
-                    {service?.categorias.map(categoria => (
-                      <Tag
-                        key={categoria.nombre}
-                        style={{
-                          padding: "10px 20px",
-                          fontSize: "16px",
-                          borderRadius: "12px",
-                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#eaffea",
-                          color: "#52c41a"
-                        }}
-                        icon={<CheckCircleOutlined />}
-                      >
-                        {categoria.nombre}
-                      </Tag>
-                    ))}
-                  </div>
-                  <div className="content pt-3">
-                    <h3><strong>{service?.nombre}</strong></h3>
-                  </div>
-                  <div className="accordion-list mb-5">
-                    <Toast ref={toast} />
-                    <Accordion defaultActiveKey={activeKeys} activeKey={activeKeys} alwaysOpen className="pt-3">
-                      <Accordion.Item eventKey="0">
-                        <Accordion.Header onClick={() => handleAccordionClick('0')}>¿Qué es este servicio?</Accordion.Header>
-                        <Accordion.Body>
-                          <p>{service?.descripcion}</p>
-                        </Accordion.Body>
-                      </Accordion.Item>
-                      <Accordion.Item eventKey="1">
-                        <Accordion.Header onClick={() => handleAccordionClick('1')}>Selecciona lo que deseas solicitar:</Accordion.Header>
-                        <Accordion.Body>
-                          <Timeline
-                            items={service?.offers?.map((offer, index) => ({
-                              key: index,
-                              dot: (
-                                <input
-                                  type="checkbox"
-                                  checked={selectedOffers.includes(offer)}
-                                  onChange={() => handleCheckboxChange(offer)}
-                                />
-                              ),
-                              children: offer, 
-                            }))}
-                          />
-                        </Accordion.Body>
-                      </Accordion.Item>
-                    </Accordion>
-                  </div>
-                  <div className="text-right pt-5">
-                    <Button
-                      type="primary"
-                      size="large"
-                      onClick={handleServiceRequest}
-                      disabled={selectedOffers.length === 0} // Disable button if no offers are selected
-                    >
-                      Solicitar Servicio
-                    </Button>
-                  </div>
-                </div>
-              </motion.div>
+        {isLoading ? (
+          <Skeleton active />
+        ) : (
+          <motion.div
+            key={serviceId}
+            className="d-flex justify-content-center align-items-stretch"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {/* Left Card - Accordion with Categories */}
+            <div className="col-6 p-2">
 
-              <motion.div
-                key={`${serviceId}-carousel`} // Unique key to trigger animation on render
-                className="col-lg-5 align-items-stretch order-1 order-lg-2"
-                initial={{ opacity: 0, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
+                <div className="content pb-3">
+                  <h3><strong>{service?.nombre}</strong></h3>
+                </div>
+                <div className="accordion-list mb-5">
+                  <Toast ref={toast} />
+                  <Accordion defaultActiveKey={activeKeys} activeKey={activeKeys} alwaysOpen>
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header onClick={() => handleAccordionClick('0')}>¿Qué es este servicio?</Accordion.Header>
+                      <Accordion.Body>
+                        <p>{service?.descripcion}</p>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                    <Accordion.Item eventKey="1">
+                      <Accordion.Header onClick={() => handleAccordionClick('1')}>Selecciona lo que deseas solicitar:</Accordion.Header>
+                      <Accordion.Body>
+                        <Timeline
+                          items={service?.offers?.map((offer, index) => ({
+                            key: index,
+                            dot: (
+                              <input
+                                type="checkbox"
+                                checked={selectedOffers.includes(offer)}
+                                onChange={() => handleCheckboxChange(offer)}
+                              />
+                            ),
+                            children: offer,
+                          }))}
+                        />
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
+                </div>
+            </div>
+
+            {/* Right Card - Carousel and Button */}
+            <div className="col-6 p-2">
+              
+              <Card
+                style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", padding: "20px", marginTop:"75px", borderRadius: "12px" }}
               >
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                  {service?.categorias.map(categoria => (
+                    <Tag
+                      key={categoria.nombre}
+                      style={{
+                        padding: "10px 20px 10px",
+                        fontSize: "16px",
+                        borderRadius: "12px",
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#eaffea",
+                        color: "#52c41a",
+                        marginBottom:"20px",
+                      }}
+                      icon={<CheckCircleOutlined />}
+                    >
+                      {categoria.nombre}
+                    </Tag>
+                  ))}
+                </div>
                 <ServicesCarousel images={service?.imagenes} />
-              </motion.div>
-            </>
-          )}
-        </div>
+                <div className="text-right pt-5">
+                  <Button
+                    type="primary"
+                    size="large"
+                    onClick={handleServiceRequest}
+                    disabled={selectedOffers.length === 0}
+                  >
+                    Solicitar Servicio
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );

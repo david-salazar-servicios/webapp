@@ -32,14 +32,14 @@ const createProducto = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta } = req.body;
+        const { codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, proveedor } = req.body;
 
         await client.query('BEGIN');
 
         const newProductoResult = await client.query(
-            `INSERT INTO producto (codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta) 
-            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-            [codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta]
+            `INSERT INTO producto (codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, proveedor) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+            [codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, proveedor]
         );
 
         const newProducto = newProductoResult.rows[0];
@@ -69,14 +69,14 @@ const createProducto = async (req, res) => {
 const updateProducto = async (req, res) => {
     try {
         const { id } = req.params;
-        const { codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta } = req.body;
+        const { codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, proveedor } = req.body;
 
         const updatedProducto = await pool.query(
             `UPDATE producto 
             SET codigo_producto = $1, nombre_producto = $2, unidad_medida = $3, imagen = $4, 
-                precio_costo = $5, precio_venta = $6 
-            WHERE id_producto = $7 RETURNING *`,
-            [codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, id]
+                precio_costo = $5, precio_venta = $6, proveedor = $7 
+            WHERE id_producto = $8 RETURNING *`,
+            [codigo_producto, nombre_producto, unidad_medida, imagen, precio_costo, precio_venta, proveedor, id]
         );
 
         if (updatedProducto.rows.length === 0) {

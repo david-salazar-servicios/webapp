@@ -779,7 +779,7 @@ footer ul.menu-list li a:hover {
 
 /* Global Accordion Styles */
 .serviceDetail {
-  padding-top: 60px;
+  padding: 30px;
 
 }
 
@@ -1665,20 +1665,7 @@ footer ul.menu-list li a:hover {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
-.masonry:after {
-  content: "";
-  display: table;
-  clear: both;
-}
 
-.masonry .grid-sizer, .masonry__brick {
-  width: 50%;
-}
-
-.masonry__brick {
-  float: left;
-  padding: 0;
-}
 
 .item-folio {
   position: relative;
@@ -1694,34 +1681,6 @@ footer ul.menu-list li a:hover {
   filter: brightness(0.3); /* Darken the image */
 }
 
-.item-folio__thumb a {
-  display: block;
-}
-
-.item-folio__thumb a::after {
-  content: "+";
-  font-family: georgia, serif;
-  font-size: 2.7rem;
-  display: block;
-  height: 30px;
-  width: 30px;
-  line-height: 30px;
-  margin-left: -15px;
-  margin-top: -15px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-  opacity: 1;
-  visibility: hidden;
-  -webkit-transition: all 0.5s ease-in-out;
-  transition: all 0.5s ease-in-out;
-  -webkit-transform: scale(0.5);
-  -ms-transform: scale(0.5);
-  transform: scale(0.5);
-  z-index: 1;
-}
 
 .item-folio:hover .item-folio__text {
   opacity: 1;
@@ -1757,21 +1716,13 @@ footer ul.menu-list li a:hover {
   margin: 0 0 .3rem 0;
 }
 
-.item-folio__title h3{  
-  -webkit-font-smoothing: auto;
-  -webkit-font-smoothing: antialiased;
-  -webkit-font-variant-ligatures: common-ligatures;
-  -moz-font-variant-ligatures: common-ligatures;
-  font-variant-ligatures: common-ligatures;
-  text-rendering: optimizeLegibility;
-}
-
 .item-folio__cat {
   color: #FFFFFF;
   font-size: 1rem;
   line-height: 1.714;
   margin-bottom: 0;
 }
+
 
 /* on hover 
 * ----------------------------------------------- */
@@ -1804,33 +1755,10 @@ footer ul.menu-list li a:hover {
   transform: scale(1);
 }
 
-.works-content {
-  max-width: 1160px;
-  margin-top: -23.4rem;
-}
 
 /* ------------------------------------------------------------------- 
 * responsive:
 * works
-* ------------------------------------------------------------------- */
-@media only screen and (max-width: 800px) {
-  .item-folio__title, .item-folio__cat {
-      font-size: 1rem;
-  }
-}
-
-@media only screen and (max-width: 600px) {
-  .works-content {
-      margin-top: -25.2rem;
-  }
-  .masonry__brick {
-      float: none;
-      width: 100%;
-  }
-  .item-folio__title, .item-folio__cat {
-      font-size: 1rem;
-  }
-}
 
 /* ===================================================================
  * # grid

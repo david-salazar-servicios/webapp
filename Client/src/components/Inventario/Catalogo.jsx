@@ -31,6 +31,11 @@ const ProductoForm = ({ onProductChange }) => {
             key: 'nombre_producto',
         },
         {
+            title: 'Proveedor',
+            dataIndex: 'proveedor',
+            key: 'proveedor',
+        },
+        {
             title: 'Unidad de Medida',
             dataIndex: 'unidad_medida',
             key: 'unidad_medida',
@@ -98,6 +103,7 @@ const ProductoForm = ({ onProductChange }) => {
             precio_venta: record.precio_venta,
             imagen: record.imagen,
             excedente: record.excedente,
+            proveedor: record.proveedor
         });
         setEditingProductId(record.id_producto);
         setFormChanged(true);
@@ -180,7 +186,16 @@ const ProductoForm = ({ onProductChange }) => {
                             >
                                 <Input />
                             </Form.Item>
-
+                            <Form.Item
+                                name="proveedor"
+                                label="Proveedor"
+                                rules={[
+                                    { required: true, message: 'Por favor ingresa el proveedor!' },
+                                    { type: 'string', min: 1, message: 'El proveedor no puede estar vacío' }
+                                ]}
+                            >
+                                <Input placeholder="Ej. Proveedor XYZ" />
+                            </Form.Item>
                             <Form.Item
                                 name="unidad_medida"
                                 label="Unidad de Medida"
@@ -209,15 +224,17 @@ const ProductoForm = ({ onProductChange }) => {
                             <Form.Item
                                 name="excedente"
                                 label="Excedente"
-                                rules={[{ required: true, message: 'Por favor selecciona el excedente!' }]}
+                                rules={[{ required: true, message: 'Por favor ingresa el excedente!' }]}
                             >
-                                <Select placeholder="Selecciona el porcentaje de excedente">
-                                    <Option value="0">0%</Option>
-                                    <Option value="10">10%</Option>
-                                    <Option value="15">15%</Option>
-                                    <Option value="20">20%</Option>
-                                    <Option value="25">25%</Option>
-                                </Select>
+                                <Input
+                                    addonAfter="%"
+                                    placeholder="Ej. 15"
+                                    onChange={(e) => {
+                                        const { value } = e.target;
+                                        const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
+                                        form.setFieldsValue({ excedente: numericValue });
+                                    }}
+                                />
                             </Form.Item>
 
                             <Form.Item
@@ -270,4 +287,3 @@ const ProductoForm = ({ onProductChange }) => {
 };
 
 export default ProductoForm;
-    

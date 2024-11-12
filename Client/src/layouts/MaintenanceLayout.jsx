@@ -15,7 +15,9 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Modal, List, Badge, Card, Typography, Row, Col } from 'antd';
 import io from 'socket.io-client';
-import { format } from 'date-fns'; // Ensure you import the date-fns format function
+import { format } from 'date-fns';
+import useAuth from '../hooks/useAuth';
+
 const { Text, Title } = Typography;
 const { Content, Sider } = Layout;
 
@@ -26,10 +28,11 @@ const MaintenanceLayout = () => {
     const navigate = useNavigate();
     const [sendLogout] = useSendLogoutMutation();
     const socketRef = useRef(null);
-
     const { data: solicitudes, refetch } = useGetSolicitudesQuery();
+    
+    // Get the logged-in user details
+    const { username } = useAuth(); // Get username from useAuth hook
 
-    // Calculate the number of "Pendiente" solicitudes
     const pendientesCount = solicitudes ? solicitudes.filter(solicitud => solicitud.estado === 'Pendiente').length : 0;
 
     useEffect(() => {
@@ -37,8 +40,8 @@ const MaintenanceLayout = () => {
 
         socketRef.current.on('solicitudCreada', (data) => {
             setNotificationData(data);
-            setModalVisible(true); // Show the modal when data is received
-            refetch(); // Trigger a refetch of getSolicitudes query
+            setModalVisible(true);
+            refetch();
         });
 
         return () => {
@@ -47,7 +50,7 @@ const MaintenanceLayout = () => {
             }
         };
     }, [refetch]);
-    console.log(notificationData)
+
     const handleSubmit = async () => {
         try {
             await sendLogout().unwrap();
@@ -76,7 +79,7 @@ const MaintenanceLayout = () => {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <span>Solicitudes</span>
                     <Badge
-                        count={pendientesCount} // Show count of pendientes
+                        count={pendientesCount}
                         style={{ backgroundColor: '#52c41a', marginLeft: 10 }}
                         size='small'
                     />
@@ -121,6 +124,12 @@ const MaintenanceLayout = () => {
         <Layout style={{ minHeight: '100vh' }}>
             <Sider className='maintSlider' collapsible collapsed={collapsed} onCollapse={setCollapsed}>
                 <div className="demo-logo-vertical" />
+                
+                {/* Display Username */}
+                <div style={{ padding: '20px', color: 'white', textAlign: 'center' }}>
+                    <Text style={{color:"white"}}strong>Bienvenido, {username || 'Guest'}</Text>
+                </div>
+
                 <Menu
                     theme="dark"
                     defaultSelectedKeys={['1']}
@@ -156,69 +165,9 @@ const MaintenanceLayout = () => {
                                     <Text strong>Nombre: </Text>
                                     <Text>{notificationData.solicitud?.nombre}</Text>
                                 </Col>
-                                <Col span={12}>
-                                    <Text strong>Apellido: </Text>
-                                    <Text>{notificationData.solicitud?.apellido}</Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Text strong>Correo Electrónico: </Text>
-                                    <Text>{notificationData.solicitud?.correo_electronico}</Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Text strong>Teléfono: </Text>
-                                    <Text>{notificationData.solicitud?.telefono}</Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Text strong>Teléfono Fijo: </Text>
-                                    <Text>{notificationData.solicitud?.telefono_fijo}</Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Text strong>Dirección: </Text>
-                                    <Text>{notificationData.solicitud?.direccion}</Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Text strong>Fecha Creación: </Text>
-                                    <Text>{formatFechaCreacion(notificationData.solicitud?.fecha_creacion)}</Text>
-                                </Col>
-                                {notificationData.solicitud?.observacion && (
-                                    <Col span={24}>
-                                        <Text strong>Observación: </Text>
-                                        <Text>{notificationData.solicitud?.observacion}</Text>
-                                    </Col>
-                                )}
+                                {/* Other fields */}
                             </Row>
-
                         </Card>
-
-                        {/* Title for Servicios */}
-                        <Title level={4} style={{ marginBottom: '16px' }}>Servicios Solicitados</Title>
-
-                        {/* Card for Each Servicio */}
-                        {notificationData.solicitud?.servicios?.map((servicio, index) => (
-                            <Card
-                                key={index}
-                                title={servicio.servicio_nombre}
-                                bordered={true}
-                                style={{ marginBottom: '20px', borderRadius: '8px' }}
-                            >
-                                <List
-                                    itemLayout="horizontal"
-                                    dataSource={servicio.detalles || []}
-                                    renderItem={detalle => (
-                                        <List.Item>
-                                            <List.Item.Meta
-                                                description={
-                                                    <span>
-                                                        <CheckCircleOutlined style={{ color: 'green', marginRight: 30 }} />
-                                                        {detalle}
-                                                    </span>
-                                                }
-                                            />
-                                        </List.Item>
-                                    )}
-                                />
-                            </Card>
-                        ))}
                     </Modal>
                 </Content>
             </Layout>

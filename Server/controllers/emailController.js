@@ -98,7 +98,84 @@ const sendEmailContacto = async (req, res) => {
 };
 
 
+const sendGenericEmail = async (req, res) => {
+    const { nombre, correo, mensaje, whatsapp, emailType } = req.body; // `emailType` indicates the type of email
+
+    if (!nombre || !correo || !mensaje || !whatsapp || !emailType) {
+        console.error("Missing fields in request body:", req.body);
+        return res.status(400).json({ message: 'Missing fields' });
+    }
+
+    // Set up the email transporter
+    const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+            user: process.env.GMAIL_USERNAME,
+            pass: process.env.GMAIL_PASSWORD,
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+
+    // Define variables for email content based on `emailType`
+    let subjectAdmin, htmlAdmin, subjectClient, htmlClient;
+
+    // Determine email content based on `emailType`
+    switch (emailType) {
+        case "Citas":
+            subjectAdmin = `Solicitud de Cita del cliente ${nombre}`;
+            htmlAdmin = `Hola,<br>Tienes una nueva solicitud de cita del cliente ${nombre}. Correo de contacto: ${correo}, WhatsApp: <a href="https://wa.me/${whatsapp}">${whatsapp}</a>.<br><br>Mensaje:<br><i>"${mensaje}"</i>`;
+            
+            subjectClient = `Confirmación de solicitud de cita`;
+            htmlClient = `Hola ${nombre},<br><br>Hemos recibido tu solicitud de cita. Nos pondremos en contacto contigo pronto.<br><br>Detalles:<br><b>Nombre:</b> ${nombre}<br><b>Correo:</b> ${correo}<br><b>WhatsApp:</b> <a href="https://wa.me/${whatsapp}">${whatsapp}</a><br><b>Mensaje:</b><br><i>"${mensaje}"</i><br><br>Saludos,<br>Equipo de Soporte`;
+            break;
+        
+        case "Inventario":
+            subjectAdmin = `Consulta de Inventario de ${nombre}`;
+            htmlAdmin = `Hola,<br>El cliente ${nombre} ha realizado una consulta de inventario. Correo: ${correo}, WhatsApp: <a href="https://wa.me/${whatsapp}">${whatsapp}</a>.<br><br>Mensaje:<br><i>"${mensaje}"</i>`;
+            
+            subjectClient = `Confirmación de consulta de inventario`;
+            htmlClient = `Hola ${nombre},<br><br>Gracias por tu consulta sobre inventario. Te contactaremos pronto.<br><br>Detalles:<br><b>Nombre:</b> ${nombre}<br><b>Correo:</b> ${correo}<br><b>WhatsApp:</b> <a href="https://wa.me/${whatsapp}">${whatsapp}</a><br><b>Mensaje:</b><br><i>"${mensaje}"</i><br><br>Saludos,<br>Equipo de Soporte`;
+            break;
+
+        // Add more cases here for different email types
+        default:
+            console.error('Invalid email type');
+            return res.status(400).json({ message: 'Invalid email type' });
+    }
+
+    try {
+        // Send email to admin
+        await transporter.sendMail({
+            from: correo,
+            to: 'davidsalazarservicios@gmail.com',
+            cc: 'davidsalazarservicios@gmail.com',
+            subject: subjectAdmin,
+            html: htmlAdmin,
+        });
+
+        // Send confirmation email to client
+        await transporter.sendMail({
+            from: 'davidsalazarservicios@gmail.com',
+            to: correo,
+            subject: subjectClient,
+            html: htmlClient,
+        });
+
+        res.json({ message: 'Correo enviado con éxito' });
+    } catch (error) {
+        console.error('Error en la operación:', error);
+        res.status(500).send('Error al procesar la solicitud');
+    }
+};
+
+
+
 module.exports = {
     sendEmail,
-    sendEmailContacto
+    sendEmailContacto,
+    sendGenericEmail,
 }

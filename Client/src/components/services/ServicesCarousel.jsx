@@ -14,7 +14,6 @@ const ServicesCarousel = ({ images }) => {
   };
 
   return (
-    
     <Slider {...settings}>
       {images.map((image, index) => (
         <div key={index}>
@@ -24,9 +23,10 @@ const ServicesCarousel = ({ images }) => {
             className="d-block w-100"
             style={{
               height: '500px',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              borderRadius: '15px' // Add border-radius here
             }}
-            referrerPolicy="no-referrer" // Adding the referrer policy here
+            referrerPolicy="no-referrer"
           />
         </div>
       ))}
