@@ -146,7 +146,7 @@ const getAllInventariosProductos = async (req, res) => {
 
         // Now, fetch all productos with their associated inventarios and cantidad
         const productosResult = await pool.query(`
-            SELECT p.*, ip.id_inventario, ip.cantidad, ip.cantidad_recomendada
+            SELECT p.*, ip.id_inventario, ip.cantidad, ip.cantidad_recomendada, ip.estante
             FROM producto p
             INNER JOIN inventario_producto ip ON p.id_producto = ip.id_producto
         `);
@@ -166,7 +166,8 @@ const getAllInventariosProductos = async (req, res) => {
                     precio_venta: producto.precio_venta,
                     unidad_medida: producto.unidad_medida,
                     imagen: producto.imagen,
-                    cantidad: producto.cantidad, // Add cantidad from inventario_producto
+                    cantidad: producto.cantidad, 
+                    estante: producto.estante,// Add cantidad from inventario_producto
                     cantidad_recomendada: producto.cantidad_recomendada // Add cantidad_recomendada from inventario_producto
                 }));
 
@@ -187,14 +188,16 @@ const getAllInventariosProductos = async (req, res) => {
 
 const updateCantidadInventarioProducto = async (req, res) => {
     const { id_inventario, id_producto } = req.params;
-    const { cantidad, action, destino_inventario } = req.body;
+    const { cantidad, cantidadRecomendada, action, destino_inventario } = req.body;
 
     try {
         if (!id_inventario || !id_producto) {
             return res.status(400).json({ message: 'Faltan parámetros requeridos: se requieren id_inventario e id_producto.' });
         }
 
-        // Helper function to get inventory name by ID
+        if (cantidad){
+
+            // Helper function to get inventory name by ID
         const getInventarioById = async (id) => {
             const result = await pool.query(`SELECT nombre_inventario FROM inventario WHERE id_inventario = $1`, [id]);
             return result.rows.length ? result.rows[0].nombre_inventario : null;
@@ -296,6 +299,32 @@ const updateCantidadInventarioProducto = async (req, res) => {
         const currentUser = global.CURRENT_USER;
         await logMovement(currentUser, description,"Inventario");
 
+        }else{
+            const updateRecommendedResult = await pool.query(
+                `UPDATE inventario_producto
+                SET cantidad_recomendada = $1
+                WHERE id_inventario = $2 AND id_producto = $3
+                RETURNING *`
+            , [cantidadRecomendada, id_inventario, id_producto]);
+
+            if (updateRecommendedResult.rowCount === 0) {
+                return res.status(404).json({ message: 'Inventario o Producto no encontrado o no se realizaron cambios en Cantidad Recomendada.' });
+            }
+            newCantidadRecomendada = cantidadRecomendada; 
+    
+            return res.json({
+                source: {
+                    cantidad_recomendada: newCantidadRecomendada
+                }
+            });
+    
+        }
+
+        
+
+
+
+
     } catch (error) {
         console.error("Error al actualizar inventario_producto:", error);
         res.status(500).json({ message: "Error interno del servidor", error: error.message });
@@ -303,11 +332,47 @@ const updateCantidadInventarioProducto = async (req, res) => {
 };
 
 
+const updateEstanteInventarioProducto = async (req, res) => {
+    const { id_inventario, id_producto } = req.params;
+    const { estante } = req.body;
+    console.log(`Estante:${estante}`)
+    try {
+        if (!id_inventario || !id_producto) {
+            return res.status(400).json({ message: 'Faltan parámetros requeridos: se requieren id_inventario e id_producto.' });
+        }
+
+        // Update the estante value for the specified product in the specified inventory
+        const updateResult = await pool.query(`
+            UPDATE inventario_producto
+            SET estante = $1
+            WHERE id_inventario = $2 AND id_producto = $3
+            RETURNING *
+        `, [estante, id_inventario, id_producto]);
+
+        if (updateResult.rowCount === 0) {
+            return res.status(404).json({ message: 'Inventario o Producto no encontrado o no se realizaron cambios.' });
+        }
+
+        const updatedRecord = updateResult.rows[0];
+
+        // Log the movement if necessary
+        const currentUser = global.CURRENT_USER;
+        const description = `Estante actualizado a '${estante}' para el producto ${updatedRecord.codigo_producto} en el inventario ${updatedRecord.id_inventario}`;
+        await logMovement(currentUser, description, "Inventario");
+
+        res.json(updatedRecord);
+    } catch (error) {
+        console.error("Error al actualizar el estante en inventario_producto:", error);
+        res.status(500).json({ message: "Error interno del servidor", error: error.message });
+    }
+};
+
 
 module.exports = {
     getAllInventarios,
     getAllInventariosProductos,
     updateCantidadInventarioProducto,
+    updateEstanteInventarioProducto,
     getInventarioById,
     createInventario,
     updateInventario,

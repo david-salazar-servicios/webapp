@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Input, Space } from 'antd';
 import { FileImageTwoTone, SearchOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
-import { useUpdateCantidadInventarioProductoMutation } from '../../features/Inventario/InventarioApiSlice';
+import { useUpdateCantidadInventarioProductoMutation, useUpdateEstanteInventarioProductoMutation } from '../../features/Inventario/InventarioApiSlice';
 
 const iconButtonStyle = {
   border: '1px solid #d9d9d9',
@@ -27,10 +27,14 @@ const GestionInventarioTable = ({
 }) => {
   const [searchText, setSearchText] = useState('');
   const [filteredData, setFilteredData] = useState([]);
-  const [editingKey, setEditingKey] = useState('');
+  const [editingCantidadKey, setEditingCantidadKey] = useState(null);
+  const [editingEstanteKey, setEditingEstanteKey] = useState(null);
   const [cantidadRecomendada, setCantidadRecomendada] = useState({});
+  const [estante, setEstante] = useState({});
   const [updateCantidadInventarioProducto] = useUpdateCantidadInventarioProductoMutation();
+  const [updateEstanteInventarioProducto] = useUpdateEstanteInventarioProductoMutation();
 
+  console.log(data)
   useEffect(() => {
     const sortedData = [...data].sort((a, b) =>
       a.nombre_producto.localeCompare(b.nombre_producto)
@@ -39,8 +43,10 @@ const GestionInventarioTable = ({
   }, [data]);
 
   useEffect(() => {
-    setEditingKey('');
+    setEditingCantidadKey(null);
+    setEditingEstanteKey(null);
     setCantidadRecomendada({});
+    setEstante({});
   }, [selectedBodega]);
 
   const handleSearch = (value) => {
@@ -55,19 +61,30 @@ const GestionInventarioTable = ({
     setFilteredData(filtered);
   };
 
-  const isEditing = (record) => record.codigo_producto === editingKey;
+  const isEditingCantidad = (record) => record.codigo_producto === editingCantidadKey;
+  const isEditingEstante = (record) => record.codigo_producto === editingEstanteKey;
 
-  const edit = (record) => {
-    setEditingKey(record.codigo_producto);
+  const editCantidad = (record) => {
+    setEditingCantidadKey(record.codigo_producto);
     setCantidadRecomendada({ [record.codigo_producto]: record.cantidad_recomendada });
   };
 
-  const cancel = () => {
-    setEditingKey('');
+  const editEstante = (record) => {
+    setEditingEstanteKey(record.codigo_producto);
+    setEstante({ [record.codigo_producto]: record.estante });
+  };
+
+  const cancelCantidad = () => {
+    setEditingCantidadKey(null);
     setCantidadRecomendada({});
   };
 
-  const save = async (record) => {
+  const cancelEstante = () => {
+    setEditingEstanteKey(null);
+    setEstante({});
+  };
+
+  const saveCantidad = async (record) => {
     const newCantidad = cantidadRecomendada[record.codigo_producto];
     try {
       await updateCantidadInventarioProducto({
@@ -77,11 +94,32 @@ const GestionInventarioTable = ({
       }).unwrap();
 
       handleInputChange(record.codigo_producto, newCantidad);
-      cancel();
+      cancelCantidad();
     } catch (error) {
       console.error("Failed to update product quantity:", error);
     }
   };
+
+  const saveEstante = async (record) => {
+    console.log("saveEstante function triggered with record:", record);
+    const newEstante = estante[record.codigo_producto];
+    try {
+        await updateEstanteInventarioProducto({
+            id_inventario: selectedBodega.id_inventario,
+            id_producto: record.id_producto,
+            estante: newEstante,
+        }).unwrap();
+
+        const updatedData = filteredData.map(item =>
+            item.codigo_producto === record.codigo_producto ? { ...item, estante: newEstante } : item
+        );
+        setFilteredData(updatedData);
+        cancelEstante();
+    } catch (error) {
+        console.error("Failed to update estante:", error);
+    }
+};
+
 
   const handleCantidadChange = (e, codigo_producto) => {
     setCantidadRecomendada((prev) => ({
@@ -90,42 +128,145 @@ const GestionInventarioTable = ({
     }));
   };
 
+  const handleEstanteChange = (e, codigo_producto) => {
+    setEstante((prev) => ({
+      ...prev,
+      [codigo_producto]: e.target.value,
+    }));
+  };
+
   const columns = [
-    { title: 'Código Producto', dataIndex: 'codigo_producto', key: 'codigo_producto', width: 120 },
-    { title: 'Nombre del Producto', dataIndex: 'nombre_producto', key: 'nombre_producto', width: 150 },
-    { title: 'Unidad de Medida', dataIndex: 'unidad_medida', key: 'unidad_medida', width: 120 },
-    { title: 'Cantidad Existente', key: 'cantidad', dataIndex: 'cantidad', width: 150 },
     {
-      title: 'Cantidad Recomendada',
-      dataIndex: 'cantidad_recomendada',
-      key: 'cantidad_recomendada',
-      width: 150,
+      title: 'Estante',
+      dataIndex: 'estante',
+      key: 'estante',
+      width: editingEstanteKey ? 200 : 150, // expanded width when editing
       render: (_, record) =>
-        isEditing(record) ? (
+        isEditingEstante(record) ? (
           <Space>
             <Input
-              value={cantidadRecomendada[record.codigo_producto]}
-              onChange={(e) => handleCantidadChange(e, record.codigo_producto)}
-              onKeyDown={(e) => e.key === 'Enter' && save(record)}
+              value={estante[record.codigo_producto]}
+              onChange={(e) => handleEstanteChange(e, record.codigo_producto)}
+              onKeyDown={(e) => e.key === 'Enter' && saveEstante(record)}
               style={{ width: '100px' }}
             />
-            <div onClick={() => save(record)} style={{ ...iconButtonStyle, background: '#1677ff', color: 'white' }}>
+            <div onClick={() => saveEstante(record)} style={{ ...iconButtonStyle, background: '#1677ff', color: 'white' }}>
               <CheckOutlined />
             </div>
-            <div onClick={cancel} style={{ ...iconButtonStyle, color: 'grey' }}>
+            <div onClick={cancelEstante} style={{ ...iconButtonStyle, color: 'grey' }}>
               <CloseOutlined />
             </div>
           </Space>
         ) : (
-          <span onClick={() => edit(record)} style={{ color: 'black', cursor: 'pointer' }}>
-            {record.cantidad_recomendada}
+          <span 
+            onClick={() => editEstante(record)} 
+            style={{
+              color: 'black', 
+              cursor: 'pointer', 
+              display: 'inline-block',
+              width: '100px', 
+              padding: '4px',
+              border: '1px solid #d9d9d9', 
+              borderRadius: '4px'
+            }}
+          >
+            {record.estante || ' - '}
           </span>
         ),
     },
-    { title: 'Precio Costo', dataIndex: 'precio_costo', key: 'precio_costo', width: 150 },
-    { title: 'Precio Venta', dataIndex: 'precio_venta', key: 'precio_venta', width: 150 },
+    { title: 'Código', dataIndex: 'codigo_producto', key: 'codigo_producto', width: 120 },
+    { title: 'Producto', dataIndex: 'nombre_producto', key: 'nombre_producto', width: 150 },
+    { title: 'Unidad de Medida', dataIndex: 'unidad_medida', key: 'unidad_medida', width: 120 },
     {
-      title: 'Imagen',
+      title: 'Cantidad Existente',
+      key: 'cantidad',
+      dataIndex: 'cantidad',
+      width: 120,
+      render: (text) => (
+        <span style={{ backgroundColor: '#e6b8af', padding: '8px', display: 'block', borderRadius: '4px' }}>
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: 'Cantidad Recomendada',
+      dataIndex: 'cantidad_recomendada',
+      key: 'cantidad_recomendada',
+      width: editingCantidadKey ? 200 : 150, // expanded width when editing
+      render: (_, record) =>
+        isEditingCantidad(record) ? (
+          <Space>
+            <Input
+              value={cantidadRecomendada[record.codigo_producto]}
+              onChange={(e) => handleCantidadChange(e, record.codigo_producto)}
+              onKeyDown={(e) => e.key === 'Enter' && saveCantidad(record)}
+              style={{ width: '100px' }}
+            />
+            <div onClick={() => saveCantidad(record)} style={{ ...iconButtonStyle, background: '#1677ff', color: 'white' }}>
+              <CheckOutlined />
+            </div>
+            <div onClick={cancelCantidad} style={{ ...iconButtonStyle, color: 'grey' }}>
+              <CloseOutlined />
+            </div>
+          </Space>
+        ) : (
+          <span 
+            onClick={() => editCantidad(record)} 
+            style={{
+              color: 'black', 
+              cursor: 'pointer', 
+              display: 'inline-block',
+              width: '100px', 
+              padding: '4px',
+              border: '1px solid #d9d9d9', 
+              borderRadius: '4px',
+              backgroundColor: '#c9e7b8' // green background
+            }}
+          >
+            {record.cantidad_recomendada || '0.00'}
+          </span>
+        ),
+    },
+    {
+      title: 'Cantidad Solicitud',
+      key: 'solicitud',
+      width: 120,
+      render: (_, record) => (
+        <span style={{ backgroundColor: '#fff2cc', padding: '8px', display: 'block', borderRadius: '4px' }}>
+          {(record.cantidad_recomendada || 0) - (record.cantidad || 0)}
+        </span>
+      ),
+    },
+    {
+      title: 'Precio Costo',
+      dataIndex: 'precio_costo',
+      key: 'precio_costo',
+      width: 150,
+      render: (text) => (
+        <span>₡ {text}</span>
+      ),
+    },
+    {
+      title: 'Precio Venta',
+      dataIndex: 'precio_venta',
+      key: 'precio_venta',
+      width: 150,
+      render: (text) => (
+        <span>₡ {text}</span>
+      ),
+    },
+    {
+      title: 'Inversión',
+      key: 'inversion',
+      width: 150,
+      render: (_, record) => (
+        <span>
+          ₡ {(record.precio_costo || 0) * (record.cantidad || 0)}
+        </span>
+      ),
+    },
+    {
+      title: '',
       dataIndex: 'imagen',
       key: 'imagen',
       render: (text) => (
@@ -139,6 +280,7 @@ const GestionInventarioTable = ({
       width: 70,
     },
   ];
+  
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -155,7 +297,6 @@ const GestionInventarioTable = ({
         </Button>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px' }}>
-      <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px' }}>
         <Table
           columns={columns}
           dataSource={filteredData}
@@ -167,11 +308,8 @@ const GestionInventarioTable = ({
           rowClassName={(record) => 
             record.codigo_producto === selectedProduct?.codigo_producto ? 'selected-row' : ''
           }
-          sticky // Makes the header sticky
+          sticky
         />
-      </div>
-
-
       </div>
     </div>
   );
