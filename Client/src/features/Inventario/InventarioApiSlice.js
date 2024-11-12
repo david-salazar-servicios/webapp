@@ -78,6 +78,19 @@ export const inventarioApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: [{ type: 'InventarioProducto', id: 'LIST' }],
         }),
+
+        updateEstanteInventarioProducto: builder.mutation({
+            query: ({ id_inventario, id_producto, estante }) => {
+                return {
+                    url: `/inventarios/${id_inventario}/producto/${id_producto}/estante`,
+                    method: 'PUT',
+                    body: { estante },
+                };
+            },
+            invalidatesTags: [{ type: 'InventarioProducto', id: 'LIST' }],
+        }),
+        
+          
     
         
     }),
@@ -91,4 +104,5 @@ export const {
     useDeleteInventarioMutation,
     useGetInventariosProductosQuery,
     useUpdateCantidadInventarioProductoMutation,
+    useUpdateEstanteInventarioProductoMutation
 } = inventarioApiSlice;
