@@ -5,6 +5,7 @@ import { useGetUsersQuery } from '../../features/users/UsersApiSlice';
 import { useGetUsersRolesQuery, useGetRolesQuery } from '../../features/roles/RolesApiSlice';
 import { useCreateCitaMutation, useUpdateCitaMutation, useGetAllCitasQuery, useUpdateCitaEstadoMutation } from '../../features/cita/CitaApiSlice';
 import { useUpdateSolicitudEstadoMutation, useGetSolicitudByIdQuery, useUpdateSolicitudFechaPreferenciaMutation } from '../../features/RequestService/RequestServiceApiSlice';
+import { useSendGenericEmailMutation } from '../../features/contacto/sendGenericEmailApiSlice';
 import dayjs from 'dayjs';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
 import utc from 'dayjs/plugin/utc';
@@ -38,15 +39,19 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
     const [technicians, setTechnicians] = useState([]);
     const [loading, setLoading] = useState(true);
     const toast = useRef(null);
-
+    const [sendGenericEmail] = useSendGenericEmailMutation();
     const { data: users } = useGetUsersQuery();
     const { data: rolesData } = useGetRolesQuery();
     const { data: userRolesData, refetch: refetchUserRoles } = useGetUsersRolesQuery();
     const { data: citaData } = useGetAllCitasQuery();
-
+    const [isEmailSending, setIsEmailSending] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { data: solicitudDetails, isLoading: isSolicitudLoading, refetch } = useGetSolicitudByIdQuery(solicitudData?.id_solicitud, {
         skip: !solicitudData?.id_solicitud
     });
+    const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+    const [isConfirmLoading, setIsConfirmLoading] = useState(false);
+    const [isRejectLoading, setIsRejectLoading] = useState(false);
 
     const [createCita, { isLoading: isCreating }] = useCreateCitaMutation();
     const [updateCita, { isLoading: isUpdating }] = useUpdateCitaMutation();
@@ -98,9 +103,11 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
     }, [solicitudDetails, form, solicitudData, visible, isSolicitudLoading, citaData]);
 
     const handleSubmit = async () => {
+        setIsSubmitting(true); // Start submission process for the Submit button
+        setIsEmailSending(false); // Reset email sending state at the beginning
+
         try {
             const values = await form.validateFields();
-
             const formattedDateTime = values.datetime ? dayjs(values.datetime).format('YYYY-MM-DDTHH:mm:ssZ') : null;
 
             if (isUpdate && filteredCita) {
@@ -109,6 +116,17 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                 if (formattedDateTime) {
                     await updateSolicitudFechaPreferencia({ id: values.id_solicitud, fecha_preferencia: formattedDateTime }).unwrap();
                 }
+
+                // Start email sending process for updating solicitud
+                setIsEmailSending(true);
+                await sendGenericEmail({
+                    nombre: solicitudData.nombre,
+                    correo: solicitudData.correo_electronico,
+                    mensaje: `La solicitud con ID ${solicitudData.id_solicitud} ha sido actualizada con una nueva fecha ${dayjs(values.datetime).format('YYYY-MM-DD HH:mm')} y estado En Agenda.`,
+                    telefono: `${solicitudData.telefono}${solicitudData.telefono_fijo ? ' / ' + solicitudData.telefono_fijo : ''}`,
+                    type: "ActualizarSolicitud"
+                }).unwrap();
+                setIsEmailSending(false); // End email sending process
 
                 toast.current.show({
                     severity: 'success',
@@ -123,6 +141,17 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                 if (formattedDateTime) {
                     await updateSolicitudFechaPreferencia({ id: values.id_solicitud, fecha_preferencia: formattedDateTime }).unwrap();
                 }
+
+                // Start email sending process for creating cita
+                setIsEmailSending(true);
+                await sendGenericEmail({
+                    nombre: solicitudData.nombre,
+                    correo: solicitudData.correo_electronico,
+                    mensaje: `Se ha creado una nueva cita para la solicitud con ID ${solicitudData.id_solicitud} programada para la fecha ${dayjs(values.datetime).format('YYYY-MM-DD HH:mm')}.`,
+                    telefono: `${solicitudData.telefono}${solicitudData.telefono_fijo ? ' / ' + solicitudData.telefono_fijo : ''}`,
+                    type: "CrearCita"
+                }).unwrap();
+                setIsEmailSending(false); // End email sending process
 
                 toast.current.show({
                     severity: 'success',
@@ -141,8 +170,12 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                 detail: error?.data?.message || 'No se pudo gestionar la cita',
                 life: 5000
             });
+        } finally {
+            setIsSubmitting(false); // End submission process
+            setIsEmailSending(false); // Ensure email sending is reset
         }
     };
+
 
     return (
         <>
@@ -193,17 +226,54 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                         </Row>
                         <Form.Item>
                             <Space>
-                                <Button type="primary" onClick={handleSubmit} loading={isCreating || isUpdating}>
-                                    {isUpdate ? "Actualizar" : "Enviar"}
+                                {/* Submit Button */}
+                                <Button
+                                    type="primary"
+                                    onClick={async () => {
+                                        setIsSubmitLoading(true);   // Start loading for Submit button
+                                        setIsConfirmLoading(false); // Ensure Confirm button isn't loading
+                                        setIsRejectLoading(false);  // Ensure Reject button isn't loading
+                                        await handleSubmit();
+                                        setIsSubmitLoading(false);  // Stop loading after submission
+                                    }}
+                                    loading={isSubmitLoading}  // Spinner only for Submit button
+                                    style={{
+                                        backgroundColor: isSubmitLoading || isConfirmLoading || isRejectLoading ? '#1890ff' : '', // Ensure button color remains blue
+                                        color: 'white',
+                                        borderColor: '#1890ff'
+                                    }}
+                                    disabled={isSubmitLoading || isConfirmLoading || isRejectLoading} // Disable other buttons when one is loading
+                                >
+                                    {isSubmitLoading ? "Procesando..." : isUpdate ? "Actualizar" : "Enviar"}
                                 </Button>
 
-                                {isUpdate && filteredCita ? (
-                                    <>
-
-                                        <Button type="defaut" style={{ backgroundColor: '#22c55e', color: 'white' }}  onClick={async () => {
+                                {/* Confirm Button (only visible if isUpdate and filteredCita are true) */}
+                                {isUpdate && filteredCita && (
+                                    <Button
+                                        type="default"
+                                        style={{
+                                            backgroundColor: isConfirmLoading ? '#22c55e' : '#22c55e',
+                                            color: 'white',
+                                            borderColor: '#22c55e'
+                                        }}
+                                        onClick={async () => {
+                                            setIsConfirmLoading(true); // Start loading for Confirm button
+                                            setIsSubmitLoading(false); // Ensure Submit button isn't loading
+                                            setIsRejectLoading(false); // Ensure Reject button isn't loading
                                             try {
                                                 await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Confirmada' }).unwrap();
                                                 await updateCitaEstado({ id: filteredCita.id_cita, estado: 'Confirmada' }).unwrap();
+
+                                                // Send confirmation email
+                                                setIsEmailSending(true);
+                                                await sendGenericEmail({
+                                                    nombre: solicitudData.nombre,
+                                                    correo: solicitudData.correo_electronico,
+                                                    mensaje: `La solicitud con ID ${solicitudData.id_solicitud} ha sido confirmada junto con la cita.`,
+                                                    telefono: `${solicitudData.telefono}${solicitudData.telefono_fijo ? ' / ' + solicitudData.telefono_fijo : ''}`,
+                                                    type: "ConfirmarSolicitud"
+                                                }).unwrap();
+
                                                 toast.current.show({
                                                     severity: 'success',
                                                     summary: 'Confirmada',
@@ -215,43 +285,42 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                                 toast.current.show({
                                                     severity: 'error',
                                                     summary: 'Error',
-                                                    detail: 'Error al Confirmadar la solicitud y cita',
+                                                    detail: 'Error al confirmar la solicitud y cita',
                                                     life: 5000
                                                 });
+                                            } finally {
+                                                setIsConfirmLoading(false);
+                                                setIsEmailSending(false);
                                             }
-                                        }}>
-                                            Confirmar
-                                        </Button>
-                                        <Button type="primary" danger onClick={async () => {
-                                            try {
-                                                await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Rechazada' }).unwrap();
-                                                await updateCitaEstado({ id: filteredCita.id_cita, estado: 'Rechazada' }).unwrap();
-                                                toast.current.show({
-                                                    severity: 'success',
-                                                    summary: 'Rechazada',
-                                                    detail: 'La solicitud y cita han sido rechazadas',
-                                                    life: 3000
-                                                });
-                                                onClose();
-                                            } catch (error) {
-                                                console.log(error);
-                                                toast.current.show({
-                                                    severity: 'error',
-                                                    summary: 'Error',
-                                                    detail: 'Error al rechazar la solicitud',
-                                                    life: 5000
-                                                });
-                                            }
-                                        }}>
-                                            Rechazar
-                                        </Button>
+                                        }}
+                                        loading={isConfirmLoading}  // Spinner only for Confirm button
+                                        disabled={isSubmitLoading || isConfirmLoading || isRejectLoading} // Disable other buttons when one is loading
+                                    >
+                                        Confirmar
+                                    </Button>
+                                )}
 
-                                        
-                                    </>
-                                ) : (
-                                    <Button type="primary" danger onClick={async () => {
+                                {/* Reject Button */}
+                                <Button
+                                    type="primary"
+                                    danger
+                                    onClick={async () => {
+                                        setIsRejectLoading(true);   // Start loading for Reject button
+                                        setIsSubmitLoading(false);  // Ensure Submit button isn't loading
+                                        setIsConfirmLoading(false); // Ensure Confirm button isn't loading
                                         try {
                                             await updateSolicitudEstado({ id: solicitudData.id_solicitud, estado: 'Rechazada' }).unwrap();
+
+                                            // Send rejection email
+                                            setIsEmailSending(true);
+                                            await sendGenericEmail({
+                                                nombre: solicitudData.nombre,
+                                                correo: solicitudData.correo_electronico,
+                                                mensaje: `La solicitud con ID ${solicitudData.id_solicitud} ha sido rechazada.`,
+                                                telefono: `${solicitudData.telefono}${solicitudData.telefono_fijo ? ' / ' + solicitudData.telefono_fijo : ''}`,
+                                                type: "RechazarSolicitud"
+                                            }).unwrap();
+
                                             toast.current.show({
                                                 severity: 'success',
                                                 summary: 'Rechazada',
@@ -266,13 +335,24 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                                 detail: 'Error al rechazar la solicitud',
                                                 life: 5000
                                             });
+                                        } finally {
+                                            setIsRejectLoading(false);
+                                            setIsEmailSending(false);
                                         }
-                                    }}>
-                                        Rechazar
-                                    </Button>
-                                )}
+                                    }}
+                                    loading={isRejectLoading}  // Spinner only for Reject button
+                                    style={{
+                                        backgroundColor: isRejectLoading ? '#ff4d4f' : '#ff4d4f', // Ensure button color remains red
+                                        color: 'white',
+                                        borderColor: '#ff4d4f'
+                                    }}
+                                    disabled={isSubmitLoading || isConfirmLoading || isRejectLoading} // Disable other buttons when one is loading
+                                >
+                                    Rechazar
+                                </Button>
                             </Space>
                         </Form.Item>
+
                     </Form>
                 )}
 

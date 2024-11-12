@@ -7,6 +7,7 @@ router.route("/resetPassword").post(emailController.sendEmail);
 
 router.route("/emailContacto").post(emailController.sendEmailContacto);
 
+router.route("/genericEmail").post(emailController.sendGenericEmail);
 
 module.exports = router
 

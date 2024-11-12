@@ -12,11 +12,13 @@ import { Toast } from 'primereact/toast';
 import CitaForm from '../cita/CitaForm';
 import { format } from 'date-fns';
 import { Row, Col, Card } from 'antd';
+import { useSendGenericEmailMutation } from '../../features/contacto/sendGenericEmailApiSlice';
 
 export default function SolicitudesTable() {
     const { data, isLoading, isError, error, refetch } = useGetSolicitudesQuery();
     const { data: citaData } = useGetAllCitasQuery();
     const [updateSolicitudEstado] = useUpdateSolicitudEstadoMutation();
+    const [sendGenericEmail] = useSendGenericEmailMutation();
     const [deleteCita] = useDeleteCitaMutation();
     const [globalFilter, setGlobalFilter] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -54,6 +56,15 @@ export default function SolicitudesTable() {
             // Update the solicitud to "En Agenda"
             await updateSolicitudEstado({ id: solicitud.id_solicitud, estado: 'En Agenda' }).unwrap();
 
+            // Send generic email alerting that the solicitud has been reverted to "En Agenda"
+            await sendGenericEmail({
+                nombre: solicitud.nombre,
+                correo: solicitud.correo_electronico, // Ensure solicitud object contains 'correo'
+                mensaje: `La solicitud con ID ${solicitud.id_solicitud} ha sido revertida al estado "En Agenda".`,
+                telefono: `${solicitud.telefono}${solicitud.telefono_fijo ? ' / ' + solicitud.telefono_fijo : ''}`, // Only add telefono_fijo if it exists
+                type: "Revertir_A_Aagenda"
+            }).unwrap();
+
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud revertida a En Agenda', life: 3000 });
             refetch(); // Refetch the solicitudes to update the table
         } catch (error) {
@@ -73,6 +84,15 @@ export default function SolicitudesTable() {
             if (relatedCita) {
                 await deleteCita(relatedCita.id_cita).unwrap();
             }
+
+            // Send generic email alerting that the solicitud has been restored
+            await sendGenericEmail({
+                nombre: solicitud.nombre,
+                correo: solicitud.correo_electronico, // Ensure solicitud object contains 'correo'
+                mensaje: `La solicitud con ID ${solicitud.id_solicitud} ha sido restaurada al estado "Pendiente".`,
+                telefono: `${solicitud.telefono}${solicitud.telefono_fijo ? ' / ' + solicitud.telefono_fijo : ''}`, // Only add telefono_fijo if it exists
+                type: "RestaurarSolicitud"
+            }).unwrap();
 
             toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'Solicitud restaurada correctamente', life: 3000 });
             refetch(); // Refetch the solicitudes to update the table

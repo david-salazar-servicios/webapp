@@ -4,7 +4,7 @@ import { useCreateSolicitudWithDetailsMutation } from "../../features/RequestSer
 import { Calendar } from 'primereact/calendar';
 import { DeleteOutlined, LeftOutlined, RightOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Toast } from 'primereact/toast';
-
+import { useSendGenericEmailMutation } from '../../features/contacto/sendGenericEmailApiSlice';
 const { Title, Text } = Typography;
 const { Step } = Steps;
 
@@ -13,6 +13,8 @@ export default function RequestServices() {
     const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
     const [isSubmitted, setIsSubmitted] = useState(false); // New state flag
     const [createSolicitudWithDetails, { isLoading: isSubmitting }] = useCreateSolicitudWithDetailsMutation();
+    const [sendGenericEmail] = useSendGenericEmailMutation();
+    const [isEmailSending, setIsEmailSending] = useState(false);
     const [form] = Form.useForm();
     const toast = useRef(null);
 
@@ -28,12 +30,6 @@ export default function RequestServices() {
         // Prevent the toast warning and step reset if the form was just submitted
         if (!isSubmitted && storedServices.length === 0 && current === 1) {
             setCurrent(0);
-            toast.current.show({
-                severity: 'warn',
-                summary: 'Advertencia',
-                detail: 'No hay servicios para confirmar, volviendo al paso de selección.',
-                life: 3000
-            });
         }
     };
 
@@ -75,6 +71,42 @@ export default function RequestServices() {
             // Send the request to the API
             await createSolicitudWithDetails(solicitudDetails).unwrap();
 
+            setIsEmailSending(true); // Start email sending process
+            // Construct the HTML message with servicio details
+            // Construct the HTML table with servicio details
+            const serviciosTable = `
+            <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="background-color: #f2f2f2;">Servicios Seleccionados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${updatedServicesDetails
+                            .map(detail => `
+                            <tr>
+                                <td>${detail.selectedOffers.join(", ")}</td>
+                            </tr>
+                        `)
+                            .join("")}
+                </tbody>
+            </table>
+        `;
+
+                    // Send the email with the HTML table embedded in the message
+                    await sendGenericEmail({
+                        nombre: solicitudDetails.nombre,
+                        correo: solicitudDetails.correo_electronico,
+                        mensaje: `
+                <p>Gracias por enviar tu solicitud de servicio. Hemos recibido tu petición y la estaremos procesando.</p>
+                <p><strong>Detalles de los Servicios Solicitados:</strong></p>
+                ${serviciosTable}
+            `,
+                telefono: `${solicitudDetails.telefono}${solicitudDetails.telefono_fijo ? ' / ' + solicitudDetails.telefono_fijo : ''}`,
+                type: "NuevaSolicitud"
+            }).unwrap();
+
+            setIsEmailSending(false); // End email sending process
             // Show a success message
             toast.current.show({
                 severity: 'success',
@@ -106,6 +138,7 @@ export default function RequestServices() {
             setTimeout(() => setIsSubmitted(false), 1000);
 
         } catch (error) {
+            setIsEmailSending(false); // End email sending process in case of error
             // Handle any errors and show an error message
             toast.current.show({
                 severity: 'error',
@@ -133,12 +166,6 @@ export default function RequestServices() {
             // Check if there are no services left and move to step 1
             if (serviceRequests.length === 0 && current === 1) {
                 setCurrent(0);
-                toast.current.show({
-                    severity: 'warn',
-                    summary: 'Advertencia',
-                    detail: 'No hay servicios para confirmar, volviendo al paso de selección.',
-                    life: 3000
-                });
             }
         } catch (error) {
             toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al eliminar el servicio', life: 3000 });
@@ -252,7 +279,7 @@ export default function RequestServices() {
                                     >
                                         <Input placeholder="Ingrese su número de teléfono fijo" />
                                     </Form.Item>
-                                    
+
                                 </Col>
                             </Row>
                             <Row gutter={24}>
@@ -281,8 +308,13 @@ export default function RequestServices() {
                                     <Button onClick={onReset}>
                                         Resetear
                                     </Button>
-                                    <Button type="primary" htmlType="submit" style={{ marginLeft: 8 }} disabled={isSubmitting}>
-                                        Enviar
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        style={{ marginLeft: 8 }}
+                                        loading={isSubmitting || isEmailSending} // Shows loading spinner when submitting or email is sending
+                                    >
+                                        {isSubmitting || isEmailSending ? "Enviando..." : "Enviar"}
                                     </Button>
                                 </Col>
                             </Row>
