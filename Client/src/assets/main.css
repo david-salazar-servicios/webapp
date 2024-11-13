@@ -527,27 +527,21 @@ footer ul.menu-list li a:hover {
   background: none;
   /* Remove background color */
 }
-
-.why-us .img-bg {
-  min-height: 350px;
-  background-size: cover;
+.whyUsItem h3 {
+  display: inline-block;
+  border-bottom: 2px solid #fff; /* Customize the color and thickness */
+  padding-bottom: 4px; /* Adjust spacing between text and underline */
 }
-
 .why-us .slides {
   background-color: transparent;
   /* Make slides container transparent */
 }
 
-.why-us h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-secondary);
-}
 
 .why-us h4 {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 400;
-  color: #29486a;
+  color: #ff8e00;
   font-family: var(--font-secondary);
 }
 
@@ -557,7 +551,9 @@ footer ul.menu-list li a:hover {
   background-color: transparent;
   /* Make swiper container transparent */
 }
-
+.swiper-pagination-bullet{
+  background-color: #ff8e00;
+}
 .why-us .swiper-button-prev:after,
 .why-us .swiper-button-next:after {
   font-size: 24px;
@@ -580,7 +576,6 @@ footer ul.menu-list li a:hover {
   background-color: transparent;
   /* Make each slide transparent */
 }
-
 
 .experiance-section {
   position: relative;
@@ -2522,3 +2517,35 @@ footer ul.menu-list li a:hover {
 .selected-row {
   background-color: #98bdf2 !important;
 }
+
+#cta {
+  width: 100vw; /* Full viewport width */
+  overflow: hidden;
+  padding: 60px 0; /* Keeps vertical padding */
+  position: relative;
+  margin-left: calc(50% - 50vw); /* Ensures section covers from left edge to right */
+}
+
+#cta::before {
+  content: ""; /* Pseudo-element for the background */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw; /* Full viewport width */
+  height: 100%; /* Full height of the section */
+  z-index: -1; /* Places the background behind content */
+}
+
+.cta .container {
+  max-width: 100%; /* Container spans full width */
+  width: 100vw; /* Container width to match viewport */
+  margin: 0 auto; /* Centering content horizontally */
+  padding: 0 20px; /* Padding to prevent content from touching edges */
+}
+
+.cta h3, .cta p {
+  color: #fff;
+  position: relative; /* Ensures text is positioned above the background */
+  z-index: 1;
+}
+

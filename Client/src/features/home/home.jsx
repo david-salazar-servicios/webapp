@@ -136,8 +136,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <CardServices />
       <WhyUs />
+      <CardServices />
+
     </motion.div>
   );
 }
