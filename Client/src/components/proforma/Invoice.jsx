@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Table, Checkbox, Input, Button, Space, Card, Select, message } from 'antd';
 import { useGetSolicitudesQuery, useGetSolicitudByIdQuery } from '../../features/RequestService/RequestServiceApiSlice';
@@ -36,20 +37,40 @@ export default function Invoice() {
     };
 
 
-    const handleAddProduct = (products) => {
-        const newSelectedProducts = [...selectedProducts];
-        products.forEach((product) => {
-            if (!newSelectedProducts.some((p) => p.codigo_producto === product.codigo_producto)) {
-                newSelectedProducts.push({ ...product, cantidad: 1 });
-            }
+    const updateSelectedProducts = (products, deselectedProducts = []) => {
+        setSelectedProducts((prevSelectedProducts) => {
+            const filteredProducts = prevSelectedProducts.filter(
+                (prevProduct) =>
+                    !deselectedProducts.some(
+                        (deselected) =>
+                            deselected.codigo_producto === prevProduct.codigo_producto &&
+                            deselected.inventarioId === prevProduct.inventarioId
+                    )
+            );
+
+            const newProducts = products.filter(
+                (np) =>
+                    !filteredProducts.some(
+                        (p) => p.codigo_producto === np.codigo_producto && p.inventarioId === np.inventarioId
+                    )
+            );
+
+            return [...filteredProducts, ...newProducts];
         });
-        setSelectedProducts(newSelectedProducts);
-        setShowCatalog(false);
     };
 
-    const handleDeleteProduct = (index) => {
-        setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
+    
+
+    const handleDeleteProduct = (product) => {
+        setSelectedProducts((prev) =>
+            prev.filter(
+                (p) =>
+                    p.codigo_producto !== product.codigo_producto ||
+                    p.inventarioId !== product.inventarioId // Ensures only the specific inventory product is deleted
+            )
+        );
     };
+
 
     const columns_servicio = [
         {
@@ -81,16 +102,17 @@ export default function Invoice() {
         { title: 'L', render: (_, __, index) => index + 1 },
         { title: 'COD', dataIndex: 'codigo_producto' },
         { title: 'DESCRIPCIÓN', dataIndex: 'nombre_producto' },
+        { title: 'Inventario', dataIndex: 'inventoryName' },
         {
             title: 'CANT.',
             render: (_, record, index) => (
                 <Input
                     type="number"
                     min={1}
-                    value={record.cantidad}
+                    value={record.cantidad || 1}
                     onChange={(e) => {
                         const updatedProducts = [...selectedProducts];
-                        updatedProducts[index].cantidad = e.target.value;
+                        updatedProducts[index].cantidad = parseInt(e.target.value, 10);
                         setSelectedProducts(updatedProducts);
                     }}
                     style={{
@@ -105,19 +127,48 @@ export default function Invoice() {
             ),
         },
         { title: 'Unidad Medida', dataIndex: 'unidad_medida' },
-        { title: 'PRECIO', dataIndex: 'precio_costo' },
-        { title: 'PRECIO VENTA', dataIndex: 'precio_venta' },
+        {
+            title: 'PRECIO',
+            dataIndex: 'precio_venta',
+            render: (text) => <span>₡ {text}</span>
+        },
+        {
+            title: 'EXCEDENTE',
+            render: (_, record) => {
+                const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
+                return <span>₡ {excedente.toFixed(2)}</span>;
+            },
+        },
+        {
+            title: 'I.V 13%',
+            render: (_, record) => {
+                const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
+                const impuesto = excedente * 0.13;
+                return <span>₡ {impuesto.toFixed(2)}</span>;
+            },
+        },
+        {
+            title: 'TOTAL',
+            render: (_, record) => {
+                const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
+                const impuesto = excedente * 0.13;
+                const total = excedente + impuesto;
+                return <span>₡ {total.toFixed(2)}</span>;
+            },
+        },
         {
             title: 'Acciones',
-            render: (_, __, index) => (
+            render: (_, record) => (
                 <Button
                     danger
                     icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteProduct(index)}
+                    onClick={() => handleDeleteProduct(record)}
                 />
             ),
         },
     ];
+
+
 
     const todayDate = new Date();
     const formattedDate = `${todayDate.getDate().toString().padStart(2, '0')}-${(todayDate.getMonth() + 1)
@@ -127,6 +178,15 @@ export default function Invoice() {
     if (isSolicitudesLoading) return <p>Loading solicitudes...</p>;
     if (isSolicitudesError) return <p>Error loading solicitudes</p>;
 
+
+    // Calculate totals
+    const sumExcedente = selectedProducts.reduce((sum, product) => {
+        const excedente = (product.precio_venta || 0) * (product.cantidad || 0);
+        return sum + excedente;
+    }, 0);
+
+    const sumIV = sumExcedente * 0.13;
+    const totalWithIV = sumExcedente + sumIV;
     return (
         <div className="invoice-1 invoice-wrapper">
             <div className="invoice-container container">
@@ -277,10 +337,7 @@ export default function Invoice() {
                 {/* Detalle Proforma */}
                 <Card className="mb-4" title="Detalle Proforma">
                     <Space style={{ marginBottom: 16 }}>
-                        <Button
-                            type="primary"
-                            onClick={() => setShowCatalog(true)}
-                        >
+                        <Button type="primary" onClick={() => setShowCatalog(true)}>
                             Abrir Catálogo
                         </Button>
                     </Space>
@@ -288,51 +345,111 @@ export default function Invoice() {
                     <Table
                         dataSource={selectedProducts}
                         columns={columns_proforma}
-                        pagination={false}
-                        rowKey="codigo_producto"
+                        pagination={false} // Disable pagination
+                        rowKey={(record) => `${record.codigo_producto}-${record.inventarioId}`} // Unique key
+                        style={{ marginBottom: 0 }} // Removes any potential margin at the bottom
                     />
+
 
                     {/* Modal for Producto Catalog */}
                     <CatalogoDialog
-                    visible={showCatalog}
-                    onHide={() => setShowCatalog(false)}
-                    onSelectProduct={handleAddProduct}
-                    selectedProducts={selectedProducts} // Pass the selected products
-                />
+                        visible={showCatalog}
+                        onHide={() => setShowCatalog(false)}
+                        onSelectProduct={updateSelectedProducts}
+                        selectedProducts={selectedProducts}
+                    />
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '16px' }}>
+                        {/* Notas Card */}
+                        <Card
+                            className="mb-4"
+                            title="Notas"
+                            style={{ flex: '1 1 45%', maxWidth: '100%' }}
+                        >
+                            <textarea
+                                placeholder="Escribe tus notas aquí..."
+                                style={{
+                                    width: '100%',
+                                    height: '35px',
+                                    border: '1px solid #d9d9d9',
+                                    borderRadius: '4px',
+                                    padding: '8px'
+                                }}
+                            />
+                        </Card>
+
+                        {/* Totales Card in row format */}
+                        <Card
+                            className="mb-4"
+                            title="TOTALES"
+                            style={{
+                                flex: '1 1 45%',
+                                maxWidth: '100%',
+                                height: '120px', // Fixed height
+                                overflow: 'hidden' // Prevent overflow to maintain fixed height
+                            }}
+                            headStyle={{ backgroundColor: '#fafafa' }}
+                        >
+                            <div className="totals-container" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '100%' }}>
+                                <div><strong>SUBTOTAL:</strong> ₡ {sumExcedente.toFixed(2)}</div>
+                                <div><strong>I.V 13%:</strong> ₡ {sumIV.toFixed(2)}</div>
+                                <div><strong>TOTAL:</strong> ₡ {totalWithIV.toFixed(2)}</div>
+                            </div>
+                        </Card>
+                    </div>
                 </Card>
 
+
+
+
+
+
                 <Card className="mb-4" title="Cuentas Bancarias">
-    {isCuentasIbanLoading ? (
-        <p>Loading cuentas bancarias...</p>
-    ) : (
-        <>
-            <table className="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>IBAN</th>
-                        <th>Banco</th>
-                        <th>Moneda</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {cuentasIban.map((cuenta) => (
-                        <tr key={cuenta.id_cuenta}>
-                            <td><strong>{cuenta.id_iban}</strong></td>
-                            <td>{cuenta.tipobanco}</td>
-                            <td>{cuenta.moneda}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="sinpe-movil-info mt-3" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-    <h5>SINPEMOVIL:</h5>
-    <h5 style={{ fontSize: '18px' }}><strong>88206326</strong> - Mariela Mejías M</h5>
-</div>
+                    {isCuentasIbanLoading ? (
+                        <p>Loading cuentas bancarias...</p>
+                    ) : (
+                        <>
+                            <table className="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>IBAN</th>
+                                        <th>Banco</th>
+                                        <th>Moneda</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {cuentasIban.map((cuenta) => (
+                                        <tr key={cuenta.id_cuenta}>
+                                            <td><strong>{cuenta.id_iban}</strong></td>
+                                            <td>{cuenta.tipobanco}</td>
+                                            <td>{cuenta.moneda}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <div className="sinpe-movil-info mt-3" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <h5>SINPEMOVIL:</h5>
+                                <h5 style={{ fontSize: '18px' }}><strong>88206326</strong> - Mariela Mejías M</h5>
+                            </div>
 
-        </>
-    )}
-</Card>
+                        </>
+                    )}
+                </Card>
 
+                <footer style={{ marginTop: '20px', padding: '10px', borderTop: '1px solid #d9d9d9', fontSize: '14px', color: '#555' }}>
+                    <p>
+                        Venta y entrega de materiales solo de contado o hecho efectivo el pago en nuestra cuenta,
+                        entrega de materiales de 1 a 4 días hábiles de lunes a viernes de 08:00 AM a 05:00 PM.
+                    </p>
+                    <p>
+                        Devolución de materiales no electrónicos tiene un cargo del 10% sobre el monto cancelado,
+                        NO se recibe el material usado.
+                    </p>
+                    <p>Materiales electrónicos no aceptamos devoluciones solo por
+                        defecto de fábrica dentro de la garantía.
+                    </p>
+                    <p>Instalación de sistemas de riego u otros trabajos sujeto a mutuo acuerdo para ingresar al proyecto.</p>
+                </footer>
 
                 {/* Buttons Section */}
                 <div className="text-center mt-4">
@@ -343,7 +460,9 @@ export default function Invoice() {
                         <i className="fa fa-download"></i> Descargar Factura
                     </button>
                 </div>
+
             </div>
         </div>
     );
 }
+
