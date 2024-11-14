@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import { motion, useAnimation } from 'framer-motion';
+import { Card, Row, Col, Button } from 'antd';
+import { useInView } from 'react-intersection-observer';
+const { Meta } = Card;
 
 const profiles = [
   "https://www.facebook.com/profile.php?id=100037466996673",
@@ -13,113 +16,78 @@ const profiles = [
   "https://www.facebook.com/profile.php?id=61550671803224",
 ];
 
-const Novedades = () => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [transitioning, setTransitioning] = useState(false);
-  const [isInteracting, setIsInteracting] = useState(false);
-  const intervalRef = useRef(null);
-
-  const changePage = (newPage) => {
-    setTransitioning(true);
-    setTimeout(() => {
-      setCurrentPage(newPage);
-      setTransitioning(false);
-    }, 500); // Match this duration with the CSS transition duration
-  };
-
-  const nextProfile = () => {
-    changePage((currentPage + 1) % profiles.length);
-  };
-
-  const prevProfile = () => {
-    changePage((currentPage - 1 + profiles.length) % profiles.length);
-  };
-
-  // Define the animation variants
-  const boxVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0 },
-    fromLeftToCenter: { opacity: 1, x: [-300, 0] }, // Move from left to center
-  };
+const ServiceCard = ({ profile, index }) => {
+  const controls = useAnimation();
+  const [ref, inView] = useInView({ triggerOnce: false });
 
   useEffect(() => {
-    if (!isInteracting) {
-      intervalRef.current = setInterval(() => {
-        nextProfile();
-      }, 7000); // Change page every 7 seconds
+    if (inView) {
+      controls.start({ opacity: 1, y: 0, transition: { duration: 0.5 } });
+    } else {
+      controls.start({ opacity: 0, y: 50 });
     }
+  }, [controls, inView]);
 
-    return () => clearInterval(intervalRef.current); // Clean up on unmount or if isInteracting changes
-  }, [currentPage, isInteracting]); // Only re-run effect if currentPage or isInteracting changes
-
-  const handleMouseEnter = () => {
-    setIsInteracting(true);
-    clearInterval(intervalRef.current);
+  const handleButtonClick = () => {
+    window.open(profile, '_blank');
   };
 
-  const handleMouseLeave = () => {
-    setIsInteracting(false);
-  };
-
-  const handleTouchStart = (e) => {
-    // Allow scrolling when touching the screen
-    if (e.targetTouches.length === 1) {
-      setIsInteracting(true);
-      clearInterval(intervalRef.current);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsInteracting(false);
-  };
   return (
-    <motion.div initial="hidden" animate="visible" variants={boxVariants}>
-      <section className="news-section">
-        <div className="text-container">
-          <div className="content-column col-lg-12 col-md-12 col-sm-12">
-            <div className="title-box">
-              <h2>Novedades en nuestras Redes</h2>
-            </div>
-            <div className="description">
-              En esta sección, compartimos las últimas novedades y actualizaciones publicadas por nuestra empresa en nuestras redes sociales.
-              Mantente al tanto de nuestras actividades, proyectos, y noticias relevantes visitando nuestras páginas oficiales en Facebook. <br /><br />
-              ¡No te pierdas ninguna de nuestras actualizaciones!
-            </div>
-          </div>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={controls}
+    >
+      <Card
+        hoverable
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+        cover={
+          <iframe
+            src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(profile)}&tabs=timeline&width=800&height=300&small_header=false&adapt_container_width=true&hide_cover=true&show_facepile=true&appId&locale=es_ES`}
+            width="100%"
+            height="300"
+            style={{ border: 'none', overflow: 'hidden' }}
+            allowFullScreen={true}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          />
+        }
+      >
+
+        <div className="text-center mt-2">
+          <Button className="btn btn-info btn-block d-flex justify-content-center  btn-animated-border " onClick={handleButtonClick}
+            style={{
+              fontSize: '0.85em',
+              width: '100%',
+            }}>
+            Ver Más
+          </Button>
         </div>
-        <div
-          className="container-news"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className={`fade-enter ${transitioning ? 'fade-exit-active' : 'fade-enter-active'}`}>
-            <iframe
-              src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(profiles[currentPage])}&tabs=timeline&width=340&height=500&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId&locale=es_ES`}
-              width="340"
-              height="500"
-              style={{ border: 'none', overflow: 'hidden' }}
-              allowFullScreen={true}
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-            </iframe>
-          </div>
-          <ul className="pagination">
-            <li>
-              <button onClick={prevProfile} disabled={currentPage === 0}>Ant.</button>
-            </li>
-            {profiles.map((_, index) => (
-              <li key={index} className={index === currentPage ? 'active' : ''}>
-                <button onClick={() => changePage(index)}>{index + 1}</button>
-              </li>
-            ))}
-            <li>
-              <button onClick={nextProfile} disabled={currentPage === profiles.length - 1}>Sig.</button>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </Card>
     </motion.div>
+  );
+};
+
+const Novedades = () => {
+  return (
+    <section className="news-section light">
+      <div className="container py-4">
+        <div className="section-title text-center">
+          <h2 className="h2-title">Novedades en Redes</h2>
+          <p>
+            En esta sección, compartimos las últimas novedades y actualizaciones publicadas por nuestra empresa en nuestras redes sociales.
+            Mantente al tanto de nuestras actividades, proyectos, y noticias relevantes visitando nuestras páginas oficiales en Facebook.
+            ¡No te pierdas ninguna de nuestras actualizaciones!
+          </p>
+        </div>
+        <Row gutter={[16, 16]} justify="center">
+          {profiles.map((profile, index) => (
+            <Col xs={24} sm={12} md={8} key={index}>
+              <ServiceCard profile={profile} index={index} />
+            </Col>
+          ))}
+        </Row>
+      </div>
+    </section>
   );
 };
 

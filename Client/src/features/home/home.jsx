@@ -9,7 +9,6 @@ import WhyUs from '../../components/WhyUs';
 
 export default function Home() {
   const auth = useAuth() || {}; // Provide a default value for useAuth in case it's undefined
-  const { username = null } = auth; // Destructure username with a default value to prevent TypeError
 
   // Define the animation variants
   const boxVariants = {

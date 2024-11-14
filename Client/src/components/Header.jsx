@@ -1,17 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Toast } from 'primereact/toast';
 import CarouselHeader from './home/CarouselHeader';
 import { Menubar } from 'primereact/menubar';
 import { useGetServicesQuery } from '../features/services/ServicesApiSlice';
 import { useGetCategoriasQuery } from '../features/categorias/CategoriasApiSlice';
 import { motion } from 'framer-motion';
-import { Space, Spin, Badge } from 'antd';
+import { Space, Spin, Card } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
-import { OverlayPanel } from 'primereact/overlaypanel';
 import { Button } from 'primereact/button';
 
 const Loader = () => {
@@ -43,13 +41,70 @@ const Loader = () => {
 export default function Header() {
   const navigate = useNavigate(); // Use navigate for redirect
   const op = useRef(null);
-  const toast = useRef(null);
   const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
+  const [showNotification, setShowNotification] = useState(false);
 
   const updateServicesFromStorage = () => {
     const storedServices = JSON.parse(localStorage.getItem('serviceRequests')) || [];
     setUpdatedServicesDetails(storedServices);
+    setShowNotification(storedServices.length > 0);
   };
+
+
+
+  useEffect(() => {
+    updateServicesFromStorage();
+
+    const handleStorageChange = () => updateServicesFromStorage();
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+
+
+  const renderTableContent = () => (
+    updatedServicesDetails.length > 0 ? (
+      <DataTable
+        value={updatedServicesDetails}
+        selectionMode="single"
+        rows={5}
+        style={{ fontSize: '0.90em'}}
+        className="compact-paginator"
+      >
+        <Column
+          field="nombre"
+          header="Nombre"
+          sortable
+          style={{ minWidth: '10rem', padding: '0.5rem 0.5rem'}}
+        />
+        <Column
+          body={(rowData) => (
+            <Button
+              style={{
+                backgroundColor: 'transparent',
+                border: '1px solid white',
+                boxShadow: 'none',
+                color: 'black',
+                borderRadius: '10px',
+                padding: '0.2rem',
+                fontSize: '1em',
+              }}
+              icon={<DeleteOutlined style={{ fontSize: '1em' }} />}
+              type="link"
+              className="text-danger shadow-sm"
+              onClick={() => handleDelete(rowData.id_servicio)}
+            />
+          )}
+          header="Eliminar"
+          style={{ minWidth: '6rem', padding: '0.5rem' }}
+        />
+      </DataTable>
+    ) : (
+      <div style={{ fontSize: '0.85em' }}>No hay servicios para mostrar</div>
+    )
+  );
 
   useEffect(() => {
 
@@ -62,12 +117,14 @@ export default function Header() {
     window.addEventListener('serviceUpdated', handleServiceUpdated);
 
     return () => {
-        window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('serviceUpdated', handleServiceUpdated);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('serviceUpdated', handleServiceUpdated);
     };
-}, []);
-const handleDelete = (id_servicio) => {
-  try {
+  }, []);
+
+
+  const handleDelete = (id_servicio) => {
+    try {
       let serviceRequests = JSON.parse(localStorage.getItem('serviceRequests')) || [];
       serviceRequests = serviceRequests.filter(service => service.id_servicio !== id_servicio);
       localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
@@ -75,18 +132,17 @@ const handleDelete = (id_servicio) => {
       // Dispatch an event to notify all components of the service deletion
       const event = new Event('serviceUpdated');
       window.dispatchEvent(event);
-
+      setShowNotification(serviceRequests.length > 0);
       // Show a success message
-      toast.current.show({ severity: 'success', summary: 'Éxito', detail: 'El servicio ha sido eliminado correctamente', life: 3000 });
-  } catch (error) {
+    } catch (error) {
       toast.current.show({ severity: 'error', summary: 'Error', detail: 'Error al eliminar el servicio', life: 3000 });
-  }
-};
-
+    }
+  };
   const handleConfirmarPedido = () => {
     // Redirect to /Proceso_Solicitud when the button is clicked
     navigate('/Proceso_Solicitud');
   };
+
 
   useEffect(() => {
     updateServicesFromStorage();
@@ -101,6 +157,7 @@ const handleDelete = (id_servicio) => {
       window.removeEventListener('serviceAdded', handleServiceAdded);
     };
   }, []);
+
 
   const { data: servicesResponse, isLoading: isLoadingServices, isError: isErrorServices, error: errorServices } = useGetServicesQuery();
   const { data: categoriesResponse, isLoading: isLoadingCategories, isError: isErrorCategories, error: errorCategories } = useGetCategoriasQuery();
@@ -159,6 +216,45 @@ const handleDelete = (id_servicio) => {
 
   return (
     <div className="header-container">
+      {showNotification && (
+        <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 1000, width: '400px' }}>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="cardNotification" type="inner"
+              style={{ width: '100%', position: 'relative', overflow: 'hidden' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center'}}>
+                <i className="pi pi-cart-plus" style={{ fontSize: '1rem', marginRight: '0.5rem', color:'#003F7D', marginBottom:"10px" }} />
+                <h6 style={{color:'#003F7D'}}>Servicios Solicitados</h6>
+              </div>
+
+              <div className="line"></div>
+              <div className="line"></div>
+              <div className="line"></div>
+              <div className="line"></div>
+              <div className="line"></div>
+              <div className="line"></div>
+
+              {renderTableContent()}
+
+              <Button
+                className="btn btn-primary btn-block d-flex justify-content-center mt-2"
+                onClick={handleConfirmarPedido}
+                style={{
+                  fontSize: '0.85em',
+                  padding: '0.3rem 0.6rem',
+                  width: '100%',
+                }}
+              >
+                Confirmar Pedido
+              </Button>
+            </Card>
+          </motion.div>
+        </div>
+      )}
       <div className="site-navbar-wrap">
         <motion.div
           className="site-navbar-top container py-3"
@@ -196,51 +292,9 @@ const handleDelete = (id_servicio) => {
           >
             <div className="menubar-with-cart">
               <Menubar model={menuItems} className="custom-menubar" />
-              <div className="cart-container">
-                <Button icon="pi pi-shopping-cart" style={{ backgroundColor: "#FF8E03", borderRadius: "10px", border: "2px solid #FF8E03" }} onClick={(e) => op.current.toggle(e)} />
-                <Badge count={updatedServicesDetails?.length || 0} overflowCount={99} style={{ backgroundColor: '#52c41a' }}>
-                  <OverlayPanel ref={op} showCloseIcon id="overlay_panel" style={{ width: '450px', zIndex: 1000, position: 'relative' }}>
-                    <Toast ref={toast} />
-                    {(updatedServicesDetails && updatedServicesDetails.length > 0) ? (
-                      <>
-                        <DataTable value={updatedServicesDetails} selectionMode="single" paginator rows={5}>
-                          <Column field="nombre" header="Nombre" sortable style={{ minWidth: '12rem' }} />
-                          <Column
-                            body={(rowData) => (
-                              <Button
-                                shape="circle"
-                                style={{
-                                  backgroundColor: 'transparent',
-                                  border: '1px solid white',
-                                  boxShadow: 'none',
-                                  color: "black",
-                                  borderRadius: '10px'
-                                }}
-                                icon={<DeleteOutlined />}
-                                type="link"
-                                className="text-danger shadow-sm"
-                                onClick={() => handleDelete(rowData.id_servicio)}
-                              />
-                            )}
-                            header="Acciones"
-                            style={{ minWidth: '8rem' }}
-                          />
-                        </DataTable>
-
-                        {/* Confirmar Pedido button */}
-                        <Button
-                          label="Confirmar Pedido"
-                          icon="pi pi-check"
-                          className="p-button-success mt-3"
-                          onClick={handleConfirmarPedido}
-                        />
-                      </>
-                    ) : (
-                      <div>No hay servicios para mostrar</div>
-                    )}
-                  </OverlayPanel>
-                </Badge>
+              <div className="cart-container" style={{ position: 'relative' }}>
               </div>
+
             </div>
           </motion.div>
         </div>

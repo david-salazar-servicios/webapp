@@ -1,30 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import moment from "moment";
+import { Calendar, dayjsLocalizer, momentLocalizer } from "react-big-calendar";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Modal, Spin, Alert, Input, Card, Typography, List, Row, Col } from 'antd';
+import dayjs from "dayjs"
+import moment from "moment";
+import 'moment/locale/es'; // Import Spanish locale for moment
+import { Modal, Spin, Alert, Input, Card, Typography, List, Row, Col, Tag } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
-import { useGetAllCitasQuery } from "../../features/cita/CitaApiSlice";
-import { useGetSolicitudByIdQuery } from "../../features/RequestService/RequestServiceApiSlice";
+import { useGetSolicitudesQuery, useGetSolicitudByIdQuery } from "../../features/RequestService/RequestServiceApiSlice";
+import "dayjs/locale/es"
 
 const { Text, Title } = Typography;
-const localizer = momentLocalizer(moment);
+const localizer = dayjsLocalizer(dayjs);
+dayjs.locale("es")
 
 const ProcessCalendar = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeStatusFilter, setActiveStatusFilter] = useState("All");
 
-  // Fetch citas and solicitud details
-  const { data: citas, isLoading: isCitasLoading, isError: isCitasError, refetch: refetchCitas } = useGetAllCitasQuery();
+  const { data: solicitudes, isLoading, isError, refetch } = useGetSolicitudesQuery();
   const { data: solicitudDetails, isLoading: isSolicitudDetailsLoading, isError: isSolicitudDetailsError } = useGetSolicitudByIdQuery(selectedEvent?.solicitudId, {
     skip: !selectedEvent
   });
 
-  // Refetch citas whenever the component is rendered
   useEffect(() => {
-    refetchCitas();
-  }, [refetchCitas]);
+    refetch();
+  }, [refetch]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -35,35 +37,127 @@ const ProcessCalendar = () => {
     setModalVisible(false);
   };
 
-  // Filter events based on search term
-  const events = citas
-    ?.filter(cita => cita.estado === 'En Agenda')
-    .filter(cita =>
-      cita.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cita.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cita.id_solicitud.toString().includes(searchTerm)
-    )
-    .map(cita => ({
-      title: `Solicitud ${cita.id_solicitud} - ${cita.nombre || 'Sin nombre'} ${cita.apellido || 'Sin apellido'}`,
-      start: new Date(cita.datetime),
-      end: new Date(cita.datetime), // Only one time
-      desc: `Estado: ${cita.estado}`,
-      solicitudId: cita.id_solicitud,
-      tecnicoId: cita.id_tecnico,
-      tecnicoNombre: cita.tecnico_nombre,
-      tecnicoApellido: cita.tecnico_apellido
-    }))
+  const handleStatusFilterClick = (status) => {
+    setActiveStatusFilter(status);
+  };
 
-  if (isCitasLoading) {
+  const getStatusTagColor = (status) => {
+    switch (status) {
+      case 'En Agenda':
+        return 'blue';
+      case 'Confirmada':
+        return 'green';
+      case 'Rechazada':
+        return 'red';
+      default:
+        return 'default';
+    }
+  };
+
+  const filteredEvents = solicitudes
+    ?.filter(solicitud =>
+      solicitud.estado !== 'Pendiente' &&
+      (activeStatusFilter === "All" || solicitud.estado === activeStatusFilter) &&
+      (solicitud.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        solicitud.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        solicitud.id_solicitud.toString().includes(searchTerm))
+    )
+    .map(solicitud => ({
+      title: `Solicitud ${solicitud.id_solicitud} - ${solicitud.nombre || 'Sin nombre'} ${solicitud.apellido || 'Sin apellido'}`,
+      start: new Date(solicitud.fecha_creacion),
+      end: new Date(solicitud.fecha_creacion),
+      desc: `Estado: ${solicitud.estado}`,
+      solicitudId: solicitud.id_solicitud,
+      estado: solicitud.estado,
+      nombre: solicitud.nombre,
+      apellido: solicitud.apellido,
+      correo: solicitud.correo_electronico,
+      telefono: solicitud.telefono,
+      observacion: solicitud.observacion,
+    }));
+
+  const eventStyleGetter = (event) => {
+    let backgroundColor;
+    switch (event.estado) {
+      case 'En Agenda':
+        backgroundColor = '#0EA5E9';
+        break;
+      case 'Confirmada':
+        backgroundColor = '#22C55E';
+        break;
+      case 'Rechazada':
+        backgroundColor = '#FF4D4F';
+        break;
+      default:
+        backgroundColor = '#3182ce';
+    }
+    return {
+      style: { backgroundColor }
+    };
+  };
+
+  if (isLoading) {
     return <Spin size="large" />;
   }
 
-  if (isCitasError) {
+  if (isError) {
     return <Alert message="Error loading data" type="error" />;
   }
 
   return (
     <div style={{ height: "100%", padding: '20px' }}>
+      {/* Status Filter Tags */}
+      <div style={{ marginBottom: '1rem' }}>
+        <Tag
+          color="default"
+          onClick={() => handleStatusFilterClick("All")}
+          style={{
+            cursor: 'pointer',
+            fontSize: '16px',
+            padding: '8px 16px',
+            borderRadius: '8px'
+          }}
+        >
+          Todos
+        </Tag>
+        <Tag
+          color={getStatusTagColor("En Agenda")}
+          onClick={() => handleStatusFilterClick("En Agenda")}
+          style={{
+            cursor: 'pointer',
+            fontSize: '16px',
+            padding: '8px 16px',
+            borderRadius: '8px'
+          }}
+        >
+          En Agenda
+        </Tag>
+        <Tag
+          color={getStatusTagColor("Confirmada")}
+          onClick={() => handleStatusFilterClick("Confirmada")}
+          style={{
+            cursor: 'pointer',
+            fontSize: '16px',
+            padding: '8px 16px',
+            borderRadius: '8px'
+          }}
+        >
+          Confirmada
+        </Tag>
+        <Tag
+          color={getStatusTagColor("Rechazada")}
+          onClick={() => handleStatusFilterClick("Rechazada")}
+          style={{
+            cursor: 'pointer',
+            fontSize: '16px',
+            padding: '8px 16px',
+            borderRadius: '8px'
+          }}
+        >
+          Rechazada
+        </Tag>
+      </div>
+
       <Input
         type="text"
         placeholder="Buscar solicitud..."
@@ -80,28 +174,44 @@ const ProcessCalendar = () => {
 
       <Calendar
         localizer={localizer}
-        events={events}
+        events={filteredEvents}
         startAccessor="start"
         endAccessor="end"
         defaultView='month'
         views={['month', 'week', 'day', 'agenda']}
         onSelectEvent={handleEventClick}
         style={{ height: 600, backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}
-        components={{
-          event: ({ event }) => (
-            <span>{`Solicitud ${event.solicitudId} - ${event.tecnicoNombre} ${event.tecnicoApellido}`}</span>
-          ),
-        }}
-        formats={{
-          timeGutterFormat: 'h:mm A', // Only shows one time in the gutter
-          eventTimeRangeFormat: ({ start }) => moment(start).format('h:mm A'), // Custom format for event time
+        eventPropGetter={eventStyleGetter}
+        messages={{
+          date: 'Fecha',
+          time: 'Hora',
+          event: 'Evento',
+          allDay: 'Todo el día',
+          week: 'Semana',
+          work_week: 'Semana laboral',
+          day: 'Día',
+          month: 'Mes',
+          previous: 'Anterior',
+          next: 'Siguiente',
+          yesterday: 'Ayer',
+          tomorrow: 'Mañana',
+          today: 'Hoy',
+          agenda: 'Agenda',
+          noEventsInRange: 'No hay eventos en este rango.',
+          showMore: (total) => `+ Ver más (${total})`
         }}
       />
 
-      {/* Modal for displaying solicitud details */}
       {selectedEvent && (
         <Modal
-          title={<Title level={4}>{selectedEvent.title}</Title>}
+          title={
+            <div>
+              <Tag color={getStatusTagColor(selectedEvent.estado)}>{selectedEvent.estado}</Tag>
+              <Title level={4} style={{ display: 'inline', marginLeft: '10px' }}>
+                {selectedEvent.title}
+              </Title>
+            </div>
+          }
           open={modalVisible}
           onOk={closeModal}
           onCancel={closeModal}
@@ -130,13 +240,12 @@ const ProcessCalendar = () => {
                   </Col>
                   <Col span={12}>
                     <Text strong>Técnico: </Text>
-                    <Text>{selectedEvent.tecnicoNombre} {selectedEvent.tecnicoApellido || 'Desconocido'}</Text>
+                    <Text>{selectedEvent.nombre} {selectedEvent.apellido || 'Desconocido'}</Text>
                   </Col>
                   <Col span={12}>
                     <Text strong>Dirección: </Text>
                     <Text>{solicitudDetails?.direccion}</Text>
                   </Col>
-
                   <Col span={12}>
                     <Text strong>Teléfono Fijo: </Text>
                     <Text>{solicitudDetails?.telefono_fijo}</Text>
@@ -145,7 +254,6 @@ const ProcessCalendar = () => {
                     <Text strong>Teléfono Móvil: </Text>
                     <Text>{solicitudDetails?.telefono}</Text>
                   </Col>
-
                   <Col span={12}>
                     <Text strong>Fecha Cita: </Text>
                     <Text>{moment(solicitudDetails?.fecha_preferencia).format('YYYY-MM-DD HH:mm')}</Text>
@@ -154,7 +262,6 @@ const ProcessCalendar = () => {
                     <Text strong>Observación: </Text>
                     <Text>{solicitudDetails?.observacion || 'Ninguna'}</Text>
                   </Col>
-
                 </Row>
               </Card>
 
