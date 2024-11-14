@@ -1276,36 +1276,23 @@ footer ul.menu-list li a:hover {
   flex: 1;
 }
 
-.container-news {
-  position: relative;
-  max-width: 680px;
-  /* Adjust this value as needed */
-  margin: 0 auto;
-  flex: 1;
-  margin-right: 20px;
-  /* Center the container */
-  padding: 20px;
-  background: #f5f6f7ce;
-  /* White background */
-  border-radius: 50px;
-  /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 63, 125, 0.3);
-  /* Subtle shadow */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .news-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  position: relative;
-  padding-top: 150px;
-  flex: 0 0 340px;
-  /* Fixed width for the news container */
+  padding: 20px;
 }
 
+.section-title {
+  margin-bottom: 40px;
+}
+
+.container-news .card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+.card-grid .col-md-6 {
+  margin-bottom: 20px;
+}
 @media (max-width: 768px) {
   .news-section {
     flex-direction: column;
@@ -1321,7 +1308,6 @@ footer ul.menu-list li a:hover {
     width: 100%;
   }
 }
-
 .pagination {
   position: relative;
   height: 50px;
@@ -2518,34 +2504,164 @@ footer ul.menu-list li a:hover {
   background-color: #98bdf2 !important;
 }
 
-#cta {
-  width: 100vw; /* Full viewport width */
-  overflow: hidden;
-  padding: 60px 0; /* Keeps vertical padding */
+
+
+
+
+.ant-notification-notice{
   position: relative;
-  margin-left: calc(50% - 50vw); /* Ensures section covers from left edge to right */
+  margin-top: 80  px;
+  margin-inline-start: auto;
+  background: #f5f3f3f1;
+  border-radius: 8px;
+  }
+
+  /* Apply compact style to paginator */
+.compact-paginator .p-paginator {
+  font-size: 0.75em; /* Reduce font size */
+  padding: 0.2rem 0.4rem; /* Compact padding */
 }
 
-#cta::before {
-  content: ""; /* Pseudo-element for the background */
+.compact-paginator .p-paginator .p-paginator-pages .p-paginator-page,
+.compact-paginator .p-paginator .p-paginator-next,
+.compact-paginator .p-paginator .p-paginator-prev {
+  padding: 0.2rem 0.4rem; /* Reduce padding in paginator buttons */
+  margin: 0 0.1rem; /* Adjust margin between buttons */
+}
+
+.compact-paginator .p-paginator .p-paginator-current {
+  padding: 0.2rem 0.4rem;
+}
+
+.whyUsItem h3{
+  color: white;
+}
+
+.cardNotification {
+  border: solid rgba(255, 255, 255, 0.3) 1px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 10px;
+  color: #69ca62; /* Main color */
+  background-color: #F3F4F6;
+}
+
+.cardNotification::before,
+.cardNotification::after {
+  content: '';
+  position: absolute;
+  border: 2px solid #ff8100; /* Border color */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  animation: borderAnimation 4s linear infinite;
+}
+
+.cardNotification::after {
+  animation-delay: 0s; /* Half cycle delay for staggered effect */
+}
+
+@keyframes borderAnimation {
+  0%, 100% {
+    clip-path: inset(0 0 100% 0); /* Start from top border */
+  }
+  25% {
+    clip-path: inset(0 0 0 100%); /* Move to right border */
+  }
+  50% {
+    clip-path: inset(100% 0 0 0); /* Move to bottom border */
+  }
+  75% {
+    clip-path: inset(0 100% 0 0); /* Move to left border */
+  }
+}
+
+.project-item {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3; /* Cambia el ratio según tus necesidades (por ejemplo, 16/9) */
+}
+
+.project-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+.project-item:hover .project-img {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.overlay {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100vw; /* Full viewport width */
-  height: 100%; /* Full height of the section */
-  z-index: -1; /* Places the background behind content */
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+  border-radius: 8px;
 }
 
-.cta .container {
-  max-width: 100%; /* Container spans full width */
-  width: 100vw; /* Container width to match viewport */
-  margin: 0 auto; /* Centering content horizontally */
-  padding: 0 20px; /* Padding to prevent content from touching edges */
+.project-item:hover .overlay {
+  opacity: 1;
 }
 
-.cta h3, .cta p {
+.overlay-title {
   color: #fff;
-  position: relative; /* Ensures text is positioned above the background */
-  z-index: 1;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
 }
 
+
+.btn-animated-border {
+  position: relative;
+  overflow: hidden;
+  color: #fff; /* Color del texto */
+  border-radius: 4px; /* Ajusta según el estilo del botón */
+  padding: 10px;
+}
+
+.btn-animated-border::before,
+.btn-animated-border::after {
+  content: '';
+  position: absolute;
+  border: 2px solid white; /* Color del borde animado */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  animation: borderAnimation 4s linear infinite;
+  pointer-events: none; /* Evita interferir con clics en el botón */
+  border: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+  mask: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+.btn-animated-border::after {
+  animation-delay: 0s; /* Sincronización de la animación */
+}
+
+@keyframes borderAnimation {
+  0%, 100% {
+    clip-path: inset(0 0 100% 0); /* Start from top border */
+  }
+  25% {
+    clip-path: inset(0 0 0 100%); /* Move to right border */
+  }
+  50% {
+    clip-path: inset(100% 0 0 0); /* Move to bottom border */
+  }
+  75% {
+    clip-path: inset(0 100% 0 0); /* Move to left border */
+  }
+}

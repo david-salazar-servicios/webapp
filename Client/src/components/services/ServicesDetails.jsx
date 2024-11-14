@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Accordion } from 'react-bootstrap';
 import { useGetServiceByIdQuery } from '../../features/services/ServicesApiSlice';
-import { Button, Skeleton, Tag, Timeline, Card } from 'antd';
+import { Button, Skeleton, Tag, Timeline, Card, Row, Col } from 'antd';
 import { Toast } from 'primereact/toast';
 import ServicesCarousel from './ServicesCarousel';
 import { CheckCircleOutlined } from '@ant-design/icons';
@@ -15,6 +15,7 @@ export default function ServicesDetails() {
 
   const [activeKeys, setActiveKeys] = useState(['0', '1']);
   const [selectedOffers, setSelectedOffers] = useState([]);
+  const [isRequestConfirmed, setIsRequestConfirmed] = useState(false);
 
   useEffect(() => {
     const savedOffers = JSON.parse(localStorage.getItem(`selectedOffers_${serviceId}`)) || [];
@@ -33,7 +34,7 @@ export default function ServicesDetails() {
           serviceRequests.push({ id_servicio: serviceId, nombre: service.nombre, selectedOffers });
           localStorage.setItem('serviceRequests', JSON.stringify(serviceRequests));
           window.dispatchEvent(new Event('serviceAdded'));
-          toast.current.show({ severity: 'success', summary: 'Servicio agregado', detail: 'El servicio ha sido agregado a la lista de solicitudes correctamente', life: 2000 });
+          setIsRequestConfirmed(true); // Disable button after request is confirmed
         }
       } catch (error) {
         toast.current.show({ severity: 'error', summary: 'Error al agregar servicio', detail: `No se ha podido agregar el servicio: ${error.message}`, life: 2000 });
@@ -81,14 +82,15 @@ export default function ServicesDetails() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Left Card - Accordion with Categories */}
-            <div className="col-6 p-2">
+            <Row gutter={[16, 16]}>
 
+              {/* Left Column - Accordion with Categories */}
+              <Col xs={24} md={12} className="p-2">
                 <div className="content pb-3">
                   <h3><strong>{service?.nombre}</strong></h3>
                 </div>
                 <div className="accordion-list mb-5">
-                  <Toast ref={toast} />
+                  <Toast ref={toast} position="top-left" />
                   <Accordion defaultActiveKey={activeKeys} activeKey={activeKeys} alwaysOpen>
                     <Accordion.Item eventKey="0">
                       <Accordion.Header onClick={() => handleAccordionClick('0')}>¿Qué es este servicio?</Accordion.Header>
@@ -116,49 +118,53 @@ export default function ServicesDetails() {
                     </Accordion.Item>
                   </Accordion>
                 </div>
-            </div>
+              </Col>
 
-            {/* Right Card - Carousel and Button */}
-            <div className="col-6 p-2">
-              
-              <Card
-                style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", padding: "20px", marginTop:"75px", borderRadius: "12px" }}
-              >
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                  {service?.categorias.map(categoria => (
-                    <Tag
-                      key={categoria.nombre}
-                      style={{
-                        padding: "10px 20px 10px",
-                        fontSize: "16px",
-                        borderRadius: "12px",
-                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "#eaffea",
-                        color: "#52c41a",
-                        marginBottom:"20px",
-                      }}
-                      icon={<CheckCircleOutlined />}
-                    >
-                      {categoria.nombre}
-                    </Tag>
-                  ))}
-                </div>
-                <ServicesCarousel images={service?.imagenes} />
-                <div className="text-right pt-5">
+              {/* Right Column - Carousel and Button */}
+              <Col xs={24} md={12} className="p-2">
+                <Card
+                  style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", padding: "20px", marginTop: "75px", borderRadius: "12px" }}
+                >
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {service?.categorias.map(categoria => (
+                      <Tag
+                        key={categoria.nombre}
+                        style={{
+                          padding: "10px 20px 10px",
+                          fontSize: "16px",
+                          borderRadius: "12px",
+                          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          backgroundColor: "#eaffea",
+                          color: "#52c41a",
+                          marginBottom: "20px",
+                        }}
+                        icon={<CheckCircleOutlined />}
+                      >
+                        {categoria.nombre}
+                      </Tag>
+                    ))}
+                  </div>
+                  <ServicesCarousel images={service?.imagenes} />
+
                   <Button
-                    type="primary"
-                    size="large"
+                    className="btn btn-info btn-block d-flex justify-content-center mt-5 btn-animated-border pt-2"
                     onClick={handleServiceRequest}
                     disabled={selectedOffers.length === 0}
+                    style={{
+                      fontSize: '0.85em',
+                      padding: '0.3rem 0.6rem',
+                      width: '100%',
+                    }}
                   >
                     Solicitar Servicio
                   </Button>
-                </div>
-              </Card>
-            </div>
+
+                </Card>
+              </Col>
+            </Row>
           </motion.div>
         )}
       </div>
