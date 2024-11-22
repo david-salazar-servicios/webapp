@@ -6,28 +6,56 @@ const fetch = require('node-fetch'); // Importar node-fetch
 // @access Private
 const getAllServicios = async (req, res) => {
     try {
-        // Execute the SQL query to fetch all services
-        var queryResult = (await pool.query('SELECT * FROM Servicios'));
-        var queryIdServiceCategoria = (await pool.query('SELECT * FROM servicio_categoria'));
-        // Extract the service data from the query result
-        // Return the list of services
-        
-        servicios = queryResult.rows
-        categorias= queryIdServiceCategoria.rows
+        // Ejecutar las consultas SQL para obtener servicios y categorías
+        const queryResult = await pool.query('SELECT * FROM Servicios');
+        const queryIdServiceCategoria = await pool.query('SELECT * FROM servicio_categoria');
 
-        const finalServiceList =({
-            servicios,    
-            categorias
-        })
-        
+        // Obtener servicios y categorías de las consultas
+        const servicios = queryResult.rows;
+        const categorias = queryIdServiceCategoria.rows;
+
+        // Crear una lista separada para las ofertas
+        const offers = await Promise.all(
+            servicios.map(async (servicio) => {
+                try {
+                    const offerResponse = await fetch(servicio.id_ofrecemos, {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'application/json',
+                        },
+                    });
+
+                    const offerData = await offerResponse.json();
+
+                    // Agregar la oferta a la lista de ofertas
+                    return {
+                        id_servicio: servicio.id_servicio,
+                        offerData, // Incluye los datos obtenidos
+                    };
+                } catch (error) {
+                    console.error(`Error fetching offers for service ${servicio.id_servicio}:`, error);
+                    // Si ocurre un error, agrega una entrada con un indicador de error
+                    return {
+                        id_servicio: servicio.id_servicio,
+                        offerData: null,
+                    };
+                }
+            })
+        );
+
+        // Construir la lista final
+        const finalServiceList = {
+            servicios,  // Lista de servicios
+            categorias, // Lista de categorías
+            offers,     // Lista separada de ofertas
+        };
+
+        // Enviar la respuesta final
         res.json(finalServiceList);
-
     } catch (error) {
         console.error("Error retrieving services:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-
-
 };
 
 // @desc Create a new service

@@ -14,23 +14,20 @@ const ServicesCarousel = ({ images }) => {
   };
 
   return (
-    <Slider {...settings}>
-      {images.map((image, index) => (
-        <div key={index}>
-          <img
-            src={image.link}
-            alt={`Slide ${index}`}
-            className="d-block w-100"
-            style={{
-              height: '500px',
-              objectFit: 'cover',
-              borderRadius: '15px' // Add border-radius here
-            }}
-            referrerPolicy="no-referrer"
-          />
-        </div>
-      ))}
-    </Slider>
+    <div className="services-carousel">
+      <Slider {...settings}>
+        {images.map((image, index) => (
+          <div key={index}>
+            <img
+              src={image.link}
+              alt={`Slide ${index}`}
+              className="carousel-image"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        ))}
+      </Slider>
+    </div>
   );
 };
 

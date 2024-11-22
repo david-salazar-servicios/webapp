@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import useAuth from "../../hooks/useAuth";
-import CarouselHeader from '../../components/home/CarouselHeader';
 import CardServices from '../../components/services/CardServices';
 import experienceImage from '../../assets/images/Logo-removebg-preview.png';
 import WhyUs from '../../components/WhyUs';

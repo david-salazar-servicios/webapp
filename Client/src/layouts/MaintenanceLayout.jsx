@@ -1,55 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useSendLogoutMutation } from '../features/auth/authApiSlice';
 import { useGetSolicitudesQuery } from '../features/RequestService/RequestServiceApiSlice';
 import {
-    CheckCircleOutlined,
     PieChartOutlined,
-    HomeOutlined,
     UserAddOutlined,
+    UserOutlined,
     SettingOutlined,
     FormOutlined,
     LoginOutlined,
     UserSwitchOutlined,
     CalendarOutlined
 } from '@ant-design/icons';
-import { Layout, Menu, Modal, List, Badge, Card, Typography, Row, Col } from 'antd';
-import io from 'socket.io-client';
-import { format } from 'date-fns';
+import { Layout, Menu, Badge, Typography } from 'antd';
 import useAuth from '../hooks/useAuth';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const { Content, Sider } = Layout;
 
 const MaintenanceLayout = () => {
     const [collapsed, setCollapsed] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [notificationData, setNotificationData] = useState({});
     const navigate = useNavigate();
     const [sendLogout] = useSendLogoutMutation();
-    const socketRef = useRef(null);
-    const { data: solicitudes, refetch } = useGetSolicitudesQuery();
-    
+    const { data: solicitudes } = useGetSolicitudesQuery();
+
     // Get the logged-in user details
-    const { username } = useAuth(); // Get username from useAuth hook
+    const { username } = useAuth();
 
-    const pendientesCount = solicitudes ? solicitudes.filter(solicitud => solicitud.estado === 'Pendiente').length : 0;
-
-    useEffect(() => {
-        socketRef.current = io('http://localhost:3000', { withCredentials: true });
-
-        socketRef.current.on('solicitudCreada', (data) => {
-            setNotificationData(data);
-            setModalVisible(true);
-            refetch();
-        });
-
-        return () => {
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-        };
-    }, [refetch]);
+    const pendientesCount = solicitudes
+        ? solicitudes.filter((solicitud) => solicitud.estado === 'Pendiente').length
+        : 0;
 
     const handleSubmit = async () => {
         try {
@@ -58,18 +38,6 @@ const MaintenanceLayout = () => {
         } catch (err) {
             console.error('Logout failed: ', err);
         }
-    };
-
-    const formatFechaCreacion = (fecha) => {
-        if (fecha) {
-            try {
-                return format(new Date(fecha), 'yyyy-MM-dd HH:mm');
-            } catch (e) {
-                console.error('Invalid date value:', e);
-                return 'Invalid date';
-            }
-        }
-        return 'No date';
     };
 
     const items = [
@@ -81,7 +49,7 @@ const MaintenanceLayout = () => {
                     <Badge
                         count={pendientesCount}
                         style={{ backgroundColor: '#52c41a', marginLeft: 10 }}
-                        size='small'
+                        size="small"
                     />
                 </div>
             ),
@@ -89,9 +57,8 @@ const MaintenanceLayout = () => {
             icon: <UserAddOutlined />
         },
         { label: 'Gestion Inventario', key: 'mantenimiento/GestionInventario', icon: <FormOutlined /> },
-        { label: 'Proforma', key: 'mantenimiento/facturacion', icon: <FormOutlined /> },
+        { label: 'Proformas', key: 'mantenimiento/proformas', icon: <FormOutlined /> },
         { label: 'Reportes', key: 'mantenimiento/reportes', icon: <PieChartOutlined /> },
-        
         {
             label: 'Mantenimiento',
             key: 'sub1',
@@ -105,11 +72,9 @@ const MaintenanceLayout = () => {
                 { label: 'Cuentas IBAN', key: 'mantenimiento/cuentaiban' }
             ]
         },
-        
         { label: 'Perfiles', key: 'mantenimiento/perfiles', icon: <UserAddOutlined /> },
-        
         { label: 'Cambiar a Cliente', key: '', icon: <UserSwitchOutlined /> },
-        { label: 'Salir', key: 'logout', icon: <LoginOutlined /> },
+        { label: 'Salir', key: 'logout', icon: <LoginOutlined /> }
     ];
 
     const onMenuClick = ({ key }) => {
@@ -121,13 +86,21 @@ const MaintenanceLayout = () => {
     };
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider className='maintSlider' collapsible collapsed={collapsed} onCollapse={setCollapsed}>
-                <div className="demo-logo-vertical" />
-                
-                {/* Display Username */}
-                <div style={{ padding: '20px', color: 'white', textAlign: 'center' }}>
-                    <Text style={{color:"white"}}strong>Bienvenido, {username || 'Guest'}</Text>
+        <Layout style={{ minHeight: '100vh' }} className="maintenance-layout">
+            <Sider
+                className="maint-slider"
+                collapsible
+                collapsed={collapsed}
+                onCollapse={setCollapsed}
+                breakpoint="md"
+            >
+                <div className="username-display" style={{ display: 'flex', alignItems: 'center', padding: '16px' }}>
+                    <UserOutlined style={{ color: 'white', fontSize: '1.2rem' }} />
+                    {!collapsed && (
+                        <Text style={{ color: 'white', marginLeft: '8px' }} strong>
+                            Bienvenido {username || 'Guest'}
+                        </Text>
+                    )}
                 </div>
 
                 <Menu
@@ -139,36 +112,8 @@ const MaintenanceLayout = () => {
                 />
             </Sider>
             <Layout>
-                <Content style={{ padding: '20px' }}>
+                <Content style={{ padding: '20px' }} className="content-layout">
                     <Outlet />
-                    <Modal
-                        title={<Title level={3} style={{ marginBottom: 0 }}>Nueva Solicitud Creada</Title>}
-                        open={modalVisible}
-                        onOk={() => setModalVisible(false)}
-                        onCancel={() => setModalVisible(false)}
-                        footer={null}
-                        bodyStyle={{ padding: '20px' }}
-                        width={850}
-                    >
-                        {/* Card for Solicitud Information */}
-                        <Card
-                            title={<Title level={4}>Información de la Solicitud</Title>}
-                            bordered={false}
-                            style={{ marginBottom: '20px', backgroundColor: '#f6f9fc', borderRadius: '8px' }}
-                        >
-                            <Row gutter={[16, 16]}>
-                                <Col span={12}>
-                                    <Text strong>ID Solicitud: </Text>
-                                    <Text>{notificationData.solicitud?.id_solicitud}</Text>
-                                </Col>
-                                <Col span={12}>
-                                    <Text strong>Nombre: </Text>
-                                    <Text>{notificationData.solicitud?.nombre}</Text>
-                                </Col>
-                                {/* Other fields */}
-                            </Row>
-                        </Card>
-                    </Modal>
                 </Content>
             </Layout>
         </Layout>
