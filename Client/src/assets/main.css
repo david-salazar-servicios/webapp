@@ -773,85 +773,90 @@ footer ul.menu-list li a:hover {
 }
 
 /* Global Accordion Styles */
-.serviceDetail {
-  padding: 30px;
 
+/*Categorias Tags*/
+.responsive-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
+.responsive-tags .tag {
+  flex: 1 1 auto; /* Ajuste dinámico según el contenido */
+  max-width: 200px; /* Limitar el ancho máximo */
+  min-width: 100px; /* Ancho mínimo */
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #eaffea;
+  color: #52c41a;
+  text-align: center;
+  white-space: nowrap; /* Evitar que el texto se divida */
+}
+
+/* Opcional: Ajustes adicionales para pantallas pequeñas */
+@media (max-width: 768px) {
+  .responsive-tags .tag {
+    max-width: 150px; /* Reducir el ancho máximo en pantallas medianas */
+  }
+}
+
+@media (max-width: 480px) {
+  .responsive-tags .tag {
+    max-width: 100%; /* Ocupa todo el ancho en pantallas muy pequeñas */
+  }
+}
+
+
+
+/*ServiceDetail*/
+
+.serviceDetail {
+  padding: 30px;
+}
+
+/* Encabezado y texto de contenido */
 .serviceDetail .content h3 {
   font-weight: 600;
   font-size: 30px;
-  /* Adjust based on your preference */
   color: #333;
-  /* Darker for better readability */
 }
 
 .serviceDetail .content p {
   font-size: 16px;
   color: #666;
-  /* Softer color for the body text */
 }
 
+/* Estilos para el acordeón */
 .serviceDetail .accordion-list .accordionItem {
   border-bottom: 2px solid #e7e7e7;
-  /* Light grey border for each item */
 }
 
 .serviceDetail .accordion-list .accordionHeader {
   background-color: transparent;
-  /* Clear any background */
   color: #333;
-  /* Match header text color to your design */
   font-size: 18px;
-  /* Slightly larger for readability */
   line-height: 1.5;
-  /* Better line spacing */
   font-family: "Poppins", sans-serif;
-  /* Maintain font consistency */
   display: flex;
-  /* Use flexbox for alignment */
   align-items: center;
-  /* Center items vertically */
   position: relative;
-  /* Needed for absolute positioning of the icon */
 }
 
 .serviceDetail .accordion-list .accordionHeader span {
   margin-right: 20px;
-  /* Push everything else to the right */
   color: #47b2e4;
-  /* Your primary color */
   font-weight: 600;
 }
 
-/* Rotate icon when accordion item is open */
+/* Rotación del icono cuando el acordeón está abierto */
 .serviceDetail .accordion-list .accordionItem.show .bx {
   transform: rotate(180deg);
-  /* Flip icon to indicate collapse */
 }
 
-/* Adjustments for smaller screens */
-@media (max-width: 768px) {
-
-  .serviceDetail .content,
-  .serviceDetail .accordion-list {
-    padding: 20px;
-    /* Less padding on smaller screens */
-  }
-}
-
-@media (max-width: 575px) {
-  .serviceDetail .img {
-    min-height: 250px;
-    /* Adjust background image size on small devices */
-  }
-
-  .serviceDetail .content h3 {
-    font-size: 24px;
-    /* Smaller font size for headings */
-  }
-}
-
+/* Estilos de botón dentro del acordeón */
 .serviceDetail .accordion-list .accordionItem button {
   padding: 20px;
   background: #fff;
@@ -859,15 +864,124 @@ footer ul.menu-list li a:hover {
 }
 
 .serviceDetail .accordion-list .accordionItem button:focus {
-
   display: none;
+}
 
+.tag-class {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #eaffea;
+  color: #52c41a;
+  margin: 5px; /* For better responsiveness */
+}
+
+@media (max-width: 768px) {
+  .services-carousel img {
+    max-height: 300px !important; /* Reduce la imagen en pantallas pequeñas */
+  }
+
+  .p-2 {
+    padding: 5px !important;
+  }
+
+  .btn-animated-border {
+    font-size: 0.8em;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .tag-class {
+    font-size: 12px;
+  }
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .serviceDetail {
+      padding: 20px;
+    }
+
+  .serviceDetail .content h3 {
+    font-size: 26px;
+  }
+
+  .serviceDetail .accordion-list .accordionHeader {
+    font-size: 16px;
+    padding: 15px 10px;
+  }
+}
+
+@media (max-width: 575px) {
+  .serviceDetail {
+    padding: 15px;
+  }
+
+  .serviceDetail .img {
+    min-height: 200px; /* Ajusta el tamaño de la imagen para pantallas pequeñas */
+  }
+
+  .serviceDetail .content h3 {
+    font-size: 22px; /* Reducción del tamaño de la fuente en encabezados */
+  }
+
+  .serviceDetail .content p {
+    font-size: 14px; /* Texto de párrafo más pequeño */
+  }
+
+  .serviceDetail .accordion-list .accordionHeader {
+    font-size: 15px;
+    padding: 10px 5px;
+  }
+
+  .serviceDetail .accordion-list .accordionHeader span {
+    margin-right: 10px;
+  }
 }
 
 .serviceDetail .content h3 {
   font-weight: 400;
   font-size: 34px;
   color: #37517e;
+}
+
+/*ServiceDetail*/
+
+/*carousel services*/
+/*carousel services*/
+.services-carousel {
+  width: 100%;
+  max-width: 800px; /* Máximo tamaño en pantallas grandes */
+  margin: 0 auto; /* Centrar el carrusel */
+  transition: margin-top 0.3s ease; /* Transición suave al cambiar resoluciones */
+}
+
+.carousel-image {
+  width: 100%; /* Asegurar que la imagen llene el contenedor */
+  height: 500px; /* Mantener un tamaño fijo para todas las imágenes */
+  border-radius: 15px; /* Opcional: bordes redondeados */
+  object-fit: cover; /* Recortar las imágenes mientras mantiene su proporción */
+}
+
+/* Media queries para pantallas medianas */
+@media (max-width: 768px) {
+  .services-carousel {
+    max-width: 100%; /* Ancho completo en pantallas más pequeñas */
+    padding: 0 15px; /* Añadir un poco de espacio lateral opcional */
+    margin-top: 50px; /* Mover el carrusel hacia abajo */
+  }
+
+  .carousel-image {
+    height: 500px; /* Mantener la altura en resoluciones medianas */
+  }
+}
+
+/* Media queries para pantallas pequeñas */
+@media (max-width: 480px) {
+
+  .carousel-image {
+    height: 550px; /* Ajustar la altura en pantallas pequeñas */
+  }
 }
 
 .background-radial-gradient {
@@ -970,19 +1084,76 @@ footer ul.menu-list li a:hover {
 .site-navbar-wrap .social-icons a:hover {
   background-color: #ff8e00;
 }
+
+/*MENU BAR*/
+
 .menubar-with-cart {
   display: flex;
-  justify-content: center; /* Centers the menubar and cart horizontally */
   align-items: center;
-  width: 100%; /* Ensure it takes full width */
-}
-/* Header.css */
-.custom-menubar {
-  background: transparent;
-  border: none;
-  color: white;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Ensures content wraps on smaller screens */
+  padding: 10px;
+  gap: 10px;
 }
 
+.custom-menubar {
+  display: flex;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  flex: 1; /* Take up available space */
+  min-width: 200px; /* Ensure it doesn't get too small */
+}
+
+.cart-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+.custom-menubar .p-menubar-root-list {
+  background-color: rgb(255, 255, 255) !important;
+  border-radius: 50px;
+  padding: 10px 30px;
+}
+/* For smaller screens */
+@media (max-width: 768px) {
+  .menubar-with-cart {
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start;
+  }
+
+  .custom-menubar {
+    width: 100%; /* Full width on small screens */
+    margin-bottom: 10px;
+    font-size: 14px; /* Reduce font size */
+    padding: 8px; /* Add padding for smaller buttons */
+  }
+
+  .cart-container {
+    width: 100%; /* Align cart to the end */
+    justify-content: flex-start;
+  }
+}
+
+/* For extra-small screens */
+@media (max-width: 480px) {
+  .menubar-with-cart {
+    padding: 5px;
+  }
+
+  .custom-menubar {
+    width: 90%; /* Slightly reduce the width */
+    margin: 0 auto; /* Center it */
+    font-size: 12px; /* Further reduce font size */
+    padding: 6px; /* Add smaller padding */
+  }
+
+  .custom-menubar .menu-item {
+    padding: 4px 8px; /* Reduce padding inside menu items */
+  }
+}
 .custom-menubar .p-menubar-root-list>.p-menuitem {
   color: white;
 }
@@ -1013,6 +1184,8 @@ footer ul.menu-list li a:hover {
   /* Adjust size as needed */
 }
 
+/*MENU BAR*/
+
 .site-navbar-top {
   display: flex;
   justify-content: space-between;
@@ -1034,18 +1207,7 @@ footer ul.menu-list li a:hover {
   margin-left: 3px;
 }
 
-.custom-menubar {
-  display: flex;
-  justify-content: center;
-  background-color: transparent;
-  border: none;
-}
 
-.custom-menubar .p-menubar-root-list {
-  background-color: rgb(255, 255, 255) !important;
-  border-radius: 50px;
-  padding: 10px 30px;
-}
 
 @media (max-width: 992px) {
   .custom-menubar .p-menubar-root-list {
@@ -1064,17 +1226,7 @@ footer ul.menu-list li a:hover {
   /* ensures the background covers the full height of the outlet */
 }
 
-/* Custom styles for the Menubar component */
-.custom-menubar .p-menubar-root-list>.p-menuitem>.p-submenu-list>.p-menuitem>.p-submenu-list {
-  width: 300px;
-  /* Adjust this value as needed */
-}
 
-/* Custom styles for the Menubar component */
-.custom-menubar .p-menubar-root-list>.p-menuitem>.p-submenu-list>.p-menuitem>.p-submenu-list {
-  width: 300px;
-  /* Adjust this value as needed */
-}
 
 .loader-container {
   display: flex;
@@ -2579,6 +2731,27 @@ footer ul.menu-list li a:hover {
   }
 }
 
+@media (max-width: 768px) {
+  .cardNotification {
+    height: auto;
+    padding: 10px;
+  }
+
+  .cardNotification .line, .cardNotification .btn {
+    display: none; /* Oculta líneas y botón Confirmar Pedido por defecto */
+  }
+}
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 63, 125, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 63, 125, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 63, 125, 0);
+  }
+}
 .project-item {
   position: relative;
   overflow: hidden;
@@ -2665,3 +2838,240 @@ footer ul.menu-list li a:hover {
     clip-path: inset(0 100% 0 0); /* Move to left border */
   }
 }
+
+.buttonCart::before,
+.buttonCart::after {
+  content: '';
+  position: absolute;
+  border: 2px solid white; /* Color del borde animado */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  border-radius: 10px;
+  animation: borderAnimation 1s linear infinite;
+  pointer-events: none; /* Evita interferir con clics en el botón */
+  border: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+  mask: linear-gradient(90deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+}
+
+/* General Layout */
+.ant-layout-content {
+  display: flex;
+  flex-direction: column;
+  background-image: url('./images/bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Sider Responsiveness */
+.maint-slider {
+  transition: width 0.3s ease-in-out;
+}
+
+.username-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+  text-align: center;
+}
+
+/* Content Layout Responsiveness */
+.content-layout {
+  padding: 16px;
+}
+
+/* Modal Responsiveness */
+@media (max-width: 768px) {
+  .modal-layout {
+      width: 90% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .username-display {
+      flex-direction: column;
+  }
+
+  .username-display .anticon {
+      margin-bottom: 8px;
+  }
+}
+
+/* Clase personalizada para ancho amplio del modal */
+.custom-wide-modal .ant-modal-content {
+  width: 90%; /* Ocupa el 90% del ancho de la pantalla */
+  max-width: 1400px; /* Máximo ancho para pantallas grandes */
+  margin: auto; /* Centrado horizontal */
+  border-radius: 12px; /* Esquinas redondeadas */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
+}
+
+/* Ajustar el padding del contenido interno */
+.custom-wide-modal .ant-modal-body {
+  padding: 0;
+}
+
+/* Encabezado personalizado para títulos */
+.custom-wide-modal h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #05579E; /* Color azul personalizado */
+  margin-bottom: 20px;
+}
+
+/* Responsividad: Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+  .custom-wide-modal .ant-modal-content {
+      width: 95%; /* Reduce ligeramente el ancho en pantallas pequeñas */
+      max-width: 95%; /* Sin límite de ancho fijo */
+  }
+  .custom-wide-modal h2 {
+      font-size: 1.5rem; /* Reducir el tamaño del texto en pantallas pequeñas */
+  }
+}
+
+/* Asegúrate de que el selector sea específico para evitar conflictos */
+.rbc-event-content {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff; /* Texto blanco */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 5px; /* Espaciado interno */
+  text-align: center; /* Centrar texto */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra */
+  overflow: hidden; /* Ocultar texto desbordado */
+  text-overflow: ellipsis; /* Añadir puntos suspensivos al texto largo */
+  white-space: nowrap; /* Evitar que el texto salte de línea */
+}
+
+.process-calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.filter-card,
+.calendar-card {
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.filter-tags {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.status-tag {
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px;
+  border: 1px solid #1890ff;
+  border-radius: 8px;
+}
+
+.username-display {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Asegura que el ícono esté centrado */
+  padding: 16px;
+}
+
+@media screen and (max-width: 768px) {
+  .elegant-table {
+      width: 100%;
+      font-size: 12px;
+  }
+
+  .p-datatable-scrollable-header-box,
+  .p-datatable-scrollable-body {
+      overflow-x: auto; /* Habilitar scroll horizontal */
+  }
+
+  .p-datatable-scrollable-body table {
+      min-width: 800px; /* Asegúrate de que las columnas tengan un ancho mínimo */
+  }
+}
+/* Add horizontal scrolling for small screens */
+@media (max-width: 768px) {
+  .responsive-calendar-container {
+    overflow-x: auto; /* Enable horizontal scrolling */
+    overflow-y: hidden; /* Prevent vertical scrolling */
+    display: block; /* Ensure the container is a block element */
+    white-space: nowrap; /* Prevent wrapping */
+    max-width: 100%; /* Limit width to fit the screen */
+  }
+  .responsive-calendar {
+    width: 1200px; /* Set a width large enough for full calendar display */
+  }
+}
+
+/* Contenedor principal */
+.services-form-container {
+  padding-top: 30px;
+  margin: 0 auto;
+}
+
+/* Estilo responsivo para la tarjeta */
+.responsive-card {
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+/* Contenedor del logo */
+.logo-container {
+  text-align: center;
+  padding-top: 20px;
+}
+
+/* Imagen responsiva */
+.responsive-logo {
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+/* Media queries para diferentes tamaños de pantalla */
+@media (max-width: 768px) {
+  .responsive-card {
+      max-width: 100%;
+      padding: 16px;
+  }
+
+  .logo-container {
+      padding-top: 10px;
+  }
+
+  .responsive-logo {
+      max-height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .responsive-card {
+      padding: 12px;
+  }
+
+  .responsive-logo {
+      max-height: 150px;
+  }
+}
+
+

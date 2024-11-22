@@ -32,7 +32,6 @@ import Catalogo from './components/Inventario/Catalogo'
 import Inventario from './components/Inventario/Inventario'
 import GestionInventario from './components/Inventario/GestionInventario'
 import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
-import Proforma from './components/proforma/Proforma';
 function App() {
     return (
         <div>
@@ -80,6 +79,7 @@ function App() {
                             <Route path="Inventario" element={<Inventario />} />
                             <Route path="cuentaiban" element={<CuentaIbanForm />} />
                             <Route path="GestionInventario" element={<GestionInventario />} />
+                            <Route path="CrearSolicitud" element={<CrearSolicitud />} />
                         </Route>
                     </Route>
 

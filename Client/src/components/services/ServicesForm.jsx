@@ -83,7 +83,8 @@ const ServicesForm = () => {
     if (error) return <p>Error al cargar las categorías</p>;
 
     return (
-        <Row gutter={[16, 16]} style={{ paddingTop: "30px" }}>
+        <div className="container mt-4">
+        <Row gutter={[16, 16]} style={{ paddingTop: '30px' }}>
             <Col xs={24} sm={24} md={12} lg={13}>
                 <Card title="Formulario de Servicios" bordered={false} style={{
                     maxWidth: '800px', marginTop: "30px",
@@ -150,12 +151,13 @@ const ServicesForm = () => {
                     </Form>
                 </Card>
             </Col>
-            <Col xs={24} sm={24} md={12} lg={8} xl={8}> {/* Column size for the image */}
-                <div className="text-center">
-                    <img src={image} alt="logo" style={{ maxWidth: '100%', height: 'auto' }} />
-                </div>
+            <Col xs={24} sm={24} md={12} lg={8} xl={8}>
+                    <div className="text-center">
+                        <img src={image} alt="logo" style={{ maxWidth: '100%', height: 'auto' }} />
+                    </div>
             </Col>
         </Row>
+        </div>
     );
 };
 

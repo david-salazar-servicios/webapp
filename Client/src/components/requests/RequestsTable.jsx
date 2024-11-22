@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect  } from 'react';
 import { useGetSolicitudesQuery, useUpdateSolicitudEstadoMutation } from '../../features/RequestService/RequestServiceApiSlice';
 import { useDeleteCitaMutation, useGetAllCitasQuery } from '../../features/cita/CitaApiSlice';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ProgressBar } from 'primereact/progressbar';
-import { Popconfirm } from 'antd';
+import { Popconfirm, Modal } from 'antd';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
@@ -26,6 +27,14 @@ export default function SolicitudesTable() {
     const [isUpdate, setIsUpdate] = useState(false);
     const dt = useRef(null);
     const toast = useRef(null);
+    const navigate = useNavigate();
+
+
+    // Refrescar datos cada vez que el componente se monte
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
+
 
     const solicitudes = data ? [...data].sort((a, b) => a.estado === 'Pendiente' ? -1 : 1) : [];
 
@@ -34,6 +43,7 @@ export default function SolicitudesTable() {
         setIsUpdate(isUpdate);
         setIsModalVisible(true);
     };
+
 
     const handleConfirm = (solicitud) => {
         const isUpdate = solicitud.estado === 'En Agenda';
@@ -199,6 +209,13 @@ export default function SolicitudesTable() {
                     className="p-button-help"
                     style={{ borderRadius: "10px", background: "#05579E", border: "1px solid #05579E" }}
                     onClick={() => dt.current.exportCSV()}
+                />
+                <Button
+                    label="Nueva Solicitud"
+                    icon="pi pi-plus"
+                    className="p-button-help"
+                    style={{ borderRadius: "10px", background: "#05579E", border: "1px solid #05579E", marginLeft: "10px" }}
+                    onClick={() => navigate('/mantenimiento/CrearSolicitud')}
                 />
             </Col>
         </Row>

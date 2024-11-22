@@ -5,12 +5,14 @@ import { Menubar } from 'primereact/menubar';
 import { useGetServicesQuery } from '../features/services/ServicesApiSlice';
 import { useGetCategoriasQuery } from '../features/categorias/CategoriasApiSlice';
 import { motion } from 'framer-motion';
-import { Space, Spin, Card } from 'antd';
+import { Space, Spin, Card, Badge } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { DeleteOutlined } from '@ant-design/icons';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
+import { ShoppingCartOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { Button } from 'primereact/button';
+import { useMediaQuery } from 'react-responsive'; // Importa el hook para media queries
 
 const Loader = () => {
   const [auto, setAuto] = useState(false);
@@ -41,15 +43,16 @@ const Loader = () => {
 export default function Header() {
   const navigate = useNavigate(); // Use navigate for redirect
   const op = useRef(null);
+  const isMobile = useMediaQuery({ maxWidth: 1500 });
   const [updatedServicesDetails, setUpdatedServicesDetails] = useState([]);
   const [showNotification, setShowNotification] = useState(false);
+
 
   const updateServicesFromStorage = () => {
     const storedServices = JSON.parse(localStorage.getItem('serviceRequests')) || [];
     setUpdatedServicesDetails(storedServices);
     setShowNotification(storedServices.length > 0);
   };
-
 
 
   useEffect(() => {
@@ -70,14 +73,14 @@ export default function Header() {
         value={updatedServicesDetails}
         selectionMode="single"
         rows={5}
-        style={{ fontSize: '0.90em'}}
+        style={{ fontSize: '0.90em' }}
         className="compact-paginator"
       >
         <Column
           field="nombre"
           header="Nombre"
           sortable
-          style={{ minWidth: '10rem', padding: '0.5rem 0.5rem'}}
+          style={{ minWidth: '10rem', padding: '0.5rem 0.5rem' }}
         />
         <Column
           body={(rowData) => (
@@ -217,41 +220,52 @@ export default function Header() {
   return (
     <div className="header-container">
       {showNotification && (
-        <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 1000, width: '400px' }}>
+        <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 1000 }}>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="cardNotification" type="inner"
-              style={{ width: '100%', position: 'relative', overflow: 'hidden' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center'}}>
-                <i className="pi pi-cart-plus" style={{ fontSize: '1rem', marginRight: '0.5rem', color:'#003F7D', marginBottom:"10px" }} />
-                <h6 style={{color:'#003F7D'}}>Servicios Solicitados</h6>
-              </div>
-
-              <div className="line"></div>
-              <div className="line"></div>
-              <div className="line"></div>
-              <div className="line"></div>
-              <div className="line"></div>
-              <div className="line"></div>
-
-              {renderTableContent()}
-
-              <Button
-                className="btn btn-primary btn-block d-flex justify-content-center mt-2"
-                onClick={handleConfirmarPedido}
+            {isMobile ? (
+                <></>
+            ) : (
+              // Modo de Pantalla Completa: muestra el Card completo
+              <Card
+                className="cardNotification"
+                type="inner"
                 style={{
-                  fontSize: '0.85em',
-                  padding: '0.3rem 0.6rem',
                   width: '100%',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'height 0.3s ease',
                 }}
               >
-                Confirmar Pedido
-              </Button>
-            </Card>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <ShoppingCartOutlined style={{ fontSize: '1rem', marginRight: '0.5rem', color: '#003F7D', marginBottom: '10px' }} />
+                    <h6 style={{ color: '#003F7D' }}>Servicios Solicitados</h6>
+                  </div>
+                </div>
+
+
+                <>
+                  {renderTableContent()}
+
+                  <Button
+                    className="btn btn-primary btn-block d-flex justify-content-center mt-2"
+                    onClick={handleConfirmarPedido}
+                    style={{
+                      fontSize: '0.85em',
+                      padding: '0.3rem 0.6rem',
+                      width: '100%',
+                    }}
+                  >
+                    Confirmar Pedido
+                  </Button>
+                </>
+
+              </Card>
+            )}
           </motion.div>
         </div>
       )}
@@ -282,6 +296,21 @@ export default function Header() {
             <a href="https://www.instagram.com/davidsalazar_cr" target='_blank'><i className="bi bi-instagram"></i></a>
             <a href="https://www.facebook.com/profile.php?id=100037466996673" target='_blank'><i className="bi bi-facebook"></i></a>
             <a href="https://www.facebook.com/profile.php?id=100011746801863&mibextid=2JQ9oc" target='_blank'><i className="bi bi-droplet"></i></a>
+            {showNotification && isMobile && (
+              <Badge count={updatedServicesDetails.length} offset={[0, 50]} style={{backgroundColor:'#05579E'}}>
+                <Button
+                  icon="pi pi-shopping-cart"
+                  className='buttonCart'
+                  style={{
+                    backgroundColor: "#05579E",
+                    borderRadius: "10px",
+                    top: '12px',  // Espacio entre el ícono y los demás
+                    marginLeft:'5px'
+                  }}
+                  onClick={handleConfirmarPedido}
+                />
+              </Badge>
+            )}
           </div>
         </motion.div>
         <div className="mt-3">

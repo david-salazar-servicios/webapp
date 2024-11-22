@@ -81,13 +81,29 @@ const getSolicitudById = async (req, res) => {
         // Fetch solicitud data
         const solicitudQuery = await pool.query('SELECT * FROM solicitud WHERE id_solicitud = $1', [solicitudId]);
         const solicitud = solicitudQuery.rows[0];
-        
+
+        if (!solicitud) {
+            return res.status(404).json({ message: "Solicitud not found" });
+        }
+
+        // Fetch related cita (optional for creation)
+        const citaQuery = await pool.query('SELECT * FROM cita WHERE id_solicitud = $1', [solicitudId]);
+        const cita = citaQuery.rows[0];
+
+        let tecnico = null;
+        if (cita) {
+            // Fetch tecnico details if cita exists
+            const tecnicoQuery = await pool.query('SELECT nombre, apellido FROM usuario WHERE id_usuario = $1', [cita.id_tecnico]);
+            tecnico = tecnicoQuery.rows[0];
+        }
+
         // Fetch servicios and their related detalles
         const detallesQuery = await pool.query(
             'SELECT ds.detalle, ds.id_servicio, s.nombre AS servicio_nombre ' +
             'FROM detallesolicitud ds ' +
             'JOIN servicios s ON ds.id_servicio = s.id_servicio ' +
-            'WHERE ds.id_solicitud = $1', [solicitudId]);
+            'WHERE ds.id_solicitud = $1', [solicitudId]
+        );
 
         const detalles = detallesQuery.rows;
 
@@ -95,7 +111,6 @@ const getSolicitudById = async (req, res) => {
         const groupedServicios = detalles.reduce((acc, detalle) => {
             const { id_servicio, servicio_nombre, detalle: detalleTexto } = detalle;
 
-            // Check if the service already exists in the accumulator
             if (!acc[id_servicio]) {
                 acc[id_servicio] = {
                     id_servicio,
@@ -104,18 +119,17 @@ const getSolicitudById = async (req, res) => {
                 };
             }
 
-            // Add the detalle to the corresponding servicio
             acc[id_servicio].detalles.push(detalleTexto);
 
             return acc;
         }, {});
 
-        // Convert the groupedServicios object to an array
         const serviciosArray = Object.values(groupedServicios);
 
-        // Respond with the solicitud data along with grouped servicios and their detalles
+        // Respond with the solicitud data
         res.json({
             ...solicitud,
+            tecnico: tecnico ? { nombre: tecnico.nombre, apellido: tecnico.apellido } : null,
             servicios: serviciosArray
         });
     } catch (error) {
@@ -123,8 +137,6 @@ const getSolicitudById = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
-
-
 
 const updateSolicitudEstado = async (req, res) => {
     const { solicitudId } = req.params;
