@@ -15,19 +15,37 @@ const CatalogoDialog = ({ visible, onHide, onSelectProduct, selectedProducts }) 
     const [deselectedProducts, setDeselectedProducts] = useState([]);
     
     useEffect(() => {
-        const initialSelectionMap = {};
-        selectedProducts.forEach((product) => {
-            const { codigo_producto, inventarioId, cantidad } = product;
-            if (!initialSelectionMap[inventarioId]) {
-                initialSelectionMap[inventarioId] = [];
-            }
-            initialSelectionMap[inventarioId].push({ codigo_producto, cantidad });
-        });
-        setInventarioSelectionMap(initialSelectionMap);
-        setDeselectedProducts([]);
-    }, [selectedProducts]);
+        if (visible) {
+            const initialSelectionMap = {};
+            const inventoriesInvolved = new Set(); // To track unique inventories
     
-
+            selectedProducts.forEach((product) => {
+                const { codigo_producto, inventarioId, cantidad } = product;
+                inventoriesInvolved.add(inventarioId); // Add inventory ID to the set
+                if (!initialSelectionMap[inventarioId]) {
+                    initialSelectionMap[inventarioId] = [];
+                }
+                initialSelectionMap[inventarioId].push({ codigo_producto, cantidad });
+            });
+    
+            setInventarioSelectionMap(initialSelectionMap);
+    
+            // Determine if multiple inventories are involved
+            if (inventoriesInvolved.size > 1) {
+                setIsMultiInventariosEnabled(true); // Enable Multi-Inventories mode
+                setActiveInventario(null); // No single inventory is "active"
+            } else {
+                // Single inventory mode: set the first inventory as active
+                setIsMultiInventariosEnabled(false);
+                setActiveInventario([...inventoriesInvolved][0] || null); // Get the only inventory ID or null
+            }
+    
+            setDeselectedProducts([]); // Reset deselected products
+        }
+    }, [visible, selectedProducts]);
+    
+    
+    
     const onGlobalFilterChange = (e) => setGlobalFilterValue(e.target.value);
 
     const toggleMultiInventarios = () => {

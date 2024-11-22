@@ -27,11 +27,12 @@ import Privacidad from './components/privacidad/privacidad';
 import Proyectos from './components/proyectos/proyectos';
 import Novedades from './components/novedades/novedades';
 import ScrollToTop from './components/ScrollToTop';
-import Invoice from './components/proforma/Invoice';
+import ProformasTable from './components/proforma/ProformasTable';
 import Catalogo from './components/Inventario/Catalogo'
 import Inventario from './components/Inventario/Inventario'
 import GestionInventario from './components/Inventario/GestionInventario'
 import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
+import Proforma from './components/proforma/Proforma';
 function App() {
     return (
         <div>
@@ -72,7 +73,9 @@ function App() {
                             <Route path="categorias" element={<Categories />} />
                             <Route path="perfiles" element={<Users />} />
                             <Route path="roles" element={<Roles />} />
-                            <Route path="facturacion" element={<Invoice />} />
+                            <Route path="proformas" element={<ProformasTable />} />
+                            <Route path="proformas/create" element={<Proforma />} />
+                            <Route path="proformas/:id_proforma" element={<Proforma />} />
                             <Route path="Catalogo" element={<Catalogo />} />
                             <Route path="Inventario" element={<Inventario />} />
                             <Route path="cuentaiban" element={<CuentaIbanForm />} />

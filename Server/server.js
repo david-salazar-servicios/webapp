@@ -36,6 +36,7 @@ app.use("/productos", require("./Routes/productoRoutes"));
 app.use("/inventarios", require("./Routes/inventarioRoutes"));
 app.use("/bitacora",require("./Routes/bitacoraRoutes"));
 app.use("/cuentaiban", require("./Routes/cuentaibanRoutes"));
+app.use("/proformas", require("./Routes/proformaRoutes"));
 
 // Socket.IO connection handler
 io.on('connection', (socket) => {
