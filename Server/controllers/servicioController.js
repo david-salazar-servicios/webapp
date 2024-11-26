@@ -204,7 +204,6 @@ const getServicioById = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
-
 // @desc Update a service by ID
 // @route PUT /services/:id
 // @access Private

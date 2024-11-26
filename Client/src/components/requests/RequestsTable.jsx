@@ -201,7 +201,7 @@ export default function SolicitudesTable() {
                     type="search"
                     onInput={(e) => setGlobalFilter(e.target.value)}
                     placeholder="Buscar..."
-                    style={{ marginRight: '1rem' }}
+                    style={{ marginRight: '1rem' ,width:'200px'}}
                 />
                 <Button
                     label="Exportar"

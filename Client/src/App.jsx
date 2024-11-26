@@ -32,6 +32,9 @@ import Catalogo from './components/Inventario/Catalogo'
 import Inventario from './components/Inventario/Inventario'
 import GestionInventario from './components/Inventario/GestionInventario'
 import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
+import Proforma from './components/proforma/Proforma';
+import CrearSolicitud from './components/services/CrearSolicitud'
+
 function App() {
     return (
         <div>

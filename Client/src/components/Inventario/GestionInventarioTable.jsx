@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Input, Space } from 'antd';
+import { Table, Button, Input, Space, Tag } from 'antd';
 import { FileImageTwoTone, SearchOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import { useUpdateCantidadInventarioProductoMutation, useUpdateEstanteInventarioProductoMutation } from '../../features/Inventario/InventarioApiSlice';
@@ -49,6 +49,13 @@ const GestionInventarioTable = ({
     setEstante({});
   }, [selectedBodega]);
 
+  const calculateTotalInversion = () => {
+    return filteredData.reduce((total, item) => {
+      return total + (item.precio_costo || 0) * (item.cantidad || 0);
+    }, 0);
+  };
+
+
   const handleSearch = (value) => {
     setSearchText(value);
     const filtered = data
@@ -59,6 +66,10 @@ const GestionInventarioTable = ({
       )
       .sort((a, b) => a.nombre_producto.localeCompare(b.nombre_producto));
     setFilteredData(filtered);
+  };
+
+  const formatWithCommas = (number) => {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
   };
 
   const isEditingCantidad = (record) => record.codigo_producto === editingCantidadKey;
@@ -243,7 +254,7 @@ const GestionInventarioTable = ({
       key: 'precio_costo',
       width: 150,
       render: (text) => (
-        <span>₡ {text}</span>
+        <span>₡ {formatWithCommas(text)}</span>
       ),
     },
     {
@@ -252,7 +263,7 @@ const GestionInventarioTable = ({
       key: 'precio_venta',
       width: 150,
       render: (text) => (
-        <span>₡ {text}</span>
+        <span>₡ {formatWithCommas(text)}</span>
       ),
     },
     {
@@ -261,7 +272,7 @@ const GestionInventarioTable = ({
       width: 150,
       render: (_, record) => (
         <span>
-          ₡ {(record.precio_costo || 0) * (record.cantidad || 0)}
+          ₡ {formatWithCommas((record.precio_costo || 0) * (record.cantidad || 0))}
         </span>
       ),
     },
@@ -295,7 +306,11 @@ const GestionInventarioTable = ({
         <Button type="primary" onClick={onOpenCatalogo} style={{ marginLeft: '10px' }}>
           Ver Catálogo
         </Button>
+        <Tag color="blue" style={{ marginLeft: 'auto', fontSize: '14px', padding:'5px', marginBottom: ''}}>
+          Total Inversión: ₡ {formatWithCommas(calculateTotalInversion())}
+        </Tag>
       </div>
+      
       <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px' }}>
         <Table
           columns={columns}

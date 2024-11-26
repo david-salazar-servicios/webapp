@@ -32,9 +32,14 @@ const printStyles = `
       display: none !important;
     }
 
-    
-    
-
+    .ant-layout-sider, /* Adjust based on your layout's sidebar class */
+    .sidebar, 
+    .ant-layout-sider-children {
+      display: none !important;
+      width: 0 !important;
+      max-width: 0 !important;
+    }
+      
     /* Specifically hide sinIVA and sinDetalle checkboxes */
     .sinIVA-checkbox, .sinDetalle-checkbox {
       display: none !important;
