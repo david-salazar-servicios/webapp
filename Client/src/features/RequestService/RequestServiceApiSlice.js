@@ -42,7 +42,13 @@ export const requestServiceApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: (result, error, { id }) => [{ type: 'Solicitud', id }],
         }),
+
+        getServiceSolicitudesReport: builder.query({
+            query: () => '/solicitudes/report/service-solicitudes',
+            providesTags: [{ type: 'Report', id: 'ServiceSolicitudes' }],
+        }),
     }),
+    
 });
 
 export const {
@@ -50,5 +56,6 @@ export const {
     useGetSolicitudesQuery,
     useGetSolicitudByIdQuery,
     useUpdateSolicitudEstadoMutation,
-    useUpdateSolicitudFechaPreferenciaMutation, // Export the new hook
+    useUpdateSolicitudFechaPreferenciaMutation,
+    useGetServiceSolicitudesReportQuery, // Export the new hook
 } = requestServiceApiSlice;

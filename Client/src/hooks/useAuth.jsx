@@ -8,7 +8,7 @@ const useAuth = () => {
         try {
             const decoded = jwtDecode(token);
             const { username, roles, userId } = decoded.UserInfo;
-            console.log(decoded.UserInfo)
+
             return { userId, username, roles: roles || [] }; // Devuelve roles como un arreglo vacío si es undefined
         } catch (error) {
             console.error('Error decoding token:', error);

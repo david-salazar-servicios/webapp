@@ -34,7 +34,7 @@ import GestionInventario from './components/Inventario/GestionInventario'
 import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
 import Proforma from './components/proforma/Proforma';
 import CrearSolicitud from './components/services/CrearSolicitud'
-
+import Reportes from './components/Charts/reportes';
 function App() {
     return (
         <div>
@@ -75,6 +75,7 @@ function App() {
                             <Route path="categorias" element={<Categories />} />
                             <Route path="perfiles" element={<Users />} />
                             <Route path="roles" element={<Roles />} />
+                            <Route path="reportes" element={<Reportes />} />
                             <Route path="proformas" element={<ProformasTable />} />
                             <Route path="proformas/create" element={<Proforma />} />
                             <Route path="proformas/:id_proforma" element={<Proforma />} />

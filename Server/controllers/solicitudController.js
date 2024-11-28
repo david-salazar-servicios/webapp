@@ -228,11 +228,45 @@ const updateSolicitudFechaPreferencia = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+const getServiceSolicitudesReport = async (req, res) => {
+    try {
+        // SQL query to generate the report
+        const query = `
+            SELECT 
+                ds.id_servicio, 
+                s.nombre AS servicio_nombre,
+                COUNT(DISTINCT ds.id_solicitud) AS total_solicitudes
+            FROM 
+                detallesolicitud ds
+            INNER JOIN 
+                servicios s ON ds.id_servicio = s.id_servicio
+            GROUP BY 
+                ds.id_servicio, s.nombre
+            ORDER BY 
+                total_solicitudes DESC;
+        `;
+
+        // Execute the query
+        const queryResult = await pool.query(query);
+
+        // Extract rows from the query result
+        const reportData = queryResult.rows;
+
+        // Respond with the report data
+        res.json(reportData);
+    } catch (error) {
+        console.error("Error generating service-solicitudes report:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
 
 module.exports = {
     crearSolicitud_AgregarServicios,
     getAllSolicitudes,
     getSolicitudById,
     updateSolicitudEstado,
-    updateSolicitudFechaPreferencia 
+    updateSolicitudFechaPreferencia,
+    getServiceSolicitudesReport
 };
