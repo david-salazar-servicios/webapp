@@ -5,7 +5,7 @@ import Testimonials from '../../components/testimonials/testimonials';
 
 import Empresa from '../../assets/images/empresa.png';
 import David from '../../assets/images/David.jpg';
-import David2 from '../../assets/images/David2.jpg';
+import Mariela from '../../assets/images/Mariela.jpg';
 
 export default function Home() {
     // Define the animation variants
@@ -104,23 +104,30 @@ export default function Home() {
                     <div className="text-center">
                         <h2 className="fw-bolder">Fundadores</h2>
                     </div>
-                    <div className="row gx-5 row-cols-1 row-cols-sm-2 row-cols-xl-3 justify-content-center">
-                        <div className="col mb-5 mb-5 mb-xl-0">
-                            <div className="text-center">
-                                <img className="img-fluid img-fluid-motion rounded-circle mb-4 px-4" src={David} alt="..." />
-                                <h5 className="fw-bolder">David</h5>
-                                <div className="fst-italic text-muted">Propietario</div>
+                    <div className="row gx-5 justify-content-center pt-3">
+                        <div className="col mb-4 d-flex justify-content-center custom-card">
+                            <div className="card shadow-lg border-0 text-center" style={{ borderRadius: '12px' }}>
+                                <img className="mb-4" src={David} alt="David" style={{ width: '100%', height: '300px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} />
+                                <div className="card-body">
+                                    <h5 className="fw-bold text-primary">David</h5>
+                                    <p className="fst-italic text-muted">"Con su visión y liderazgo, David ha sido la fuerza que impulsa el crecimiento y la innovación en nuestra empresa."</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="col mb-5 mb-5 mb-xl-0">
-                            <div className="text-center">
-                                <img className="img-fluid img-fluid-motion rounded-circle mb-4 px-4" src={David2} alt="..." />
-                                <h5 className="fw-bolder">Mariela</h5>
-                                <div className="fst-italic text-muted">Copropietario</div>
+                        <div className="col mb-4 d-flex justify-content-center custom-card">
+                            <div className="card shadow-lg border-0 text-center" style={{ borderRadius: '12px' }}>
+                                <img className="mb-4" src={Mariela} alt="Mariela" style={{ width: '100%', height: '300px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} />
+                                <div className="card-body">
+                                    <h5 className="fw-bold text-primary">Mariela</h5>
+                                    <p className="fst-italic text-muted">"Mariela, con su dedicación y pasión por el detalle, ha sido clave en la creación de una empresa con valores sólidos y un futuro brillante."</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+
+
             </section>
             <Testimonials />
         </motion.div>

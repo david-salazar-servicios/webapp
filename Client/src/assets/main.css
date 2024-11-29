@@ -3081,3 +3081,30 @@ footer ul.menu-list li a:hover {
   overflow: auto;
 }
 
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Estilos para los cards */
+.custom-card {
+  flex: 1;
+}
+
+/* Media Query para pantallas pequeñas (ej. móviles) */
+@media (max-width: 576px) {
+  .row {
+      flex-direction: column; /* Apilar los cards verticalmente */
+      align-items: center; /* Centrar los cards cuando estén apilados */
+  }
+
+  .custom-card {
+      margin-bottom: 20px; /* Añadir espacio entre los cards cuando están apilados */
+  }
+
+  /* Opcional: Ajustar el tamaño de las imágenes para pantallas pequeñas */
+  .custom-card img {
+      height: 250px; /* Cambiar la altura de las imágenes si es necesario */
+  }
+}
