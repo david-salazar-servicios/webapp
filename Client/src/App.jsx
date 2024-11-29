@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Login from './features/auth/Login';
 import Home from './features/home/home';
@@ -34,8 +34,11 @@ import GestionInventario from './components/Inventario/GestionInventario'
 import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
 import Proforma from './components/proforma/Proforma';
 import CrearSolicitud from './components/services/CrearSolicitud'
-import Reportes from './components/Charts/reportes';
+
 function App() {
+    const { roles } = useAuth(); // Assuming this fetches the roles of the logged-in user
+    const userRoles = roles || []; // Default to an empty array if roles are undefined
+
     return (
         <div>
             <ScrollToTop />
@@ -60,10 +63,10 @@ function App() {
 
                 {/* Protected Routes */}
                 <Route element={<PersistLogin />}>
-                    {/* General protected routes for any allowed role */}
+                    {/* General Protected Routes */}
                     <Route element={<RequireAuth allowedRoles={[...Object.values(ROLES)]} />}>
                         <Route path="mantenimiento" element={<MaintenanceLayout />}>
-                            <Route path="index" element={<ProcessCalendar />} />
+                            <Route path="" element={<ProcessCalendar />} />
                         </Route>
                     </Route>
 
@@ -75,7 +78,6 @@ function App() {
                             <Route path="categorias" element={<Categories />} />
                             <Route path="perfiles" element={<Users />} />
                             <Route path="roles" element={<Roles />} />
-                            <Route path="reportes" element={<Reportes />} />
                             <Route path="proformas" element={<ProformasTable />} />
                             <Route path="proformas/create" element={<Proforma />} />
                             <Route path="proformas/:id_proforma" element={<Proforma />} />
@@ -85,16 +87,25 @@ function App() {
                             <Route path="GestionInventario" element={<GestionInventario />} />
                             <Route path="CrearSolicitud" element={<CrearSolicitud />} />
                         </Route>
-                    </Route>
-
-                    {/* Tecnico-Only Routes */}
-                    <Route element={<RequireAuth allowedRoles={[ROLES.Tecnico]} />}>
-                        <Route path="mantenimiento/index" element={<ProcessCalendar />} />
-                    </Route>
+                    ) : userRoles.includes(ROLES.Tecnico) ? (
+                        <Route element={<RequireAuth allowedRoles={[ROLES.Tecnico]} />}>
+                            <Route path="mantenimiento" element={<MaintenanceLayout />}>
+                                <Route path="" element={<ProcessCalendar />} />
+                                <Route path="solicitudes" element={<Requests />} />
+                                <Route path="proformas" element={<ProformasTable />} />
+                                <Route path="proformas/create" element={<Proforma />} />
+                                <Route path="proformas/:id_proforma" element={<Proforma />} />
+                                <Route path="Inventario" element={<Inventario />} />
+                            </Route>
+                        </Route>
+                    ) : (
+                        <Route path="*" element={<Navigate to="/login" replace />} />
+                    )}
                 </Route>
             </Routes>
         </div>
     );
 }
+
 
 export default App;

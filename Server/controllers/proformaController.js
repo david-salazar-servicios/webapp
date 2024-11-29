@@ -7,9 +7,16 @@ const { updateCantidadInventarioProducto } = require('./inventarioController');
 // @access Private
 const getAllProformas = async (req, res) => {
     try {
-        // Fetch all proformas
+        // Fetch all proformas with client details (cliente)
         const proformasQuery = `
-            SELECT * FROM proforma;
+            SELECT 
+                p.*, 
+                CONCAT(s.nombre, ' ', s.apellido) AS cliente, 
+                CONCAT(u.nombre, ' ', u.apellido) AS tecnico
+            FROM proforma p
+            LEFT JOIN solicitud s ON p.id_solicitud = s.id_solicitud
+            LEFT JOIN cita c ON p.id_solicitud = c.id_solicitud
+            LEFT JOIN usuario u ON c.id_tecnico = u.id_usuario;
         `;
         const proformasResult = await pool.query(proformasQuery);
         const proformas = proformasResult.rows;
@@ -76,6 +83,7 @@ const getAllProformas = async (req, res) => {
 
 
 
+
 // @desc Create a new Proforma
 // @route POST /proforma
 // @access Private
@@ -116,8 +124,9 @@ const createProforma = async (req, res) => {
                 numerocotizacion, 
                 nc_fe, 
                 oferta_valida,
-                sinIVA
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id_proforma;
+                sinIVA,
+                ultima_modificacion
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING id_proforma;
         `;
         const proformaValues = [
             solicitud.solicitudId,
@@ -132,6 +141,7 @@ const createProforma = async (req, res) => {
             archivoInfo.ncFe,
             archivoInfo.ofertaValida,
             sinIVA,
+            formattedDate,
         ];
         const proformaResult = await client.query(proformaQuery, proformaValues);
         const id_proforma = proformaResult.rows[0].id_proforma;
@@ -414,12 +424,11 @@ const updateProforma = async (req, res) => {
             productosAdicionales,
             totales,
             notas,
-            fecha,
             sinIVA,
             sinDetalle,
         } = req.body;
 
-        const formattedDate = fecha.split('-').reverse().join('-'); // Convert "DD-MM-YYYY" to "YYYY-MM-DD"
+       
 
         await client.query('BEGIN'); // Start transaction
 
@@ -428,22 +437,21 @@ const updateProforma = async (req, res) => {
             UPDATE proforma
             SET 
                 id_solicitud = $1,
-                fechacreacion = $2,
-                notas = $3,
-                subtotal = $4,
-                totaliva = $5,
-                total = $6,
-                estado = $7,
-                numeroarchivo = $8,
-                numerocotizacion = $9,
-                nc_fe = $10,
-                oferta_valida = $11,
-                sinIVA = $12
-            WHERE id_proforma = $13;
+                ultima_modificacion = CURRENT_TIMESTAMP,
+                notas = $2,
+                subtotal = $3,
+                totaliva = $4,
+                total = $5,
+                estado = $6,
+                numeroarchivo = $7,
+                numerocotizacion = $8,
+                nc_fe = $9,
+                oferta_valida = $10,
+                sinIVA = $11
+            WHERE id_proforma = $12;
         `;
         const proformaUpdateValues = [
             solicitud.solicitudId,
-            formattedDate,
             notas,
             totales.subtotal,
             totales.iva,
@@ -622,10 +630,12 @@ const finalizarProforma = async (req, res) => {
             await updateCantidadInventarioProducto(simulatedReq, simulatedRes);
         }
 
+      
         // Update proforma status
         const updateProformaQuery = `
             UPDATE proforma
-            SET estado = 'Finalizada'
+            SET estado = 'Finalizada',
+            ultima_modificacion = CURRENT_TIMESTAMP
             WHERE id_proforma = $1;
         `;
         await client.query(updateProformaQuery, [id]);
