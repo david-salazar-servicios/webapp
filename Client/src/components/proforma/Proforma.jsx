@@ -39,7 +39,7 @@ const printStyles = `
       width: 0 !important;
       max-width: 0 !important;
     }
-      
+
     /* Specifically hide sinIVA and sinDetalle checkboxes */
     .sinIVA-checkbox, .sinDetalle-checkbox {
       display: none !important;
@@ -632,8 +632,6 @@ export default function Proforma() {
 
     if (isSolicitudesLoading) return <p>Loading solicitudes...</p>;
     if (isSolicitudesError) return <p>Error loading solicitudes</p>;
-
-    console.log("Solicitudes:", solicitudes)
 
     const subtotalExtras = extraDetails.reduce(
         (sum, detail) => sum + (parseFloat(detail.precio_venta) || 0), // Default to 0

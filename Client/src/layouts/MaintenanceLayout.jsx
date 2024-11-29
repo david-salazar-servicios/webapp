@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useSendLogoutMutation } from '../features/auth/authApiSlice';
+import { ROLES } from '../config/roles';
 import { useGetSolicitudesQuery } from '../features/RequestService/RequestServiceApiSlice';
 import {
     PieChartOutlined,
@@ -25,7 +26,7 @@ const MaintenanceLayout = () => {
     const { data: solicitudes } = useGetSolicitudesQuery();
 
     // Get the logged-in user details
-    const { username } = useAuth();
+    const { username, roles } = useAuth();
 
     const pendientesCount = solicitudes
         ? solicitudes.filter((solicitud) => solicitud.estado === 'Pendiente').length
@@ -40,8 +41,14 @@ const MaintenanceLayout = () => {
         }
     };
 
-    const items = [
-        { label: 'Calendario', key: 'mantenimiento/index', icon: <CalendarOutlined /> },
+    // Define all menu items with role-based visibility
+    const allItems = [
+        {
+            label: 'Calendario',
+            key: 'mantenimiento/',
+            icon: <CalendarOutlined />,
+            roles: [ROLES.Admin, ROLES.Tecnico]
+        },
         {
             label: (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -54,28 +61,76 @@ const MaintenanceLayout = () => {
                 </div>
             ),
             key: 'mantenimiento/solicitudes',
-            icon: <UserAddOutlined />
+            icon: <UserAddOutlined />,
+            roles: [ROLES.Admin, ROLES.Tecnico]
         },
-        { label: 'Gestion Inventario', key: 'mantenimiento/GestionInventario', icon: <FormOutlined /> },
-        { label: 'Proformas', key: 'mantenimiento/proformas', icon: <FormOutlined /> },
-        { label: 'Reportes', key: 'mantenimiento/reportes', icon: <PieChartOutlined /> },
+        {
+            label: 'Gestion Inventario',
+            key: 'mantenimiento/GestionInventario',
+            icon: <FormOutlined />,
+            roles: [ROLES.Admin]
+        },
+        {
+            label: 'Proformas',
+            key: 'mantenimiento/proformas',
+            icon: <FormOutlined />,
+            roles: [ROLES.Admin, ROLES.Tecnico]
+        },
+        {
+            label: 'Reportes',
+            key: 'mantenimiento/reportes',
+            icon: <PieChartOutlined />,
+            roles: [ROLES.Admin]
+        },
         {
             label: 'Mantenimiento',
             key: 'sub1',
             icon: <SettingOutlined />,
+            roles: [ROLES.Admin],
             children: [
-                { label: 'Categorias', key: 'mantenimiento/categorias' },
-                { label: 'Servicios', key: 'mantenimiento/servicios' },
-                { label: 'Roles', key: 'mantenimiento/roles' },
-                { label: 'Catalogo', key: 'mantenimiento/catalogo' },
-                { label: 'Inventario', key: 'mantenimiento/inventario' },
-                { label: 'Cuentas IBAN', key: 'mantenimiento/cuentaiban' }
+                { label: 'Categorias', key: 'mantenimiento/categorias', roles: [ROLES.Admin] },
+                { label: 'Servicios', key: 'mantenimiento/servicios', roles: [ROLES.Admin] },
+                { label: 'Roles', key: 'mantenimiento/roles', roles: [ROLES.Admin] },
+                { label: 'Catalogo', key: 'mantenimiento/catalogo', roles: [ROLES.Admin] },
+                { label: 'Inventario', key: 'mantenimiento/inventario', roles: [ROLES.Admin] },
+                { label: 'Cuentas IBAN', key: 'mantenimiento/cuentaiban', roles: [ROLES.Admin] }
             ]
         },
-        { label: 'Perfiles', key: 'mantenimiento/perfiles', icon: <UserAddOutlined /> },
-        { label: 'Cambiar a Cliente', key: '', icon: <UserSwitchOutlined /> },
-        { label: 'Salir', key: 'logout', icon: <LoginOutlined /> }
+        {
+            label: 'Perfiles',
+            key: 'mantenimiento/perfiles',
+            icon: <UserAddOutlined />,
+            roles: [ROLES.Admin]
+        },
+        {
+            label: 'Cambiar a Cliente',
+            key: '',
+            icon: <UserSwitchOutlined />,
+            roles: [ROLES.Admin]
+        },
+        {
+            label: 'Salir',
+            key: 'logout',
+            icon: <LoginOutlined />,
+            roles: [ROLES.Admin, ROLES.Tecnico]
+        }
     ];
+
+    // Filter items based on user roles
+    const filteredItems = allItems
+        .filter(item => item.roles.some(role => roles.includes(role)))
+        .map(item => {
+            // If the item has children, filter the children too
+            if (item.children) {
+                return {
+                    ...item,
+                    children: item.children.filter(child =>
+                        child.roles.some(role => roles.includes(role))
+                    )
+                };
+            }
+            return item;
+        });
 
     const onMenuClick = ({ key }) => {
         if (key === 'logout') {
@@ -107,7 +162,7 @@ const MaintenanceLayout = () => {
                     theme="dark"
                     defaultSelectedKeys={['1']}
                     mode="inline"
-                    items={items}
+                    items={filteredItems}
                     onClick={onMenuClick}
                 />
             </Sider>
@@ -121,3 +176,4 @@ const MaintenanceLayout = () => {
 };
 
 export default MaintenanceLayout;
+
