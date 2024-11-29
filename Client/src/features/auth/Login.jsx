@@ -52,9 +52,9 @@ function Login() {
             if (user.password_reset) {
                 navigate('/CambiarContrasenna');
             } else if (userRoles.includes('Admin')) {
-                navigate('/mantenimiento/index'); // Redirect Admin to the maintenance page
+                navigate('/mantenimiento/'); // Redirect Admin to the maintenance page
             } else if (userRoles.includes('Tecnico')) {
-                navigate('/mantenimiento/index'); // Redirect Tecnico to the index page
+                navigate('/mantenimiento/'); // Redirect Tecnico to the index page
             } else {
                 navigate('/'); // Default redirect if no matching roles
             }

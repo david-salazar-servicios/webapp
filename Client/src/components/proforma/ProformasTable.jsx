@@ -16,17 +16,20 @@ export default function ProformasTable() {
     const dt = useRef(null);
     const navigate = useNavigate();
 
+    // Add filtering logic for tecnico and cliente
     const filteredProformas = proformas?.filter((proforma) => {
         const query = searchQuery.toLowerCase();
-
-        // Match against any of the specified fields
+    
         return (
             proforma.numeroarchivo?.toLowerCase().includes(query) ||
             proforma.id_solicitud?.toString().includes(query) ||
-            proforma.id_proforma?.toString().includes(query)
+            proforma.id_proforma?.toString().includes(query) ||
+            proforma.cliente?.toLowerCase().includes(query) || // Search by cliente
+            proforma.tecnico?.toLowerCase().includes(query)    // Search by tecnico
         );
     });
     
+
     const formatWithCommas = (number) => {
         return new Intl.NumberFormat('en-US').format(number);
     };
@@ -34,12 +37,12 @@ export default function ProformasTable() {
     const header = (
         <Row align="middle" justify="space-between" className="table-header">
             <Col>
-            <InputText
+                <InputText
                     type="search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)} // Update search query
-                    placeholder="Buscar por N° Archivo, ID Solicitud o ID Proforma"
-                    style={{ marginRight: '1rem', width:'400px'}}
+                    placeholder="Buscar por N° Archivo, Cliente, Técnico, Proforma o Solicitud"
+                    style={{ marginRight: '1rem', width: '400px' }}
                 />
                 <Button
                     label="Exportar"
@@ -64,7 +67,6 @@ export default function ProformasTable() {
     const handleRowClick = (rowData) => {
         navigate(`/mantenimiento/proformas/${rowData.id_proforma}`, { state: { proformaList: proformas } });
     };
-    
 
     // Custom rendering for `estado` column
     const estadoBodyTemplate = (rowData) => {
@@ -73,15 +75,12 @@ export default function ProformasTable() {
         switch (rowData.estado) {
             case 'En Progreso':
                 color = 'warning'; // Amber color for "En Progreso"
-               
                 break;
             case 'Finalizada':
                 color = 'success'; // Green color for "Finalizada"
-               
                 break;
             default:
                 color = 'neutral'; // Default gray color
-               
         }
 
         return (
@@ -99,50 +98,62 @@ export default function ProformasTable() {
 
     return (
         <Row style={{ display: 'flex', flexDirection: 'column' }}>
-            <Card title="Proformas" bordered={false} style={{
-                boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
-                borderRadius: "5px",
-            }}>
+            <Card
+                title="Proformas"
+                bordered={false}
+                style={{
+                    boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
+                    borderRadius: "5px",
+                }}
+            >
                 <Col span={24} style={{ flexGrow: 1 }}>
                     <DataTable
                         ref={dt}
                         value={filteredProformas || []} // Data from API
                         dataKey="id_proforma"
-                        paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                        paginator
+                        rows={10}
+                        rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} proformas"
-                      
                         header={header}
-                    
                         scrollable
                         scrollHeight="100%"
                         className="custom-hover-effect elegant-table"
                         onRowClick={(e) => handleRowClick(e.data)} // Redirect on row click
                     >
-                        <Column field="numeroarchivo" header="N° Archivo" sortable style={{ width: '10rem' }}></Column>
-                        <Column field="id_proforma" header="ID Proforma" sortable style={{ width: '8rem' }}></Column>
-                        <Column field="id_solicitud" header="ID Solicitud" sortable style={{ width: '8rem' }}></Column>
-                       
-                        <Column 
-                            field="total" 
-                            header="Total" 
+                        <Column field="numeroarchivo" header="N° Archivo" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="cliente" header="Cliente" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="tecnico" header="Técnico" sortable style={{ width: '8rem' }}></Column>
+                        <Column
+                            field="total"
+                            header="Total"
                             body={(rowData) => `₡ ${formatWithCommas(parseFloat(rowData.total).toFixed(2))}`}
-                            sortable 
-                            style={{ width: '10rem' }} 
+                            sortable
+                            style={{ width: '10rem' }}
                         />
-                        <Column 
-                            field="fechacreacion" 
-                            header="Fecha de Creación" 
-                            body={(rowData) => format(new Date(rowData.fechacreacion), 'yyyy-MM-dd')} 
-                            sortable 
-                            style={{ width: '12rem' }} 
+                        <Column
+                            field="fechacreacion"
+                            header="Fecha de Creación"
+                            body={(rowData) => format(new Date(rowData.fechacreacion), 'dd-MM-yyyy')}
+                            sortable
+                            style={{ width: '8rem' }}
                         />
-                        <Column 
-                            field="estado" 
-                            header="Estado" 
+                        <Column field="id_proforma" header="Proforma" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="id_solicitud" header="Solicitud" sortable style={{ width: '8rem' }}></Column>
+                        <Column
+                            field="ultima_modificacion"
+                            header="Última Modificación"
+                            body={(rowData) => format(new Date(rowData.ultima_modificacion), 'dd-MM-yyyy')}
+                            sortable
+                            style={{ width: '8rem' }}
+                        />
+                        <Column
+                            field="estado"
+                            header="Estado"
                             body={estadoBodyTemplate} // Apply custom body template
-                            sortable 
-                            style={{ width: '10rem' }} 
+                            sortable
+                            style={{ width: '8rem' }}
                         />
                     </DataTable>
                 </Col>
