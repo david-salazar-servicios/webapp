@@ -39,7 +39,7 @@ export default function ReporteGananciaMensual() {
         if (!proformas || !startMonth || !endMonth) return [];
 
         return proformas.filter((proforma) => {
-            const creationDate = new Date(proforma.fechacreacion); // Use the `fechacreacion` field for filtering
+            const creationDate = new Date(proforma.ultima_modificacion); // Use the `ultima_modificacion` field for filtering
             return (
                 proforma.estado === 'Finalizada' && // Include only finalized proformas
                 creationDate >= startMonth &&
@@ -53,7 +53,7 @@ export default function ReporteGananciaMensual() {
         if (!filteredProformas.length) return null;
 
         const gananciasPorMes = filteredProformas.reduce((acc, proforma) => {
-            const creationDate = new Date(proforma.fechacreacion);
+            const creationDate = new Date(proforma.ultima_modificacion);
             const mesAnio = `${creationDate.toLocaleString('default', { month: 'long' })} ${creationDate.getFullYear()}`;
             acc[mesAnio] = (acc[mesAnio] || 0) + parseFloat(proforma.total || 0);
             return acc;

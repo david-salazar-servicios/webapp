@@ -34,6 +34,8 @@ import GestionInventario from './components/Inventario/GestionInventario'
 import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
 import Proforma from './components/proforma/Proforma';
 import CrearSolicitud from './components/services/CrearSolicitud'
+import useAuth from './hooks/useAuth';
+import Reportes from './components/Charts/reportes';
 
 function App() {
     const { roles } = useAuth(); // Assuming this fetches the roles of the logged-in user
@@ -70,22 +72,25 @@ function App() {
                         </Route>
                     </Route>
 
-                    {/* Admin-Only Routes */}
-                    <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
-                        <Route path="mantenimiento" element={<MaintenanceLayout />}>
-                            <Route path="servicios" element={<Services />} />
-                            <Route path="solicitudes" element={<Requests />} />
-                            <Route path="categorias" element={<Categories />} />
-                            <Route path="perfiles" element={<Users />} />
-                            <Route path="roles" element={<Roles />} />
-                            <Route path="proformas" element={<ProformasTable />} />
-                            <Route path="proformas/create" element={<Proforma />} />
-                            <Route path="proformas/:id_proforma" element={<Proforma />} />
-                            <Route path="Catalogo" element={<Catalogo />} />
-                            <Route path="Inventario" element={<Inventario />} />
-                            <Route path="cuentaiban" element={<CuentaIbanForm />} />
-                            <Route path="GestionInventario" element={<GestionInventario />} />
-                            <Route path="CrearSolicitud" element={<CrearSolicitud />} />
+                    {/* Role-Based Routes */}
+                    {userRoles.includes(ROLES.Admin) ? (
+                        <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
+                            <Route path="mantenimiento" element={<MaintenanceLayout />}>
+                                <Route path="servicios" element={<Services />} />
+                                <Route path="solicitudes" element={<Requests />} />
+                                <Route path="categorias" element={<Categories />} />
+                                <Route path="perfiles" element={<Users />} />
+                                <Route path="roles" element={<Roles />} />
+                                <Route path="proformas" element={<ProformasTable />} />
+                                <Route path="proformas/create" element={<Proforma />} />
+                                <Route path="proformas/:id_proforma" element={<Proforma />} />
+                                <Route path="Catalogo" element={<Catalogo />} />
+                                <Route path="Inventario" element={<Inventario />} />
+                                <Route path="cuentaiban" element={<CuentaIbanForm />} />
+                                <Route path="GestionInventario" element={<GestionInventario />} />
+                                <Route path="CrearSolicitud" element={<CrearSolicitud />} />
+                                <Route path="reportes" element={<Reportes />} />
+                            </Route>
                         </Route>
                     ) : userRoles.includes(ROLES.Tecnico) ? (
                         <Route element={<RequireAuth allowedRoles={[ROLES.Tecnico]} />}>
