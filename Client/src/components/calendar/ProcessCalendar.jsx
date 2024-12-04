@@ -48,6 +48,8 @@ const ProcessCalendar = () => {
         return "#22C55E"; // Verde
       case "Rechazada":
         return "#FF4D4F"; // Rojo
+      case "Pendiente":
+        return "#F97316"; // Naranja
       default:
         return "#3182CE"; // Azul oscuro por defecto
     }
@@ -56,7 +58,6 @@ const ProcessCalendar = () => {
   const filteredEvents = solicitudes
     ?.filter(
       (solicitud) =>
-        solicitud.estado !== "Pendiente" &&
         (activeStatusFilter === "All" || solicitud.estado === activeStatusFilter) &&
         (solicitud.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
           solicitud.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -142,6 +143,18 @@ const ProcessCalendar = () => {
             }}
           >
             Rechazada
+          </Tag>
+          <Tag
+            color={getStatusColor("Pendiente")}
+            onClick={() => handleStatusFilterClick("Pendiente")}
+            style={{
+              cursor: "pointer",
+              fontSize: "16px",
+              padding: "8px 16px",
+              borderRadius: "8px",
+            }}
+          >
+            Pendiente
           </Tag>
         </div>
         <Input
@@ -229,7 +242,12 @@ const ProcessCalendar = () => {
                   </Col>
                   <Col span={12}>
                     <Text strong>Técnico: </Text>
-                    <Text>{solicitudDetails?.tecnico.nombre} {solicitudDetails.tecnico.apellido || 'Desconocido'}</Text>
+                    <Text>
+                      {solicitudDetails?.tecnico?.nombre && solicitudDetails?.tecnico?.apellido
+                        ? `${solicitudDetails.tecnico.nombre} ${solicitudDetails.tecnico.apellido}`
+                        : 'No definido'}
+                    </Text>
+
                   </Col>
                   <Col span={12}>
                     <Text strong>Dirección: </Text>

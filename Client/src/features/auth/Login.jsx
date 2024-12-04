@@ -22,7 +22,6 @@ function Login() {
     const userRef = useRef();
     const [userId, setUserId] = useState(null);
 
-    // Fetch user data based on userId
     const { data: user, isSuccess } = useGetUserByIdQuery(userId, {
         skip: !userId,
     });
@@ -32,31 +31,29 @@ function Login() {
             const userData = await login(values).unwrap();
             dispatch(setCredentials({ ...userData }));
             localStorage.setItem('persist', persist ? 'true' : 'false');
-    
-            const decoded = jwtDecode(userData.accessToken); // Decode the JWT token
-            setUserId(decoded.UserInfo.userId); // Set userId from decoded token
-            setUserRoles(decoded.UserInfo.roles); // Set roles from decoded token
-            
-            toast.dismiss(); // Dismiss any previous toast
-            toast.success('Logged in successfully!'); // Show success message
 
+            const decoded = jwtDecode(userData.accessToken);
+            setUserId(decoded.UserInfo.userId);
+            setUserRoles(decoded.UserInfo.roles);
+
+            toast.dismiss();
+            toast.success('¡Inicio de sesión exitoso!');
         } catch (err) {
-            console.error('Failed to login:', err);
-            toast.error('Failed to login. Please check your credentials.'); // Show error message
+            console.error('Error al iniciar sesión:', err);
+            toast.error('Error al iniciar sesión. Por favor, verifica tus credenciales.');
         }
     };
 
     useEffect(() => {
         if (user && isSuccess) {
-            // Redirect based on roles
             if (user.password_reset) {
                 navigate('/CambiarContrasenna');
             } else if (userRoles.includes('Admin')) {
-                navigate('/mantenimiento/'); // Redirect Admin to the maintenance page
+                navigate('/mantenimiento/');
             } else if (userRoles.includes('Tecnico')) {
-                navigate('/mantenimiento/'); // Redirect Tecnico to the index page
+                navigate('/mantenimiento/');
             } else {
-                navigate('/'); // Default redirect if no matching roles
+                navigate('/');
             }
         }
     }, [user, userRoles, navigate, isSuccess]);
@@ -68,7 +65,15 @@ function Login() {
                     <div className="text-center">
                         <img src={image} style={{ width: '285px' }} alt="logo" />
                     </div>
-                    <Card className='bg-glass' style={{ borderRadius: "5px" }}>
+                    <Card
+                        className="bg-transparent"
+                        style={{
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '5px',
+                            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+                            border: 'none',
+                        }}
+                    >
                         <Form
                             form={form}
                             name="normal_login"
@@ -77,44 +82,101 @@ function Login() {
                             onFinish={handleSubmit}
                         >
                             <div className="text-center mb-5">
-                                <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
-                                <span className="text-600 font-medium line-height-3">Don't have an account?</span>
-                                <Link to="/Registrar" className="font-medium no-underline ml-2 text-blue-500">Register here</Link>
+                                <div className="text-900 text-3xl font-medium mb-3" style={{ fontSize: '24px',color:'white' }}>
+                                    Bienvenido de nuevo
+                                </div>
+                                <span className="text-600 font-medium line-height-3" style={{ fontSize: '16px',color:'white' }}>
+                                    ¿No tienes una cuenta?
+                                </span>
+                                <Link
+                                    to="/Registrar"
+                                    className="font-medium no-underline ml-2 text-blue-500"
+                                    style={{ fontSize: '16px' }}
+                                >
+                                    Regístrate aquí
+                                </Link>
                             </div>
                             <Form.Item
                                 name="email"
-                                rules={[{ required: true, message: 'Please input your Email!' }]}
+                                rules={[{ required: true, message: 'Por favor, ingresa tu correo electrónico.' }]}
+                                style={{ marginBottom: '20px' }}
                             >
-                                <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Email address" />
+                                <Input
+                                    prefix={<UserOutlined className="site-form-item-icon" />}
+                                    placeholder="Correo electrónico"
+                                    style={{
+                                        padding: '15px',
+                                        fontSize: '18px',
+                                        borderRadius: '8px',
+                                        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.2)',
+                                    }}
+                                />
                             </Form.Item>
                             <Form.Item
                                 name="password"
-                                rules={[{ required: true, message: 'Please input your Password!' }]}
+                                rules={[{ required: true, message: 'Por favor, ingresa tu contraseña.' }]}
+                                style={{ marginBottom: '20px' }}
                             >
                                 <Input
                                     prefix={<LockOutlined className="site-form-item-icon" />}
                                     type="password"
-                                    placeholder="Password"
+                                    placeholder="Contraseña"
+                                    style={{
+                                        padding: '15px',
+                                        fontSize: '18px',
+                                        borderRadius: '8px',
+                                        boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.2)',
+                                    }}
                                 />
                             </Form.Item>
                             <Form.Item>
                                 <Form.Item name="remember" valuePropName="checked" noStyle>
-                                    <Checkbox onChange={() => setPersist(!persist)}>Keep me connected</Checkbox>
+                                    <Checkbox onChange={() => setPersist(!persist)} style={{ fontSize: '16px',color:'white' }}>
+                                        Mantenerme conectado
+                                    </Checkbox>
                                 </Form.Item>
-                                <Link className="login-form-forgot" to="/RecuperarContrasenna">
-                                    Forgot password?
+                                <Link
+                                    className="login-form-forgot"
+                                    to="/RecuperarContrasenna"
+                                    style={{ fontSize: '16px', marginLeft: '15px' }}
+                                >
+                                    ¿Olvidaste tu contraseña?
                                 </Link>
                             </Form.Item>
                             <Form.Item>
-                                <Button type="primary" htmlType="submit" className="login-form-button" style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }} loading={isLoading}>
-                                    {isLoading ? 'Logging in...' : 'Login'}
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    className="login-form-button"
+                                    style={{
+                                        width: '100%',
+                                        maxWidth: '600px',
+                                        margin: '0 auto',
+                                        padding: '15px',
+                                        fontSize: '18px',
+                                        borderRadius: '8px',
+                                        color:'white'
+                                    }}
+                                    loading={isLoading}
+                                >
+                                    {isLoading ? 'Iniciando sesión...' : 'Iniciar sesión'}
                                 </Button>
                             </Form.Item>
                         </Form>
                     </Card>
                 </Col>
             </Row>
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </div>
     );
 }

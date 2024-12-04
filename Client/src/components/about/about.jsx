@@ -37,31 +37,7 @@ export default function Home() {
             </motion.div>
         );
     };
-    const Pic = ({ src }) => {
-        const [ref, inView] = useInView({});
-        console.log(src);
-        return (
-            <motion.div
-                ref={ref}
-                variants={boxVariants}
-                initial="hidden"
-                animate={inView ? "fromLeftToCenter" : "hidden"} // Use the new variant
-                transition={{ duration: 0.5 }}
-                className="logo"
-            >
-                <div className="image">
-                    <img className="img-fluid rounded mb-5 mb-lg-0" src={src} alt="Pic" />
-                </div>
-            </motion.div>
-        );
-    };
-    const HistoriaPics = () => {
-        return (
-            <div className="inner-column ">
-                <Pic src={Empresa} />
-            </div>
-        );
-    };
+
     return (
         <motion.div initial="hidden" animate="visible" variants={boxVariants}>
             <section className="experiance-section">
@@ -79,7 +55,7 @@ export default function Home() {
 
                         </div>
                         <div className="title-column col-lg-5 col-md-12 col-sm-12">
-                            <HistoriaPics />
+                        <img className="mb-4" src={Empresa} alt="empresa" style={{ width: '100%', height: '450px', objectFit: 'cover', borderRadius: '12px' }} />
                         </div>
                         <div className="specialization-box">
                             <div className="title-box">
