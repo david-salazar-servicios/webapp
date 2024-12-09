@@ -2,8 +2,20 @@ import React, { useState } from "react";
 import { Form, Input, Row, Col, Button, Select } from "antd";
 import { Calendar } from "primereact/calendar";
 import { useLocation } from "react-router-dom";
-
+import { Tag } from "antd";
+import { addLocale } from 'primereact/api';
 const { Option } = Select;
+
+addLocale('es', {
+    firstDayOfWeek: 1,
+    dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+    dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+    dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+    monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+    monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+    today: 'Hoy',
+    clear: 'Limpiar',
+});
 
 export default function FormularioSolicitud({
     form,
@@ -34,22 +46,26 @@ export default function FormularioSolicitud({
             onDatesCalculated([]); // Enviar lista vacía al padre
             return;
         }
-    
+
         const startDate = new Date(start);
         let endDate = end ? new Date(end) : null;
-    
+
+
         if (endDate && endDate <= startDate) {
-            setIntervals("La fecha final debe ser posterior a la fecha inicial.");
+            setIntervals(
+                <Tag color="red">La fecha final debe ser posterior a la fecha inicial.</Tag>
+            );
             setCalculatedDates([]);
             onDatesCalculated([]); // Enviar lista vacía al padre
             return;
         }
-    
+
+
         let frequencyLabel = "";
         let occurrences = 0;
         let dates = [];
         let tempDate = new Date(startDate);
-    
+
         switch (freq) {
             case "cada_mes":
                 frequencyLabel = "Mensual";
@@ -92,8 +108,12 @@ export default function FormularioSolicitud({
                 frequencyLabel = "Sin Frecuencia";
                 dates = [startDate.toISOString()];
         }
-    
-        setIntervals(`${frequencyLabel} (${occurrences} ocurrencias)`);
+
+        setIntervals(
+            <Tag color="blue">
+              {`${frequencyLabel} (${occurrences} ocurrencias)`}
+            </Tag>
+        );
         setCalculatedDates(dates);
         onDatesCalculated(dates); // Enviar fechas calculadas
     };
@@ -109,11 +129,11 @@ export default function FormularioSolicitud({
             ]);
             return;
         }
-    
+
         const fechasFrecuencia = calculatedDates.length > 0 ? calculatedDates : [startDate.toISOString()];
         onFinish({ ...values, fechasFrecuencia });
     };
-    
+
 
 
     const handleReset = () => {
@@ -204,6 +224,7 @@ export default function FormularioSolicitud({
                             stepMinute={15}
                             style={{ height: "32px" }}
                             value={startDate}
+                            locale="es" // Configura el idioma a español
                             onChange={(e) => {
                                 setStartDate(e.value);
                                 calculateIntervals(e.value, endDate, frequency);
@@ -223,6 +244,7 @@ export default function FormularioSolicitud({
                                 stepMinute={15}
                                 style={{ height: "32px" }}
                                 value={endDate}
+                                locale="es" // Configura el idioma a español
                                 onChange={(e) => {
                                     setEndDate(e.value);
                                     calculateIntervals(startDate, e.value, frequency);
@@ -253,18 +275,11 @@ export default function FormularioSolicitud({
                             </Select>
                         </Form.Item>
                     </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item label="Cálculo de Fechas">
-                            <span>{intervals || "Seleccione las fechas y la frecuencia para calcular."}</span>
-                            {calculatedDates.length > 0 && (
-                                <ul>
-                                    {calculatedDates.map((date, index) => (
-                                        <li key={index}>{date}</li>
-                                    ))}
-                                </ul>
-                            )}
-                        </Form.Item>
-                    </Col>
+                    <Form.Item label="Cálculo de Fechas">
+                        <span>
+                            {intervals || "Seleccione las fechas y la frecuencia para calcular."}
+                        </span>
+                    </Form.Item>
                 </Row>
             )}
             <Row>

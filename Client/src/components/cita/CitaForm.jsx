@@ -6,25 +6,26 @@ import { useGetUsersRolesQuery, useGetRolesQuery } from '../../features/roles/Ro
 import { useCreateCitaMutation, useUpdateCitaMutation, useGetAllCitasQuery, useUpdateCitaEstadoMutation } from '../../features/cita/CitaApiSlice';
 import { useUpdateSolicitudEstadoMutation, useGetSolicitudByIdQuery, useUpdateSolicitudFechaPreferenciaMutation } from '../../features/RequestService/RequestServiceApiSlice';
 import { useSendGenericEmailMutation } from '../../features/contacto/sendGenericEmailApiSlice';
-import dayjs from 'dayjs';
-import buddhistEra from 'dayjs/plugin/buddhistEra';
-import utc from 'dayjs/plugin/utc';
-import enUS from 'antd/es/locale/en_US';
+import esES from 'antd/es/locale/es_ES';
 import { Toast } from 'primereact/toast';
 import { CheckCircleOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs'; // Asegúrate de importar dayjs
+import utc from 'dayjs/plugin/utc'; // Plugins que estás utilizando
+import buddhistEra from 'dayjs/plugin/buddhistEra';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
 
-dayjs.extend(buddhistEra);
 dayjs.extend(utc);
+dayjs.extend(buddhistEra);
 
-const buddhistLocale = {
-    ...enUS,
+// Configuración del formato de fecha y hora en español
+const spanishLocale = {
+    ...esES,
     DatePicker: {
-        ...enUS.DatePicker,
+        ...esES.DatePicker,
         lang: {
-            ...enUS.DatePicker.lang,
+            ...esES.DatePicker.lang,
             fieldDateFormat: 'YYYY-MM-DD',
             fieldDateTimeFormat: 'YYYY-MM-DD HH:mm',
             yearFormat: 'YYYY',
@@ -32,7 +33,6 @@ const buddhistLocale = {
         }
     }
 };
-
 export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) {
     const [updateCitaEstado] = useUpdateCitaEstadoMutation();
     const [form] = Form.useForm();
@@ -122,7 +122,7 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                 await sendGenericEmail({
                     nombre: solicitudData.nombre,
                     correo: solicitudData.correo_electronico,
-                    mensaje: `La solicitud con ID ${solicitudData.id_solicitud} ha sido actualizada con una nueva fecha ${dayjs(values.datetime).format('YYYY-MM-DD HH:mm')} y estado En Agenda.`,
+                    mensaje: `La solicitud con ID ${solicitudData.id_solicitud} ha sido actualizada con una nueva fecha ${dayjs(values.datetime).format('DD-MM-YYYY HH:mm')} y estado En Agenda.`,
                     telefono: `${solicitudData.telefono}${solicitudData.telefono_fijo ? ' / ' + solicitudData.telefono_fijo : ''}`,
                     type: "ActualizarSolicitud"
                 }).unwrap();
@@ -210,8 +210,12 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
-                                <Form.Item label="Fecha y Hora" name="datetime" rules={[{ required: true, message: 'Selecciona fecha y hora' }]}>
-                                    <ConfigProvider locale={buddhistLocale}>
+                                <Form.Item
+                                    label="Fecha y Hora (Año-Mes-Día)"
+                                    name="datetime"
+                                    rules={[{ required: true, message: 'Selecciona fecha y hora' }]}
+                                >
+                                    <ConfigProvider locale={spanishLocale}>
                                         <Space direction="vertical">
                                             <AntDatePicker
                                                 showTime={{ format: 'HH:mm', minuteStep: 15 }}

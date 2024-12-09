@@ -64,10 +64,10 @@ const ProcessCalendar = () => {
           solicitud.id_solicitud.toString().includes(searchTerm))
     )
     .map((solicitud) => ({
-      title: `${solicitud.nombre || "Sin nombre"} ${solicitud.apellido || "Sin apellido"}`, // Solo nombre y apellido
+      title: `${solicitud.nombre || "Sin nombre"} ${solicitud.apellido || "Sin apellido"} | ID-${solicitud.id_solicitud}`, // Solo nombre y apellido
       start: moment(solicitud.fecha_preferencia).tz("America/Costa_Rica").format(), // Ajuste a la zona horaria
       end: moment(solicitud.fecha_preferencia).tz("America/Costa_Rica").format(),   // Ajuste a la zona horaria
-      backgroundColor: getStatusColor(solicitud.estado),
+      backgroundColor: getStatusColor(solicitud.estado),  
       extendedProps: {
         id: solicitud.id_solicitud,
         estado: solicitud.estado,
@@ -266,7 +266,7 @@ const ProcessCalendar = () => {
                     <Text>
                       {moment(solicitudDetails?.fecha_preferencia)
                         .tz("America/Costa_Rica")
-                        .format("YYYY-MM-DD h:mm A")}
+                        .format("DD-MM-YYYY h:mm A")}
                     </Text>
                   </Col>
                   <Col span={12}>

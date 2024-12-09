@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect  } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetSolicitudesQuery, useUpdateSolicitudEstadoMutation } from '../../features/RequestService/RequestServiceApiSlice';
 import { useDeleteCitaMutation, useGetAllCitasQuery } from '../../features/cita/CitaApiSlice';
 import { useNavigate } from 'react-router-dom';
@@ -201,7 +201,7 @@ export default function SolicitudesTable() {
                     type="search"
                     onInput={(e) => setGlobalFilter(e.target.value)}
                     placeholder="Buscar..."
-                    style={{ marginRight: '1rem' ,width:'200px'}}
+                    style={{ marginRight: '1rem', width: '200px' }}
                 />
                 <Button
                     label="Exportar"
@@ -252,7 +252,13 @@ export default function SolicitudesTable() {
                             className="custom-hover-effect elegant-table"
                         >
                             <Column field="id_solicitud" header="Id Solicitud" sortable style={{ width: '8rem' }}></Column>
-                            <Column field="fecha_preferencia" header="Fecha & Hora Cita" sortable body={rowData => format(new Date(rowData.fecha_preferencia), 'yyyy-dd-MM HH:mm')} style={{ width: '14rem' }}></Column>
+                            <Column
+                                field="fecha_preferencia"
+                                header="Fecha & Hora Cita"
+                                sortable
+                                body={rowData => format(new Date(rowData.fecha_preferencia), 'dd-MM-yyyy HH:mm')}
+                                style={{ width: '16rem' }} // Incrementa el ancho aquí
+                            ></Column>
                             <Column field="nombre" header="Nombre" sortable style={{ width: '10rem' }}></Column>
                             <Column field="apellido" header="Apellido" sortable style={{ width: '10rem' }}></Column>
                             <Column field="correo_electronico" header="Correo Electrónico" sortable style={{ width: '14rem' }}></Column>
@@ -260,7 +266,7 @@ export default function SolicitudesTable() {
                             <Column field="telefono_fijo" header="Teléfono Fijo" sortable style={{ width: '10rem' }}></Column>
                             <Column field="direccion" header="Dirección" sortable style={{ width: '15rem' }}></Column>
                             <Column field="observacion" header="Observación" sortable style={{ width: '12rem' }}></Column>
-                            <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'yyyy-dd-MM')} style={{ width: '12rem' }}></Column>
+                            <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'dd-MM-yyyy')} style={{ width: '12rem' }}></Column>
                             <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '10rem' }}></Column>
                         </DataTable>
 
