@@ -11,7 +11,6 @@ const RequireAuth = ({ allowedRoles }) => {
 
   // Continúa si no hay roles definidos (o roles es un arreglo vacío) o si hay una intersección entre los roles permitidos y los roles del usuario
   if (!allowedRoles.length || !userRoles.some(role => allowedRoles.includes(role))) {
-    console.log("prop",allowedRoles)
     toast.error("Acceso denegado. No tienes permiso para acceder a esta página.");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

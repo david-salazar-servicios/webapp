@@ -54,7 +54,6 @@ const CategoryForm = () => {
             setFormChanged(false);
             navigate('/mantenimiento/categorias');
         } catch (error) {
-            console.error('Error al procesar la categoría:', error);
             message.error('Error al procesar la categoría');
         }
     };

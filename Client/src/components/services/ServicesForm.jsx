@@ -65,11 +65,9 @@ const ServicesForm = () => {
             if (isEditMode) {
                 response = await updateService({ id: serviceId, ...payload }).unwrap();
                 message.success('Servicio actualizado correctamente');
-                console.log('Service updated successfully:', response);
             } else {
                 response = await createService(payload).unwrap();
                 message.success('Servicio creado correctamente');
-                console.log('Service created successfully:', response);
             }
             form.resetFields();
             setFormChanged(false); // Reset the formChanged state after submission

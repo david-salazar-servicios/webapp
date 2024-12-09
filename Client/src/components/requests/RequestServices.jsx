@@ -53,7 +53,6 @@ export default function RequestServices() {
 
 
     const onFinish = async (values) => {
-        console.log("form:",values)
         const { fechasFrecuencia = [] } = values;
 
         // If no frequency, use single date

@@ -90,7 +90,6 @@ export default function SolicitudesTable() {
 
             // Check if there is a related cita and delete it
             const relatedCita = citaData?.find(cita => cita.id_solicitud === solicitud.id_solicitud);
-            console.log(relatedCita)
             if (relatedCita) {
                 await deleteCita(relatedCita.id_cita).unwrap();
             }
