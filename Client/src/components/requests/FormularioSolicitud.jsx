@@ -26,7 +26,7 @@ export default function FormularioSolicitud({
     const [isEmailSending, setIsEmailSending] = useState(false);
     const [startDate, setStartDate] = useState(null); // Fecha inicial
     const [endDate, setEndDate] = useState(null); // Fecha final
-    const [frequency, setFrequency] = useState(""); // Frecuencia seleccionada
+    const [frequency, setFrequency] = useState("sin_frecuencia"); // Default to Sin Frecuencia
     const [intervals, setIntervals] = useState(""); // Resultado del cálculo de intervalos
     const [calculatedDates, setCalculatedDates] = useState([]); // Fechas calculadas
     const location = useLocation();
@@ -43,23 +43,31 @@ export default function FormularioSolicitud({
         if (!start || !freq) {
             setIntervals("");
             setCalculatedDates([]);
-            onDatesCalculated([]); // Enviar lista vacía al padre
+            onDatesCalculated([]);
             return;
         }
 
         const startDate = new Date(start);
         let endDate = end ? new Date(end) : null;
 
+        // Si la fecha final está vacía, usar sólo fecha de preferencia
+        if (!endDate) {
+            setIntervals(
+                <Tag color="blue">Usando solo la Fecha Preferencia.</Tag>
+            );
+            setCalculatedDates([startDate.toISOString()]);
+            onDatesCalculated([startDate.toISOString()]);
+            return;
+        }
 
         if (endDate && endDate <= startDate) {
             setIntervals(
                 <Tag color="red">La fecha final debe ser posterior a la fecha inicial.</Tag>
             );
             setCalculatedDates([]);
-            onDatesCalculated([]); // Enviar lista vacía al padre
+            onDatesCalculated([]);
             return;
         }
-
 
         let frequencyLabel = "";
         let occurrences = 0;
@@ -69,16 +77,16 @@ export default function FormularioSolicitud({
         switch (freq) {
             case "cada_mes":
                 frequencyLabel = "Mensual";
-                while (!endDate || tempDate <= endDate) {
+                while (tempDate <= endDate) {
                     dates.push(tempDate.toISOString());
                     tempDate.setMonth(tempDate.getMonth() + 1);
                     occurrences++;
-                    if (occurrences > 100) break; // Evitar bucles infinitos
+                    if (occurrences > 100) break;
                 }
                 break;
             case "trimestre":
                 frequencyLabel = "Trimestral";
-                while (!endDate || tempDate <= endDate) {
+                while (tempDate <= endDate) {
                     dates.push(tempDate.toISOString());
                     tempDate.setMonth(tempDate.getMonth() + 3);
                     occurrences++;
@@ -87,7 +95,7 @@ export default function FormularioSolicitud({
                 break;
             case "seis_meses":
                 frequencyLabel = "Semestral";
-                while (!endDate || tempDate <= endDate) {
+                while (tempDate <= endDate) {
                     dates.push(tempDate.toISOString());
                     tempDate.setMonth(tempDate.getMonth() + 6);
                     occurrences++;
@@ -96,7 +104,7 @@ export default function FormularioSolicitud({
                 break;
             case "anual":
                 frequencyLabel = "Anual";
-                while (!endDate || tempDate <= endDate) {
+                while (tempDate <= endDate) {
                     dates.push(tempDate.toISOString());
                     tempDate.setFullYear(tempDate.getFullYear() + 1);
                     occurrences++;
@@ -111,20 +119,25 @@ export default function FormularioSolicitud({
 
         setIntervals(
             <Tag color="blue">
-              {`${frequencyLabel} (${occurrences} ocurrencias)`}
+                {`${frequencyLabel} (${occurrences} ocurrencias)`}
             </Tag>
         );
         setCalculatedDates(dates);
-        onDatesCalculated(dates); // Enviar fechas calculadas
+        onDatesCalculated(dates);
     };
 
+
     const handleFinish = async (values) => {
-        if (!startDate) {
-            // Mostrar error si no hay fecha inicial
+        if (!startDate || !frequency) {
+            // Mostrar error si falta la fecha preferencia o la frecuencia
             form.setFields([
                 {
                     name: "fecha_preferencia",
                     errors: ["Por favor seleccione una fecha inicial o preferencia"],
+                },
+                {
+                    name: "frecuencia",
+                    errors: ["Por favor seleccione una frecuencia"],
                 },
             ]);
             return;
@@ -135,15 +148,15 @@ export default function FormularioSolicitud({
     };
 
 
-
     const handleReset = () => {
-        form.resetFields(); // Resetea todos los campos del formulario
+        form.resetFields(); // Reset all form fields
         setStartDate(null);
         setEndDate(null);
-        setFrequency("");
+        setFrequency("sin_frecuencia"); // Reset frequency to default
         setIntervals("");
         setCalculatedDates([]);
     };
+
 
     return (
         <Form
@@ -244,12 +257,20 @@ export default function FormularioSolicitud({
                                 stepMinute={15}
                                 style={{ height: "32px" }}
                                 value={endDate}
-                                locale="es" // Configura el idioma a español
+                                locale="es"
                                 onChange={(e) => {
-                                    setEndDate(e.value);
-                                    calculateIntervals(startDate, e.value, frequency);
+                                    const newEndDate = e.value;
+                                    setEndDate(newEndDate);
+
+                                    if (!newEndDate) {
+                                        // Automatically select "Sin Frecuencia" and disable frequency selection
+                                        setFrequency("sin_frecuencia");
+                                    }
+
+                                    calculateIntervals(startDate, newEndDate, frequency);
                                 }}
                             />
+
                         </Form.Item>
                     </Col>
                 )}
