@@ -3,7 +3,7 @@ import { setCredentials } from "../../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
 
-  baseUrl: "http://localhost:3000",
+  baseUrl: "https://david-salazar-servicios-backend.onrender.com",
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.token;
