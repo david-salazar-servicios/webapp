@@ -7,7 +7,8 @@ const allowedOrigins = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'https://david-salazar-servicios-backend.onrender.com',
-    'https://davidsalazarservicios.com'
+    'https://davidsalazarservicios.com',
+    'https://david-salazar-servicios-frontend.onrender.com'
 ]
 
 module.exports = allowedOrigins;
