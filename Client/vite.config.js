@@ -1,8 +1,17 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  sourcemap: true, // Asegúrate de que esto esté habilitado
-})
+  build: {
+    sourcemap: true,
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name].[hash][extname]'
+      }
+    }
+  },
+  server: {
+    strictPort: true, // Ensure the server uses a fixed port
+    open: true // Automatically open the app in the browser
+  }
+});
