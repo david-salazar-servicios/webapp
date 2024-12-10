@@ -35,7 +35,7 @@ import CuentaIbanForm from './components/Cuentaiban/CuentaibanForm';
 import Proforma from './components/proforma/Proforma';
 import CrearSolicitud from './components/services/CrearSolicitud'
 import useAuth from './hooks/useAuth';
-import Reportes from './components/Charts/reportes';
+import Reportes from './components/Charts/Reportes';
 
 function App() {
     const { roles } = useAuth(); // Assuming this fetches the roles of the logged-in user
