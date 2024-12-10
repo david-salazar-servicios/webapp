@@ -2,7 +2,8 @@ import React from 'react';
 import ReporteServiciosSolicitados from './reporteServiciosSolicitados';
 import ReporteProforma from './reporteProforma';
 import ReporteSolicitudesPorMes from './reporteSolicitudesPorMes';
-import ReporteGananciaMensual from './ReporteGananciaMensual';
+import ReporteGananciaMensual from './reporteGananciaMensual';
+
 
 export default function Reportes() {
   return (
