@@ -1,14 +1,9 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  sourcemap: true, // Asegúrate de que esto esté habilitado
-  base: './', // Set to './' for relative paths
   build: {
-    outDir: 'dist', // Matches your folder structure
-  }
-  
-})
+    outDir: 'dist',
+  },
+});
 
