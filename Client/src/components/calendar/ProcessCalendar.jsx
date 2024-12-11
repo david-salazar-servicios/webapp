@@ -9,6 +9,7 @@ import { useGetSolicitudesQuery, useGetSolicitudByIdQuery } from "../../features
 import esLocale from '@fullcalendar/core/locales/es';
 import moment from "moment";
 import "moment-timezone";
+import useAuth from "../../hooks/useAuth";
 
 const { Text, Title } = Typography;
 
@@ -22,6 +23,11 @@ const ProcessCalendar = () => {
   const { data: solicitudDetails, isLoading: isSolicitudDetailsLoading, isError: isSolicitudDetailsError } = useGetSolicitudByIdQuery(selectedEvent?.id, {
     skip: !selectedEvent,
   });
+
+
+  console.log(solicitudDetails)
+  const { roles, userId } = useAuth(); // Assume useAuth provides roles and tecnico ID
+  const isNotAdmin = !roles.includes("Admin");
 
   useEffect(() => {
     refetch();
