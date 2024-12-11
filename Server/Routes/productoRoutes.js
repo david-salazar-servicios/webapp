@@ -6,7 +6,7 @@ const { verifyJWT, isAdmin } = require("../middleware/verifyJWT");
 /* router.use(verifyJWT); */
 
 // Routes
-router.get("/", [isAdmin], productoController.getAllProductos);
+router.get("/", productoController.getAllProductos);
 router.post("/", productoController.createProducto);
 router.delete("/:id", productoController.deleteProducto);
 router.get("/:id", productoController.getProductoById);

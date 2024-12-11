@@ -62,7 +62,7 @@ const MaintenanceLayout = () => {
             ),
             key: 'mantenimiento/solicitudes',
             icon: <UserAddOutlined />,
-            roles: [ROLES.Admin, ROLES.Tecnico]
+            roles: [ROLES.Admin]
         },
         {
             label: 'Gestion Inventario',
@@ -91,7 +91,7 @@ const MaintenanceLayout = () => {
                 { label: 'Categorias', key: 'mantenimiento/categorias', roles: [ROLES.Admin] },
                 { label: 'Servicios', key: 'mantenimiento/servicios', roles: [ROLES.Admin] },
                 { label: 'Roles', key: 'mantenimiento/roles', roles: [ROLES.Admin] },
-                { label: 'Catalogo', key: 'mantenimiento/catalogo', roles: [ROLES.Admin] },
+                { label: 'Catalogo', key: 'mantenimiento/catalogo', roles: [ROLES.Admin, ROLES.Inventario] },
                 { label: 'Inventario', key: 'mantenimiento/inventario', roles: [ROLES.Admin] },
                 { label: 'Cuentas IBAN', key: 'mantenimiento/cuentaiban', roles: [ROLES.Admin] }
             ]
@@ -112,7 +112,7 @@ const MaintenanceLayout = () => {
             label: 'Salir',
             key: 'logout',
             icon: <LoginOutlined />,
-            roles: [ROLES.Admin, ROLES.Tecnico]
+            roles: [ROLES.Admin, ROLES.Tecnico, ROLES.Inventario]
         }
     ];
 
