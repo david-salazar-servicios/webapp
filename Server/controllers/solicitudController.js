@@ -260,6 +260,46 @@ const getServiceSolicitudesReport = async (req, res) => {
     }
 };
 
+const getSolicitudesByTecnico = async (req, res) => {
+    const { tecnicoId } = req.params;
+
+    try {
+        // Fetch solicitudes associated with the tecnico
+        const query = `
+            SELECT 
+                s.*,
+                c.datetime AS cita_datetime,
+                u.nombre AS tecnico_nombre,
+                u.apellido AS tecnico_apellido
+            FROM 
+                solicitud s
+            INNER JOIN 
+                cita c ON s.id_solicitud = c.id_solicitud
+            INNER JOIN 
+                usuario u ON c.id_tecnico = u.id_usuario
+            WHERE 
+                c.id_tecnico = $1
+            ORDER BY 
+                c.datetime ASC;
+        `;
+
+        // Execute the query with tecnicoId
+        const queryResult = await pool.query(query, [tecnicoId]);
+
+        // If no solicitudes are found for the tecnico
+        if (queryResult.rows.length === 0) {
+            return res.status(404).json({ message: 'No solicitudes found for this tecnico.' });
+        }
+
+        // Respond with the solicitudes and associated cita details
+        res.json(queryResult.rows);
+    } catch (error) {
+        console.error("Error retrieving solicitudes by tecnico:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
 
 
 module.exports = {
@@ -268,5 +308,6 @@ module.exports = {
     getSolicitudById,
     updateSolicitudEstado,
     updateSolicitudFechaPreferencia,
-    getServiceSolicitudesReport
+    getServiceSolicitudesReport,
+    getSolicitudesByTecnico
 };

@@ -25,6 +25,11 @@ export const requestServiceApiSlice = apiSlice.injectEndpoints({
             query: (solicitudId) => `/solicitudes/${solicitudId}`,
             providesTags: (result, error, solicitudId) => [{ type: 'Solicitud', id: solicitudId }],
         }),
+
+        getSolicitudesByTecnico: builder.query({
+            query: (tecnicoId) => `/solicitudes/tenico/${tecnicoId}`,
+            providesTags: (result, error, tecnicoId) => [{ type: 'Solicitud', id: tecnicoId }],
+        }),
         updateSolicitudEstado: builder.mutation({
             query: ({ id, estado }) => ({
                 url: `/solicitudes/${id}/estado`,
@@ -47,6 +52,16 @@ export const requestServiceApiSlice = apiSlice.injectEndpoints({
             query: () => '/solicitudes/report/service-solicitudes',
             providesTags: [{ type: 'Report', id: 'ServiceSolicitudes' }],
         }),
+
+        getSolicitudesByTecnico: builder.query({
+            query: (tecnicoId) => `/solicitudes/tecnico/${tecnicoId}`,
+            providesTags: (result, error, tecnicoId) => [
+                { type: 'SolicitudesByTecnico', id: tecnicoId },
+                ...(result?.length
+                    ? result.map(({ id_solicitud }) => ({ type: 'Solicitud', id: id_solicitud }))
+                    : []),
+            ],
+        }),
     }),
     
 });
@@ -57,5 +72,7 @@ export const {
     useGetSolicitudByIdQuery,
     useUpdateSolicitudEstadoMutation,
     useUpdateSolicitudFechaPreferenciaMutation,
-    useGetServiceSolicitudesReportQuery, // Export the new hook
+    useLazyGetSolicitudesByTecnicoQuery,
+    useGetServiceSolicitudesReportQuery,
+    useGetSolicitudesByTecnicoQuery, // Export the new hook
 } = requestServiceApiSlice;

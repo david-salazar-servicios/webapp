@@ -7,6 +7,7 @@ router.route("/:solicitudId/estado").put(solicitudController.updateSolicitudEsta
 router.route("/confirmar").post(solicitudController.crearSolicitud_AgregarServicios);
 router.route("/").get(solicitudController.getAllSolicitudes);
 router.route("/:solicitudId").get(solicitudController.getSolicitudById);
+router.route("/tecnico/:tecnicoId").get(solicitudController.getSolicitudesByTecnico);
 router.route("/:solicitudId/fecha_preferencia").put(solicitudController.updateSolicitudFechaPreferencia);
 router.route("/report/service-solicitudes").get(solicitudController.getServiceSolicitudesReport);
 module.exports = router;

@@ -5,7 +5,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Modal, Spin, Alert, Input, Card, Typography, List, Row, Col, Tag } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
-import { useGetSolicitudesQuery, useGetSolicitudByIdQuery } from "../../features/RequestService/RequestServiceApiSlice";
+import { useGetSolicitudesQuery, useGetSolicitudByIdQuery, useGetSolicitudesByTecnicoQuery } from "../../features/RequestService/RequestServiceApiSlice";
 import esLocale from '@fullcalendar/core/locales/es';
 import moment from "moment";
 import "moment-timezone";
@@ -18,20 +18,34 @@ const ProcessCalendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeStatusFilter, setActiveStatusFilter] = useState("All");
+  const { roles, userId } = useAuth(); 
+  const isNotAdmin = !roles.includes("Admin");
+  
+  const {
+    data: solicitudes,
+    isLoading,
+    isError,
+    refetch: refetchSolicitudes,
+  } = isNotAdmin
+    ? useGetSolicitudesByTecnicoQuery(userId)
+    : useGetSolicitudesQuery();
 
-  const { data: solicitudes, isLoading, isError, refetch } = useGetSolicitudesQuery();
-  const { data: solicitudDetails, isLoading: isSolicitudDetailsLoading, isError: isSolicitudDetailsError } = useGetSolicitudByIdQuery(selectedEvent?.id, {
+  const { 
+    data: solicitudDetails, 
+    isLoading: isSolicitudDetailsLoading, 
+    isError: isSolicitudDetailsError 
+  } = useGetSolicitudByIdQuery(selectedEvent?.id, {
     skip: !selectedEvent,
   });
 
 
-  console.log(solicitudDetails)
-  const { roles, userId } = useAuth(); // Assume useAuth provides roles and tecnico ID
-  const isNotAdmin = !roles.includes("Admin");
 
+
+  
   useEffect(() => {
-    refetch();
-  }, [refetch]);
+    refetchSolicitudes(); // Use the correct refetch variable name
+  }, [refetchSolicitudes]);
+  
 
   const handleEventClick = (info) => {
     setSelectedEvent(info.event.extendedProps);
