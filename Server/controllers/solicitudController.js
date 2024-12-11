@@ -93,7 +93,7 @@ const getSolicitudById = async (req, res) => {
         let tecnico = null;
         if (cita) {
             // Fetch tecnico details if cita exists
-            const tecnicoQuery = await pool.query('SELECT nombre, apellido FROM usuario WHERE id_usuario = $1', [cita.id_tecnico]);
+            const tecnicoQuery = await pool.query('SELECT id_usuario, nombre, apellido FROM usuario WHERE id_usuario = $1', [cita.id_tecnico]);
             tecnico = tecnicoQuery.rows[0];
         }
 
@@ -129,7 +129,7 @@ const getSolicitudById = async (req, res) => {
         // Respond with the solicitud data
         res.json({
             ...solicitud,
-            tecnico: tecnico ? { nombre: tecnico.nombre, apellido: tecnico.apellido } : null,
+            tecnico: tecnico ? { nombre: tecnico.nombre, apellido: tecnico.apellido , id: tecnico.id_usuario} : null,
             servicios: serviciosArray
         });
     } catch (error) {

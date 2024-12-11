@@ -199,7 +199,7 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
                                 </Form.Item>
                             </Col>
                             <Col span={8}>
-                                <Form.Item label="Id Técnico" name="id_tecnico" rules={[{ required: true, message: 'Selecciona un técnico' }]}>
+                                <Form.Item label="Técnico" name="id_tecnico" rules={[{ required: true, message: 'Selecciona un técnico' }]}>
                                     <Select loading={!technicians.length}>
                                         {technicians.map(tech => (
                                             <Option key={tech.id_usuario} value={tech.id_usuario}>
