@@ -140,7 +140,7 @@ export default function Proforma() {
     const { id_proforma } = useParams(); // Get the proforma ID from the URL
     const isEditing = !!id_proforma; // Determine if editing or creating    
     const location = useLocation();
-    const proformaList = location.state?.proformaList || [];
+    const proformaList = Array.isArray(location.state?.proformaList) ? location.state.proformaList : [];
     const { data: proformaData, isSuccess: proformaLoaded } = useGetProformaByIdQuery(
         id_proforma,
         { skip: !isEditing } // Only fetch if editing
@@ -603,7 +603,7 @@ export default function Proforma() {
     ];
 
     const filteredSolicitudes = solicitudes?.filter((solicitud) => {
-        const isSolicitudAssociated = proformaList.some(
+        const isSolicitudAssociated = Array.isArray(proformaList) && proformaList.some(
             (proforma) => proforma.id_solicitud === solicitud.id_solicitud
         );
     
