@@ -54,7 +54,7 @@ const TotalesTable = ({ inventariosProductos }) => {
   };
 
   return (
-    <Card bordered={false} className="equal-height-card">
+    <Card bordered={false}>
       <h3>Total de Productos</h3>
       <Input
         placeholder="Buscar por código o producto"

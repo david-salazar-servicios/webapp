@@ -6,7 +6,8 @@ import { useGetProformasQuery } from '../../features/Proforma/ProformaApiSlice';
 const { MonthPicker } = DatePicker;
 
 export default function ReporteGananciaMensual() {
-    const { data: proformas, isLoading, isError, error } = useGetProformasQuery();
+    const { data: { results: proformas = [] } = {}, isLoading, isError, error } = useGetProformasQuery();
+
 
     // Set the initial month range
     const today = new Date();
@@ -34,19 +35,22 @@ export default function ReporteGananciaMensual() {
         }
     };
 
-    // Filter the proformas based on the selected month range
     const filteredProformas = useMemo(() => {
-        if (!proformas || !startMonth || !endMonth) return [];
-
+        if (!Array.isArray(proformas) || !startMonth || !endMonth) {
+            console.error('Proformas is not an array or month range is invalid', proformas);
+            return [];
+        }
+    
         return proformas.filter((proforma) => {
-            const creationDate = new Date(proforma.ultima_modificacion); // Use the `ultima_modificacion` field for filtering
+            const creationDate = new Date(proforma.ultima_modificacion);
             return (
-                proforma.estado === 'Finalizada' && // Include only finalized proformas
+                proforma.estado === 'Finalizada' &&
                 creationDate >= startMonth &&
                 creationDate <= endMonth
             );
         });
     }, [proformas, startMonth, endMonth]);
+    
 
     // Generate the chart data based on the filtered proformas
     const chartData = useMemo(() => {
