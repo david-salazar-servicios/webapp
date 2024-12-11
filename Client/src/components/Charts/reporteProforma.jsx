@@ -3,28 +3,31 @@ import { Spin, Card } from 'antd';
 import { useGetProformasQuery } from '../../features/Proforma/ProformaApiSlice';
 import { useGetSolicitudesQuery } from '../../features/RequestService/RequestServiceApiSlice';
 
-
 export default function ReporteProformaYSolicitudes() {
-    const { data: proformas, isLoading: loadingProformas, isError: errorProformas, error: errorProformaMessage } = useGetProformasQuery();
-    const { data: solicitudes, isLoading: loadingSolicitudes, isError: errorSolicitudes, error: errorSolicitudMessage } = useGetSolicitudesQuery();
-    
+    const { data: proformasData, isLoading: loadingProformas, isError: errorProformas, error: errorProformaMessage } = useGetProformasQuery();
+    const { data: solicitudesData, isLoading: loadingSolicitudes, isError: errorSolicitudes, error: errorSolicitudMessage } = useGetSolicitudesQuery();
+
     const [totalProformasFinalizadas, setTotalProformasFinalizadas] = useState(0);
     const [totalSolicitudesConfirmadas, setTotalSolicitudesConfirmadas] = useState(0);
 
     useEffect(() => {
-        if (proformas) {
-            const finalizadas = proformas.filter(proforma => proforma.estado === 'Finalizada');
+        if (Array.isArray(proformasData)) {
+            const finalizadas = proformasData.filter(proforma => proforma.estado === 'Finalizada');
             const total = finalizadas.reduce((acc, proforma) => acc + parseFloat(proforma.total || 0), 0);
             setTotalProformasFinalizadas(total);
+        } else {
+            console.warn('Proformas data is not an array:', proformasData);
         }
-    }, [proformas]);
+    }, [proformasData]);
 
     useEffect(() => {
-        if (solicitudes) {
-            const confirmadas = solicitudes.filter(solicitud => solicitud.estado === 'Confirmada');
+        if (Array.isArray(solicitudesData)) {
+            const confirmadas = solicitudesData.filter(solicitud => solicitud.estado === 'Confirmada');
             setTotalSolicitudesConfirmadas(confirmadas.length);
+        } else {
+            console.warn('Solicitudes data is not an array:', solicitudesData);
         }
-    }, [solicitudes]);
+    }, [solicitudesData]);
 
     if (loadingProformas || loadingSolicitudes) {
         return <Spin tip="Cargando datos..." />;

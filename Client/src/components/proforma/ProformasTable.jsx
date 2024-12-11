@@ -11,23 +11,24 @@ import { useGetProformasQuery } from '../../features/Proforma/ProformaApiSlice';
 import { format } from 'date-fns';
 
 export default function ProformasTable() {
-    const { data: proformas, isLoading, isError, error } = useGetProformasQuery(); // Fetch all proformas
+    const { data: proformas = [], isLoading, isError, error } = useGetProformasQuery();
     const [searchQuery, setSearchQuery] = useState('');
     const dt = useRef(null);
     const navigate = useNavigate();
 
     // Add filtering logic for tecnico and cliente
-    const filteredProformas = proformas?.filter((proforma) => {
+    const filteredProformas = Array.isArray(proformas)
+    ? proformas.filter((proforma) => {
         const query = searchQuery.toLowerCase();
-    
         return (
             proforma.numeroarchivo?.toLowerCase().includes(query) ||
             proforma.id_solicitud?.toString().includes(query) ||
             proforma.id_proforma?.toString().includes(query) ||
-            proforma.cliente?.toLowerCase().includes(query) || // Search by cliente
-            proforma.tecnico?.toLowerCase().includes(query)    // Search by tecnico
+            proforma.cliente?.toLowerCase().includes(query) ||
+            proforma.tecnico?.toLowerCase().includes(query)
         );
-    });
+    })
+    : [];
     
 
     const formatWithCommas = (number) => {

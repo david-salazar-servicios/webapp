@@ -57,7 +57,7 @@ const BitacoraMovimientosTable = ({ refreshKey }) => {
   };
 
   return (
-    <Card bordered={false} className="equal-height-card">
+    <Card bordered={false}>
       <h3>Movimientos de Inventario</h3>
       <Input
         placeholder="Buscar por descripción o usuario"
