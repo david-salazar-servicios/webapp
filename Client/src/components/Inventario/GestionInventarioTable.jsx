@@ -3,6 +3,9 @@ import { Table, Button, Input, Space, Tag } from 'antd';
 import { FileImageTwoTone, SearchOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import { useUpdateCantidadInventarioProductoMutation, useUpdateEstanteInventarioProductoMutation } from '../../features/Inventario/InventarioApiSlice';
+import useAuth from "../../hooks/useAuth";
+
+
 
 const iconButtonStyle = {
   border: '1px solid #d9d9d9',
@@ -33,6 +36,9 @@ const GestionInventarioTable = ({
   const [estante, setEstante] = useState({});
   const [updateCantidadInventarioProducto] = useUpdateCantidadInventarioProductoMutation();
   const [updateEstanteInventarioProducto] = useUpdateEstanteInventarioProductoMutation();
+
+  const { roles } = useAuth();
+  const isNotAdmin = !roles.includes("Admin");
 
   console.log(data)
   useEffect(() => {
@@ -115,21 +121,21 @@ const GestionInventarioTable = ({
     console.log("saveEstante function triggered with record:", record);
     const newEstante = estante[record.codigo_producto];
     try {
-        await updateEstanteInventarioProducto({
-            id_inventario: selectedBodega.id_inventario,
-            id_producto: record.id_producto,
-            estante: newEstante,
-        }).unwrap();
+      await updateEstanteInventarioProducto({
+        id_inventario: selectedBodega.id_inventario,
+        id_producto: record.id_producto,
+        estante: newEstante,
+      }).unwrap();
 
-        const updatedData = filteredData.map(item =>
-            item.codigo_producto === record.codigo_producto ? { ...item, estante: newEstante } : item
-        );
-        setFilteredData(updatedData);
-        cancelEstante();
+      const updatedData = filteredData.map(item =>
+        item.codigo_producto === record.codigo_producto ? { ...item, estante: newEstante } : item
+      );
+      setFilteredData(updatedData);
+      cancelEstante();
     } catch (error) {
-        console.error("Failed to update estante:", error);
+      console.error("Failed to update estante:", error);
     }
-};
+  };
 
 
   const handleCantidadChange = (e, codigo_producto) => {
@@ -169,15 +175,15 @@ const GestionInventarioTable = ({
             </div>
           </Space>
         ) : (
-          <span 
-            onClick={() => editEstante(record)} 
+          <span
+            onClick={() => editEstante(record)}
             style={{
-              color: 'black', 
-              cursor: 'pointer', 
+              color: 'black',
+              cursor: 'pointer',
               display: 'inline-block',
-              width: '100px', 
+              width: '100px',
               padding: '4px',
-              border: '1px solid #d9d9d9', 
+              border: '1px solid #d9d9d9',
               borderRadius: '4px'
             }}
           >
@@ -221,15 +227,15 @@ const GestionInventarioTable = ({
             </div>
           </Space>
         ) : (
-          <span 
-            onClick={() => editCantidad(record)} 
+          <span
+            onClick={() => editCantidad(record)}
             style={{
-              color: 'black', 
-              cursor: 'pointer', 
+              color: 'black',
+              cursor: 'pointer',
               display: 'inline-block',
-              width: '100px', 
+              width: '100px',
               padding: '4px',
-              border: '1px solid #d9d9d9', 
+              border: '1px solid #d9d9d9',
               borderRadius: '4px',
               backgroundColor: '#c9e7b8' // green background
             }}
@@ -248,7 +254,7 @@ const GestionInventarioTable = ({
         </span>
       ),
     },
-    {
+    !isNotAdmin && {
       title: 'Precio Costo',
       dataIndex: 'precio_costo',
       key: 'precio_costo',
@@ -257,7 +263,7 @@ const GestionInventarioTable = ({
         <span>₡ {formatWithCommas(text)}</span>
       ),
     },
-    {
+    !isNotAdmin && {
       title: 'Precio Venta',
       dataIndex: 'precio_venta',
       key: 'precio_venta',
@@ -266,7 +272,7 @@ const GestionInventarioTable = ({
         <span>₡ {formatWithCommas(text)}</span>
       ),
     },
-    {
+    !isNotAdmin && {
       title: 'Inversión',
       key: 'inversion',
       width: 150,
@@ -290,8 +296,8 @@ const GestionInventarioTable = ({
       ),
       width: 70,
     },
-  ];
-  
+  ].filter(Boolean);;
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -306,11 +312,15 @@ const GestionInventarioTable = ({
         <Button type="primary" onClick={onOpenCatalogo} style={{ marginLeft: '10px' }}>
           Ver Catálogo
         </Button>
-        <Tag color="blue" style={{ marginLeft: 'auto', fontSize: '14px', padding:'5px', marginBottom: ''}}>
-          Total Inversión: ₡ {formatWithCommas(calculateTotalInversion())}
-        </Tag>
+        {!isNotAdmin && (
+
+          <Tag color="blue" style={{ marginLeft: 'auto', fontSize: '14px', padding: '5px', marginBottom: '' }}>
+            Total Inversión: ₡ {formatWithCommas(calculateTotalInversion())}
+          </Tag>
+        )}
+
       </div>
-      
+
       <div style={{ flex: 1, overflowY: 'auto', maxHeight: '400px' }}>
         <Table
           columns={columns}
@@ -320,7 +330,7 @@ const GestionInventarioTable = ({
           onRow={(record) => ({
             onClick: () => onRowSelect(record),
           })}
-          rowClassName={(record) => 
+          rowClassName={(record) =>
             record.codigo_producto === selectedProduct?.codigo_producto ? 'selected-row' : ''
           }
           sticky

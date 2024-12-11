@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { FileImageTwoTone } from '@ant-design/icons';
 import image from '../../assets/images/Logo-removebg-preview.png';
 import { useGetProductosQuery, useCreateProductoMutation, useDeleteProductoMutation, useUpdateProductoMutation } from '../../features/Productos/ProductoApiSlice';
+import useAuth from "../../hooks/useAuth";
+
 
 const { Option } = Select;
 
@@ -18,6 +20,9 @@ const ProductoForm = ({ onProductChange }) => {
     const [createProducto, { isLoading: creating }] = useCreateProductoMutation();
     const [updateProducto, { isLoading: updating }] = useUpdateProductoMutation();
     const [deleteProducto] = useDeleteProductoMutation();
+
+    const { roles } = useAuth();
+    const isNotAdmin = !roles.includes("Admin");
 
     const columns = [
         {
@@ -40,12 +45,12 @@ const ProductoForm = ({ onProductChange }) => {
             dataIndex: 'unidad_medida',
             key: 'unidad_medida',
         },
-        {
+        !isNotAdmin && {
             title: 'Precio Costo',
             dataIndex: 'precio_costo',
             key: 'precio_costo',
         },
-        {
+        !isNotAdmin && {
             title: 'Precio Venta',
             dataIndex: 'precio_venta',
             key: 'precio_venta',
@@ -80,7 +85,7 @@ const ProductoForm = ({ onProductChange }) => {
                 </span>
             ),
         },
-    ];
+    ].filter(Boolean);
 
     const handleDelete = async (record) => {
         try {
@@ -119,9 +124,15 @@ const ProductoForm = ({ onProductChange }) => {
     };
 
     const onFinish = async (values) => {
+
+        const updatedValues = isNotAdmin
+            ? { ...values, precio_costo: 0, excedente: 0, precio_venta: 0 }
+            : values;
+
+
         try {
             if (editingProductId) {
-                await updateProducto({ id_producto: editingProductId, ...values }).unwrap();
+                await updateProducto({ id_producto: editingProductId, ...updatedValues }).unwrap();
                 message.success('Producto actualizado correctamente');
             } else {
                 await createProducto(values).unwrap();
@@ -206,8 +217,10 @@ const ProductoForm = ({ onProductChange }) => {
                                     <Option value="Metro">Metro</Option>
                                 </Select>
                             </Form.Item>
-
-                            <Form.Item
+                            
+                            {!isNotAdmin && (
+                                <>
+                                  <Form.Item
                                 name="precio_costo"
                                 label={<span>Precio Costo</span>}
                                 rules={[{ required: true, message: 'Por favor ingresa el precio costo!' }]}
@@ -243,6 +256,11 @@ const ProductoForm = ({ onProductChange }) => {
                             >
                                 <Input disabled />
                             </Form.Item>
+                                </>
+
+
+                            )}
+                          
 
                             <Form.Item
                                 name="imagen"

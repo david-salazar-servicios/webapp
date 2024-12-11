@@ -52,7 +52,10 @@ function Login() {
                 navigate('/mantenimiento/');
             } else if (userRoles.includes('Tecnico')) {
                 navigate('/mantenimiento/');
-            } else {
+            } else if (userRoles.includes('Inventario')) {
+                navigate('/mantenimiento/GestionInventario');
+            }
+            else {
                 navigate('/');
             }
         }

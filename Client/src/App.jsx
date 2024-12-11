@@ -103,6 +103,13 @@ function App() {
                                 <Route path="Inventario" element={<Inventario />} />
                             </Route>
                         </Route>
+                    ) : userRoles.includes(ROLES.Inventario) ? (
+                        <Route element={<RequireAuth allowedRoles={[ROLES.Inventario]} />}>
+                           <Route path="mantenimiento" element={<MaintenanceLayout />}>
+                                <Route path="" element={<GestionInventario />} />
+                                <Route path="GestionInventario" element={<GestionInventario />} />
+                            </Route>
+                        </Route>
                     ) : (
                         <Route path="*" element={<Navigate to="/login" replace />} />
                     )}
