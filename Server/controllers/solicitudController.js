@@ -259,7 +259,6 @@ const getServiceSolicitudesReport = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
-
 const getSolicitudesByTecnico = async (req, res) => {
     const { tecnicoId } = req.params;
 
@@ -286,9 +285,9 @@ const getSolicitudesByTecnico = async (req, res) => {
         // Execute the query with tecnicoId
         const queryResult = await pool.query(query, [tecnicoId]);
 
-        // If no solicitudes are found for the tecnico
+        // Respond with an empty array if no solicitudes are found
         if (queryResult.rows.length === 0) {
-            return res.status(404).json({ message: 'No solicitudes found for this tecnico.' });
+            return res.json([]); // Return an empty array
         }
 
         // Respond with the solicitudes and associated cita details
