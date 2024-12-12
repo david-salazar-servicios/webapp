@@ -2,14 +2,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Table, Checkbox, Input, Button, Space, Card, Select, message, Modal } from 'antd';
-import { useGetSolicitudesQuery, useGetSolicitudByIdQuery } from '../../features/RequestService/RequestServiceApiSlice';
+import { useGetSolicitudesQuery, useGetSolicitudByIdQuery, useGetSolicitudesByTecnicoQuery } from '../../features/RequestService/RequestServiceApiSlice';
 import { useGetCuentasIbanQuery } from '../../features/Cuentaiban/CuentaibanApiSlice';
 import { useCreateProformaMutation, useGetProformaByIdQuery, useUpdateProformaMutation, useFinalizarProformaMutation, useDeleteProformaMutation } from '../../features/Proforma/ProformaApiSlice';
 import { useLocation } from 'react-router-dom';
 import logo from '../../assets/images/Logo-removebg-preview.png';
 import { DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import CatalogoDialog from './CatalogoDialog'; // Adjust the import path as necessary
-
+import useAuth from "../../hooks/useAuth";
+import moment from "moment";
 
 // Define global print-specific styles
 const printStyles = `
@@ -114,7 +115,18 @@ const injectPrintStyles = () => {
 injectPrintStyles();
 
 export default function Proforma() {
-    const { data: solicitudes, isLoading: isSolicitudesLoading, isError: isSolicitudesError } = useGetSolicitudesQuery();
+
+    const { roles, userId } = useAuth();
+    const isNotAdmin = !roles.includes("Admin");
+
+    const {
+        data: solicitudes = [],
+        isLoading: isSolicitudesLoading,
+        isError: isSolicitudesError,
+    } = isNotAdmin
+            ? useGetSolicitudesByTecnicoQuery(userId) // Non-admin: Fetch only técnico's solicitudes
+            : useGetSolicitudesQuery(); // Admin: Fetch all solicitudes
+
     const [selectedSolicitudId, setSelectedSolicitudId] = useState('');
     const [selectedDetalles, setSelectedDetalles] = useState({});
     const [newDetalles, setNewDetalles] = useState([]);
@@ -141,6 +153,8 @@ export default function Proforma() {
     const isEditing = !!id_proforma; // Determine if editing or creating    
     const location = useLocation();
     const proformaList = Array.isArray(location.state?.proformaList) ? location.state.proformaList : [];
+
+    console.log(proformaList)
     const { data: proformaData, isSuccess: proformaLoaded } = useGetProformaByIdQuery(
         id_proforma,
         { skip: !isEditing } // Only fetch if editing
@@ -428,6 +442,7 @@ export default function Proforma() {
                 />
             ),
         },
+
         {
             title: 'PRECIO',
             dataIndex: 'precio_venta',
@@ -463,6 +478,7 @@ export default function Proforma() {
                     <span>₡ {formatWithCommas(record.total)}</span>
                 ),
         },
+
         {
             title: 'Acciones',
             className: 'acciones-column',
@@ -559,35 +575,41 @@ export default function Proforma() {
             ),
         },
         { title: 'Unidad Medida', dataIndex: 'unidad_medida' },
-        {
-            title: 'PRECIO',
-            dataIndex: 'precio_venta',
-            render: (text) => <span>₡ {formatWithCommas(text)}</span>,
-        },
-        {
-            title: 'EXCEDENTE',
-            render: (_, record) => {
-                const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
-                return  <span>₡ {formatWithCommas(excedente)}</span>;
-            },
-        },
-        {
-            title: 'I.V 13%',
-            render: (_, record) => {
-                const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
-                const impuesto = excedente * 0.13;
-                return  <span>₡ {formatWithCommas(excedente)}</span>;
-            },
-        },
-        {
-            title: 'TOTAL',
-            render: (_, record) => {
-                const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
-                const impuesto = excedente * 0.13;
-                const total = excedente + impuesto;
-                return  <span>₡ {formatWithCommas(excedente)}</span>;
-            },
-        },
+
+
+        ...(!isNotAdmin // If the user is an admin, include these columns
+            ? [
+                {
+                    title: 'PRECIO',
+                    dataIndex: 'precio_venta',
+                    render: (text) => <span>₡ {formatWithCommas(text)}</span>,
+                },
+                {
+                    title: 'EXCEDENTE',
+                    render: (_, record) => {
+                        const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
+                        return <span>₡ {formatWithCommas(excedente)}</span>;
+                    },
+                },
+                {
+                    title: 'I.V 13%',
+                    render: (_, record) => {
+                        const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
+                        const impuesto = excedente * 0.13;
+                        return <span>₡ {formatWithCommas(excedente)}</span>;
+                    },
+                },
+                {
+                    title: 'TOTAL',
+                    render: (_, record) => {
+                        const excedente = (record.precio_venta || 0) * (record.cantidad || 0);
+                        const impuesto = excedente * 0.13;
+                        const total = excedente + impuesto;
+                        return <span>₡ {formatWithCommas(excedente)}</span>;
+                    },
+                },
+            ]
+            : []),
         {
             title: 'Acciones',
             className: 'acciones-column',
@@ -606,23 +628,26 @@ export default function Proforma() {
         const isSolicitudAssociated = Array.isArray(proformaList) && proformaList.some(
             (proforma) => proforma.id_solicitud === solicitud.id_solicitud
         );
-    
-        // Exclude solicitudes with estado "Rechazada"
+
         const isRechazada = solicitud.estado === "Rechazada";
-    
+        const isSelectedSolicitud = solicitud.id_solicitud === proformaData?.proforma?.id_solicitud;
+
+        // Check if the solicitud is for today (only for non-admin users)
+        const isToday = isNotAdmin
+            ? moment(solicitud.fecha_preferencia).isSame(moment(), "day")
+            : true;
+
+        // Editing mode: Include the selected solicitud even if it's already associated
         if (isEditing) {
-            // Include the current solicitud being edited even if associated
-            return (
-                (!isSolicitudAssociated || 
-                solicitud.id_solicitud === proformaData?.proforma?.id_solicitud) &&
-                !isRechazada
-            );
+            return isSelectedSolicitud || (!isSolicitudAssociated && !isRechazada && isToday);
         }
-    
-        // In create mode: only include unassociated and non-"Rechazada" solicitudes
-        return !isSolicitudAssociated && !isRechazada;
+
+        // Creating mode: Only include unassociated, non-rejected solicitudes for today
+        return !isSolicitudAssociated && !isRechazada && isToday;
     }) || [];
-    
+
+
+
 
 
     const todayDate = new Date();
@@ -790,20 +815,49 @@ export default function Proforma() {
                         <div className="row g-0">
                             <div className="col-sm-4">
                                 <div className="invoice-logo">
-                                    <img src={logo} alt="logo" className="logo" />
+                                    <img src={logo}
+                    alt="logo"
+                    className="logo"
+                    style={{ width: "150px", height: "150px", objectFit: "contain" }} // Adjust as needed
+                 />
                                 </div>
                             </div>
                             <div className="col-sm-8 text-right invoice-id p-4">
-                                <h2 className='color-white'>Proforma</h2>
-                                <h4 className='color-white'>Servicios Residenciales y Comerciales CR LTDA</h4>
+                                <h2 className="color-white">Proforma</h2>
+                                <h4 className="color-white">Servicios Residenciales y Comerciales CR LTDA</h4>
                                 <div className="d-flex justify-content-end align-items-center gap-4">
-                                    <div><i className="fa fa-envelope me-2"></i> servicios.rc.cr@gmail.com</div>
-                                    <div><i className="fa fa-phone me-2"></i> 2239-6042 / 8609-6382</div>
-                                    <div><i className="fa fa-calendar me-2"></i> <strong>Fecha:</strong> {formattedDate}</div>
+                                    <div>
+                                        <i className="fa fa-envelope me-2"></i> servicios.rc.cr@gmail.com
+                                    </div>
+                                    <div>
+                                        <i className="fa fa-phone me-2"></i> 2239-6042 / 8609-6382
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-end align-items-center gap-4 mt-2">
+                                    <div>
+                                        <i className="fa fa-calendar me-2"></i>
+                                        {isEditing ? (
+                                            <>
+                                                <strong>Fecha Creación:</strong>{" "}
+                                                {moment(proformaData?.proforma?.fechacreacion).format("DD-MM-YYYY")}
+                                                <span style={{ marginLeft: "16px" }}>
+                                                    <strong>Última Modificación:</strong>{" "}
+                                                    {moment(proformaData?.proforma?.ultima_modificacion).format("DD-MM-YYYY")}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <strong>Fecha:</strong> {formattedDate}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </Card>
+
+
+
 
 
                     {/* Solicitud Selection */}
@@ -828,76 +882,81 @@ export default function Proforma() {
 
                     </Card>
                     {/* Información del Archivo */}
-                    <Card className="mb-4" title="Información del Archivo"
-                        style={{
-                            boxShadow: "0 2px 2px 0 rgba(0,0,0,0.2)",
-                        }}>
-                        <div className="d-flex justify-content-between align-items-center">
-                            <div className="d-flex flex-column">
-                                <strong>Número Archivo:</strong>
-                                <Input
-                                    disabled={isFinalized}
-                                    value={numeroArchivo} // Bind to state
-                                    onChange={(e) => setNumeroArchivo(e.target.value)} // Update state
-                                    style={{
-                                        width: '150px',
-                                        border: 'none',
-                                        borderBottom: '1px solid #d9d9d9',
-                                        borderRadius: 0,
-                                        padding: '0 4px'
-                                    }}
-                                />
-                            </div>
 
-                            <div className="d-flex flex-column">
-                                <strong>Cotización:</strong>
-                                <Input
-                                    disabled={isFinalized}
-                                    value={cotizacion} // Bind to state
-                                    onChange={(e) => setCotizacion(e.target.value)} // Update state
-                                    style={{
-                                        width: '150px',
-                                        border: 'none',
-                                        borderBottom: '1px solid #d9d9d9',
-                                        borderRadius: 0,
-                                        padding: '0 4px'
-                                    }}
-                                />
-                            </div>
+                    {!isNotAdmin && (
 
-                            <div className="d-flex flex-column">
-                                <strong>NC/F-E:</strong>
-                                <Input
-                                    disabled={isFinalized}
-                                    value={ncFe} // Bind to state
-                                    onChange={(e) => setNcFe(e.target.value)} // Update state
-                                    style={{
-                                        width: '150px',
-                                        border: 'none',
-                                        borderBottom: '1px solid #d9d9d9',
-                                        borderRadius: 0,
-                                        padding: '0 4px'
-                                    }}
-                                />
-                            </div>
+                        <Card className="mb-4" title="Información del Archivo"
+                            style={{
+                                boxShadow: "0 2px 2px 0 rgba(0,0,0,0.2)",
+                            }}>
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex flex-column">
+                                    <strong>Número Archivo:</strong>
+                                    <Input
+                                        disabled={isFinalized}
+                                        value={numeroArchivo} // Bind to state
+                                        onChange={(e) => setNumeroArchivo(e.target.value)} // Update state
+                                        style={{
+                                            width: '150px',
+                                            border: 'none',
+                                            borderBottom: '1px solid #d9d9d9',
+                                            borderRadius: 0,
+                                            padding: '0 4px'
+                                        }}
+                                    />
+                                </div>
 
-                            <div className="d-flex flex-column">
-                                <strong>Oferta Válida:</strong>
-                                <Input
-                                    disabled={isFinalized}
-                                    value={ofertaValida} // Bind to state
-                                    onChange={(e) => setOfertaValida(e.target.value)} // Update state
-                                    style={{
-                                        width: '150px',
-                                        border: 'none',
-                                        borderBottom: '1px solid #d9d9d9',
-                                        borderRadius: 0,
-                                        padding: '0 4px'
-                                    }}
-                                />
+                                <div className="d-flex flex-column">
+                                    <strong>Cotización:</strong>
+                                    <Input
+                                        disabled={isFinalized}
+                                        value={cotizacion} // Bind to state
+                                        onChange={(e) => setCotizacion(e.target.value)} // Update state
+                                        style={{
+                                            width: '150px',
+                                            border: 'none',
+                                            borderBottom: '1px solid #d9d9d9',
+                                            borderRadius: 0,
+                                            padding: '0 4px'
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="d-flex flex-column">
+                                    <strong>NC/F-E:</strong>
+                                    <Input
+                                        disabled={isFinalized}
+                                        value={ncFe} // Bind to state
+                                        onChange={(e) => setNcFe(e.target.value)} // Update state
+                                        style={{
+                                            width: '150px',
+                                            border: 'none',
+                                            borderBottom: '1px solid #d9d9d9',
+                                            borderRadius: 0,
+                                            padding: '0 4px'
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="d-flex flex-column">
+                                    <strong>Oferta Válida:</strong>
+                                    <Input
+                                        disabled={isFinalized}
+                                        value={ofertaValida} // Bind to state
+                                        onChange={(e) => setOfertaValida(e.target.value)} // Update state
+                                        style={{
+                                            width: '150px',
+                                            border: 'none',
+                                            borderBottom: '1px solid #d9d9d9',
+                                            borderRadius: 0,
+                                            padding: '0 4px'
+                                        }}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    </Card>
+                        </Card>
+                    )}
+
 
                     {/* Información del Cliente */}
                     <Card className="mb-4" title="Información del Cliente"
@@ -1001,25 +1060,28 @@ export default function Proforma() {
                         title={
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span>Detalle Proforma</span>
-                                <div>
-                                    <Checkbox
-                                        disabled={isFinalized}
-                                        checked={sinIVA}
-                                        onChange={(e) => setSinIVA(e.target.checked)}
-                                        className="sinIVA-checkbox"
-                                    >
-                                        Sin IVA
-                                    </Checkbox>
-                                    <Checkbox
-                                        checked={sinDetalle}
-                                        onChange={(e) => setSinDetalle(e.target.checked)}
-                                        className="sinDetalle-checkbox"
-                                        style={{ marginLeft: '10px' }}
-                                    >
-                                        Sin Detalle
-                                    </Checkbox>
+                                {!isNotAdmin && (
+                                    <div>
+                                        <Checkbox
+                                            disabled={isFinalized}
+                                            checked={sinIVA}
+                                            onChange={(e) => setSinIVA(e.target.checked)}
+                                            className="sinIVA-checkbox"
+                                        >
+                                            Sin IVA
+                                        </Checkbox>
+                                        <Checkbox
+                                            checked={sinDetalle}
+                                            onChange={(e) => setSinDetalle(e.target.checked)}
+                                            className="sinDetalle-checkbox"
+                                            style={{ marginLeft: '10px' }}
+                                        >
+                                            Sin Detalle
+                                        </Checkbox>
 
-                                </div>
+                                    </div>
+                                )}
+
                             </div>
                         }
                         style={{
@@ -1048,27 +1110,35 @@ export default function Proforma() {
 
 
                         {/* New Editable Table */}
-                        <Table
-                            dataSource={
-                                dataWithMateriales.map((row) =>
-                                    sinDetalle || row.key !== 'materiales' ? row : { ...row, hidden: true }
-                                ).filter((row) => !row.hidden)
-                            }
-                            columns={
-                                sinIVA
-                                    ? extraColumns.filter((col) => col.dataIndex !== 'impuesto' && col.dataIndex !== 'total')
-                                    : extraColumns
-                            }
-                            pagination={false}
-                            rowKey="key"
-                            style={{ marginTop: 30 }}
-                        />
+                        {!isNotAdmin && (
 
-                        <Space style={{ marginTop: 16 }}>
-                            <Button type="primary" onClick={handleAddExtraRow} disabled={isFinalized}  >
-                                Añadir
-                            </Button>
-                        </Space>
+                            <>
+
+                                <Table
+                                    dataSource={
+                                        dataWithMateriales.map((row) =>
+                                            sinDetalle || row.key !== 'materiales' ? row : { ...row, hidden: true }
+                                        ).filter((row) => !row.hidden)
+                                    }
+                                    columns={
+                                        sinIVA
+                                            ? extraColumns.filter((col) => col.dataIndex !== 'impuesto' && col.dataIndex !== 'total')
+                                            : extraColumns
+                                    }
+                                    pagination={false}
+                                    rowKey="key"
+                                    style={{ marginTop: 30 }}
+                                />
+
+                                <Space style={{ marginTop: 16 }}>
+                                    <Button type="primary" onClick={handleAddExtraRow} disabled={isFinalized}  >
+                                        Añadir
+                                    </Button>
+                                </Space>
+                            </>
+
+                        )}
+
 
                         {/* Modal for Producto Catalog */}
                         <CatalogoDialog
@@ -1102,41 +1172,46 @@ export default function Proforma() {
                             </Card>
 
                             {/* Totales Card in row format */}
-                            <Card
-                                className="mb-4"
-                                title="TOTALES"
-                                style={{
 
-                                    flex: '1 1 45%',
-                                    maxWidth: '100%',
-                                    height: '250px', // Slightly increased height for table
-                                    overflow: 'hidden', // Prevent overflow
-                                }}
-                                headStyle={{ backgroundColor: '#fafafa' }}
-                            >
-                                <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Descripción</th>
-                                            <th style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>Monto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}><strong>SUBTOTAL:</strong></td>
-                                            <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>₡ {formatWithCommas(sumExcedente)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}><strong>I.V 13%:</strong></td>
-                                            <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>₡ {formatWithCommas(iva)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}><strong>TOTAL:</strong></td>
-                                            <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>₡ {formatWithCommas(totalWithIVA)}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </Card>
+                            {!isNotAdmin && (
+
+                                <Card
+                                    className="mb-4"
+                                    title="TOTALES"
+                                    style={{
+
+                                        flex: '1 1 45%',
+                                        maxWidth: '100%',
+                                        height: '250px', // Slightly increased height for table
+                                        overflow: 'hidden', // Prevent overflow
+                                    }}
+                                    headStyle={{ backgroundColor: '#fafafa' }}
+                                >
+                                    <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>Descripción</th>
+                                                <th style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}><strong>SUBTOTAL:</strong></td>
+                                                <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>₡ {formatWithCommas(sumExcedente)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}><strong>I.V 13%:</strong></td>
+                                                <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>₡ {formatWithCommas(iva)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}><strong>TOTAL:</strong></td>
+                                                <td style={{ padding: '8px', borderBottom: '1px solid #ddd', textAlign: 'right' }}>₡ {formatWithCommas(totalWithIVA)}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </Card>
+                            )}
+
 
                         </div>
                     </Card>
@@ -1145,56 +1220,63 @@ export default function Proforma() {
 
 
 
+                    {!isNotAdmin && (
 
-                    <Card className="mb-4" title="Cuentas Bancarias"
-                        style={{
-                            boxShadow: "0 2px 2px 0 rgba(0,0,0,0.2)",
-                        }}>
-                        {isCuentasIbanLoading ? (
-                            <p>Loading cuentas bancarias...</p>
-                        ) : (
-                            <>
-                                <table className="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>IBAN</th>
-                                            <th>Banco</th>
-                                            <th>Moneda</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {cuentasIban.map((cuenta) => (
-                                            <tr key={cuenta.id_cuenta}>
-                                                <td><strong>{cuenta.id_iban}</strong></td>
-                                                <td>{cuenta.tipobanco}</td>
-                                                <td>{cuenta.moneda}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <div className="sinpe-movil-info mt-3" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <h5>SINPEMOVIL:</h5>
-                                    <h5 style={{ fontSize: '18px' }}><strong>88206326</strong> - Mariela Mejías M</h5>
-                                </div>
+                        <>
 
-                            </>
-                        )}
-                    </Card>
+                            <Card className="mb-4" title="Cuentas Bancarias"
+                                style={{
+                                    boxShadow: "0 2px 2px 0 rgba(0,0,0,0.2)",
+                                }}>
+                                {isCuentasIbanLoading ? (
+                                    <p>Loading cuentas bancarias...</p>
+                                ) : (
+                                    <>
+                                        <table className="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>IBAN</th>
+                                                    <th>Banco</th>
+                                                    <th>Moneda</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {cuentasIban.map((cuenta) => (
+                                                    <tr key={cuenta.id_cuenta}>
+                                                        <td><strong>{cuenta.id_iban}</strong></td>
+                                                        <td>{cuenta.tipobanco}</td>
+                                                        <td>{cuenta.moneda}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                        <div className="sinpe-movil-info mt-3" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <h5>SINPEMOVIL:</h5>
+                                            <h5 style={{ fontSize: '18px' }}><strong>88206326</strong> - Mariela Mejías M</h5>
+                                        </div>
 
-                    <footer style={{ marginTop: '20px', padding: '10px', borderTop: '1px solid #d9d9d9', fontSize: '14px', color: '#555' }}>
-                        <p>
-                            Venta y entrega de materiales solo de contado o hecho efectivo el pago en nuestra cuenta,
-                            entrega de materiales de 1 a 4 días hábiles de lunes a viernes de 08:00 AM a 05:00 PM.
-                        </p>
-                        <p>
-                            Devolución de materiales no electrónicos tiene un cargo del 10% sobre el monto cancelado,
-                            NO se recibe el material usado.
-                        </p>
-                        <p>Materiales electrónicos no aceptamos devoluciones solo por
-                            defecto de fábrica dentro de la garantía.
-                        </p>
-                        <p>Instalación de sistemas de riego u otros trabajos sujeto a mutuo acuerdo para ingresar al proyecto.</p>
-                    </footer>
+                                    </>
+                                )}
+                            </Card>
+
+                            <footer style={{ marginTop: '20px', padding: '10px', borderTop: '1px solid #d9d9d9', fontSize: '14px', color: '#555' }}>
+                                <p>
+                                    Venta y entrega de materiales solo de contado o hecho efectivo el pago en nuestra cuenta,
+                                    entrega de materiales de 1 a 4 días hábiles de lunes a viernes de 08:00 AM a 05:00 PM.
+                                </p>
+                                <p>
+                                    Devolución de materiales no electrónicos tiene un cargo del 10% sobre el monto cancelado,
+                                    NO se recibe el material usado.
+                                </p>
+                                <p>Materiales electrónicos no aceptamos devoluciones solo por
+                                    defecto de fábrica dentro de la garantía.
+                                </p>
+                                <p>Instalación de sistemas de riego u otros trabajos sujeto a mutuo acuerdo para ingresar al proyecto.</p>
+                            </footer>
+                        </>
+
+                    )}
+
 
                     {/* Buttons Section */}
                     <div
@@ -1224,19 +1306,23 @@ export default function Proforma() {
                                 flexWrap: 'wrap', // Ensures responsiveness for multiple buttons
                             }}
                         >
-                            <Button
-                                type="primary"
-                                variant="outlined"
-                                onClick={() => window.print()}
-                                size="large"
-                                style={{
-                                    backgroundColor: 'black',
-                                    borderColor: 'black',
-                                    color: '#fff',
-                                }}
-                            >
-                                Imprimir
-                            </Button>
+                            {!isNotAdmin && (
+
+                                <Button
+                                    type="primary"
+                                    variant="outlined"
+                                    onClick={() => window.print()}
+                                    size="large"
+                                    style={{
+                                        backgroundColor: 'black',
+                                        borderColor: 'black',
+                                        color: '#fff',
+                                    }}
+                                >
+                                    Imprimir
+                                </Button>
+                            )}
+
 
                             {!isFinalized && (
                                 <Button
@@ -1249,28 +1335,34 @@ export default function Proforma() {
                                 </Button>
                             )}
 
-                            {proformaEstado === "En Progreso" && (
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    onClick={() => setIsModalVisible(true)}
-                                    loading={isLoading}
-                                    style={{ backgroundColor: '#22c55e' }}
-                                >
-                                    Finalizar
-                                </Button>
+                            {!isNotAdmin && (
+                                <>
+                                    {proformaEstado === "En Progreso" && (
+                                        <Button
+                                            type="primary"
+                                            size="large"
+                                            onClick={() => setIsModalVisible(true)}
+                                            loading={isLoading}
+                                            style={{ backgroundColor: '#22c55e' }}
+                                        >
+                                            Finalizar
+                                        </Button>
+                                    )}
+
+                                    {isEditing && !isFinalized && (
+                                        <Button
+                                            type="primary"
+                                            danger
+                                            size="large"
+                                            onClick={() => setIsDeleteModalVisible(true)}
+                                        >
+                                            Eliminar
+                                        </Button>
+                                    )}
+                                </>
                             )}
 
-                            {isEditing && !isFinalized && (
-                                <Button
-                                    type="primary"
-                                    danger
-                                    size="large"
-                                    onClick={() => setIsDeleteModalVisible(true)}
-                                >
-                                    Eliminar
-                                </Button>
-                            )}
+
                         </div>
                     </div>
 

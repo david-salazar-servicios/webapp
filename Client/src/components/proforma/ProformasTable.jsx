@@ -7,29 +7,52 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { Card, Row, Col } from 'antd';
-import { useGetProformasQuery } from '../../features/Proforma/ProformaApiSlice'; // Replace with actual API slice path
+import { useGetProformasQuery } from '../../features/Proforma/ProformaApiSlice';
+import { useGetSolicitudesByTecnicoQuery } from '../../features/RequestService/RequestServiceApiSlice';
 import { format } from 'date-fns';
+import moment from 'moment';
+import useAuth from "../../hooks/useAuth";
 
 export default function ProformasTable() {
     const { data: proformas = [], isLoading, isError, error } = useGetProformasQuery();
     const [searchQuery, setSearchQuery] = useState('');
     const dt = useRef(null);
     const navigate = useNavigate();
+    const { roles, userId } = useAuth();
+    const isNotAdmin = !roles.includes("Admin");
 
-    // Add filtering logic for tecnico and cliente
+
+    const { data: solicitudesByTecnico = [], isLoading: isLoadingSolicitudes } = useGetSolicitudesByTecnicoQuery(userId, {
+        skip: !isNotAdmin,
+    });
+
+    const today = moment().format('YYYY-MM-DD');
+
     const filteredProformas = Array.isArray(proformas)
-    ? proformas.filter((proforma) => {
-        const query = searchQuery.toLowerCase();
-        return (
-            proforma.numeroarchivo?.toLowerCase().includes(query) ||
-            proforma.id_solicitud?.toString().includes(query) ||
-            proforma.id_proforma?.toString().includes(query) ||
-            proforma.cliente?.toLowerCase().includes(query) ||
-            proforma.tecnico?.toLowerCase().includes(query)
-        );
-    })
-    : [];
-    
+        ? proformas.filter((proforma) => {
+            if (isNotAdmin) {
+                // Filter by solicitudes assigned to the technician and only for today's solicitudes
+                return solicitudesByTecnico.some(
+                    (solicitud) =>
+                        proforma.estado === 'En Progreso' &&
+                        solicitud.id_solicitud === proforma.id_solicitud &&
+                        moment(solicitud.fecha_preferencia).isSame(today, 'day') // Match today's date
+                );
+            }
+            return true; // Admins see all proformas
+        }).filter((proforma) => {
+            // Apply search query filtering
+            const query = searchQuery.toLowerCase();
+            return (
+                proforma.numeroarchivo?.toLowerCase().includes(query) ||
+                proforma.id_solicitud?.toString().includes(query) ||
+                proforma.id_proforma?.toString().includes(query) ||
+                proforma.cliente?.toLowerCase().includes(query) ||
+                proforma.tecnico?.toLowerCase().includes(query)
+            );
+        })
+        : [];
+
 
     const formatWithCommas = (number) => {
         return new Intl.NumberFormat('en-US').format(number);
@@ -123,16 +146,22 @@ export default function ProformasTable() {
                         className="custom-hover-effect elegant-table"
                         onRowClick={(e) => handleRowClick(e.data)} // Redirect on row click
                     >
-                        <Column field="numeroarchivo" header="N° Archivo" sortable style={{ width: '8rem' }}></Column>
+                        {!isNotAdmin && (
+                            <Column field="numeroarchivo" header="N° Archivo" sortable style={{ width: '8rem' }}></Column>
+                        )}
+
                         <Column field="cliente" header="Cliente" sortable style={{ width: '8rem' }}></Column>
                         <Column field="tecnico" header="Técnico" sortable style={{ width: '8rem' }}></Column>
-                        <Column
-                            field="total"
-                            header="Total"
-                            body={(rowData) => `₡ ${formatWithCommas(parseFloat(rowData.total).toFixed(2))}`}
-                            sortable
-                            style={{ width: '10rem' }}
-                        />
+                        {!isNotAdmin && (
+
+                            <Column
+                                field="total"
+                                header="Total"
+                                body={(rowData) => `₡ ${formatWithCommas(parseFloat(rowData.total).toFixed(2))}`}
+                                sortable
+                                style={{ width: '10rem' }}
+                            />
+                        )}
                         <Column
                             field="fechacreacion"
                             header="Fecha de Creación"

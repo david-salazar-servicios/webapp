@@ -75,29 +75,42 @@ const ProcessCalendar = () => {
     }
   };
 
-  const filteredEvents = solicitudes
-    ?.filter(
-      (solicitud) =>
-        (activeStatusFilter === "All" || solicitud.estado === activeStatusFilter) &&
-        (solicitud.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          solicitud.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          solicitud.id_solicitud.toString().includes(searchTerm))
-    )
-    .map((solicitud) => ({
-      title: `ID-${solicitud.id_solicitud} | ${solicitud.nombre || "Sin nombre"} ${solicitud.apellido || "Sin apellido"}`, // Solo nombre y apellido
-      start: moment(solicitud.fecha_preferencia).tz("America/Costa_Rica").format(), // Ajuste a la zona horaria
-      end: moment(solicitud.fecha_preferencia).tz("America/Costa_Rica").format(),   // Ajuste a la zona horaria
-      backgroundColor: getStatusColor(solicitud.estado),  
-      extendedProps: {
-        id: solicitud.id_solicitud,
-        estado: solicitud.estado,
-        nombre: solicitud.nombre,
-        apellido: solicitud.apellido,
-        correo: solicitud.correo_electronico,
-        telefono: solicitud.telefono,
-        observacion: solicitud.observacion,
-      },
-    }));
+ const filteredEvents = solicitudes
+  ?.filter((solicitud) => {
+    // Check if the solicitud matches the active filter
+    const matchesStatusFilter =
+      activeStatusFilter === "All" || solicitud.estado === activeStatusFilter;
+
+    // Check if the solicitud matches the search term
+    const matchesSearchTerm =
+      solicitud.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      solicitud.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      solicitud.id_solicitud.toString().includes(searchTerm);
+
+    // If the user is not an admin, show only solicitudes for today
+    const isToday = isNotAdmin
+      ? moment(solicitud.fecha_preferencia).isSame(moment(), "day")
+      : true;
+
+    return matchesStatusFilter && matchesSearchTerm && isToday;
+  })
+  .map((solicitud) => ({
+    title: `ID-${solicitud.id_solicitud} | ${solicitud.nombre || "Sin nombre"} ${
+      solicitud.apellido || "Sin apellido"
+    }`, // Solo nombre y apellido
+    start: moment(solicitud.fecha_preferencia).tz("America/Costa_Rica").format(), // Ajuste a la zona horaria
+    end: moment(solicitud.fecha_preferencia).tz("America/Costa_Rica").format(), // Ajuste a la zona horaria
+    backgroundColor: getStatusColor(solicitud.estado),
+    extendedProps: {
+      id: solicitud.id_solicitud,
+      estado: solicitud.estado,
+      nombre: solicitud.nombre,
+      apellido: solicitud.apellido,
+      correo: solicitud.correo_electronico,
+      telefono: solicitud.telefono,
+      observacion: solicitud.observacion,
+    },
+  }));
 
 
   if (isLoading) {
@@ -110,7 +123,10 @@ const ProcessCalendar = () => {
 
   return (
     <div style={{ height: "100%", padding: "20px" }}>
-      <Card
+      
+      {!isNotAdmin && (
+
+<Card
         title="Filtros"
         bordered
         style={{ marginBottom: "20px", borderRadius: "8px" }}
@@ -192,6 +208,8 @@ const ProcessCalendar = () => {
         />
       </Card>
 
+      )}
+      
       <Card
         title="Calendario de Procesos"
         bordered
