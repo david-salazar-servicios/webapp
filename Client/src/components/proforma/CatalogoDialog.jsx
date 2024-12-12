@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Table, Input, Button, Checkbox, Card, Row, Col, Typography, Divider } from 'antd';
 import { useGetInventariosQuery, useGetInventariosProductosQuery } from '../../features/Inventario/InventarioApiSlice';
+import useAuth from "../../hooks/useAuth";
 
 const CatalogoDialog = ({ visible, onHide, onSelectProduct, selectedProducts }) => {
     const { data: inventarios = [] } = useGetInventariosQuery();
@@ -13,6 +14,9 @@ const CatalogoDialog = ({ visible, onHide, onSelectProduct, selectedProducts }) 
     const [selectedInventario, setSelectedInventario] = useState(null);
     const [inventarioSelectionMap, setInventarioSelectionMap] = useState({});
     const [deselectedProducts, setDeselectedProducts] = useState([]);
+    const { roles, userId } = useAuth();
+    const isNotAdmin = !roles.includes("Admin");
+
     
     useEffect(() => {
         if (visible) {
@@ -44,7 +48,22 @@ const CatalogoDialog = ({ visible, onHide, onSelectProduct, selectedProducts }) 
         }
     }, [visible, selectedProducts]);
     
-    
+    // Define the columns
+const baseColumns = [
+    { title: 'Código', dataIndex: 'codigo_producto', key: 'codigo_producto' },
+    { title: 'Nombre', dataIndex: 'nombre_producto', key: 'nombre_producto' },
+    { title: 'Unidad', dataIndex: 'unidad_medida', key: 'unidad_medida' },
+];
+
+// Add price columns only if the user is an admin
+const priceColumns = [
+    { title: 'Precio Costo', dataIndex: 'precio_costo', key: 'precio_costo', align: 'right' },
+    { title: 'Precio Venta', dataIndex: 'precio_venta', key: 'precio_venta', align: 'right' },
+];
+
+// Merge columns conditionally
+const columns = isNotAdmin ? baseColumns : [...baseColumns, ...priceColumns];
+
     
     const onGlobalFilterChange = (e) => setGlobalFilterValue(e.target.value);
 
@@ -238,13 +257,7 @@ const CatalogoDialog = ({ visible, onHide, onSelectProduct, selectedProducts }) 
     />
 
     <Table
-        columns={[
-            { title: 'Código', dataIndex: 'codigo_producto', key: 'codigo_producto' },
-            { title: 'Nombre', dataIndex: 'nombre_producto', key: 'nombre_producto' },
-            { title: 'Unidad', dataIndex: 'unidad_medida', key: 'unidad_medida' },
-            { title: 'Precio Costo', dataIndex: 'precio_costo', key: 'precio_costo', align: 'right' },
-            { title: 'Precio Venta', dataIndex: 'precio_venta', key: 'precio_venta', align: 'right' },
-        ]}
+        columns={isNotAdmin ? baseColumns : [...baseColumns, ...priceColumns]}
         dataSource={filteredProducts}
         rowSelection={rowSelection}
         rowKey="codigo_producto"
