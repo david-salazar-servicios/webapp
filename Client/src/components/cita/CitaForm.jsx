@@ -26,10 +26,10 @@ const spanishLocale = {
         ...esES.DatePicker,
         lang: {
             ...esES.DatePicker.lang,
-            fieldDateFormat: 'YYYY-MM-DD',
-            fieldDateTimeFormat: 'YYYY-MM-DD HH:mm',
-            yearFormat: 'YYYY',
-            cellYearFormat: 'YYYY',
+            fieldDateFormat: 'BBBB-MM-DD',
+            fieldDateTimeFormat: 'BBBB-MM-DD HH:mm:ss',
+            yearFormat: 'BBBB',
+            cellYearFormat: 'BBBB',
         }
     }
 };
@@ -90,15 +90,22 @@ export default function CitaForm({ visible, onClose, solicitudData, isUpdate }) 
     useEffect(() => {
         if (visible && solicitudData && solicitudDetails && !isSolicitudLoading) {
             setLoading(false);
-
-            const preferredDate = solicitudDetails.fecha_preferencia ? dayjs(solicitudDetails.fecha_preferencia) : null;
-
+    
+            const preferredDate = solicitudDetails.fecha_preferencia
+                ? dayjs(solicitudDetails.fecha_preferencia.replace('Z', ''))
+                : null;
+    
+            const citaDate = filteredCita?.datetime
+                ? dayjs(filteredCita.datetime.replace('Z', ''))
+                : null;
+    
             form.resetFields();
             form.setFieldsValue({
                 id_solicitud: solicitudDetails.id_solicitud,
                 id_tecnico: filteredCita ? filteredCita.id_tecnico : '',
-                datetime: filteredCita ? dayjs(filteredCita.datetime) : preferredDate,
-            });
+                datetime: citaDate || preferredDate, // Use the raw value
+            });       
+            
         }
     }, [solicitudDetails, form, solicitudData, visible, isSolicitudLoading, citaData]);
 

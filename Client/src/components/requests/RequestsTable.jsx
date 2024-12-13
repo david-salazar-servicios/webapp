@@ -28,7 +28,7 @@ export default function SolicitudesTable() {
     const dt = useRef(null);
     const toast = useRef(null);
     const navigate = useNavigate();
-
+    const DATE_TIME_FORMAT = 'yyyy-MM-dd HH:mm';
 
     // Refrescar datos cada vez que el componente se monte
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function SolicitudesTable() {
 
 
     const solicitudes = data ? [...data].sort((a, b) => a.estado === 'Pendiente' ? -1 : 1) : [];
-
+    console.log(solicitudes)
     const showCitaForm = (solicitud, isUpdate) => {
         setCurrentSolicitud(solicitud);
         setIsUpdate(isUpdate);
@@ -255,9 +255,8 @@ export default function SolicitudesTable() {
                                 field="fecha_preferencia"
                                 header="Fecha & Hora Cita"
                                 sortable
-                                body={rowData => format(new Date(rowData.fecha_preferencia), 'dd-MM-yyyy HH:mm')}
-                                style={{ width: '16rem' }} // Incrementa el ancho aquí
-                            ></Column>
+                                body={rowData => new Date(rowData.fecha_preferencia).toISOString().replace('T', ' ').slice(0, 16)}
+                            />
                             <Column field="nombre" header="Nombre" sortable style={{ width: '10rem' }}></Column>
                             <Column field="apellido" header="Apellido" sortable style={{ width: '10rem' }}></Column>
                             <Column field="correo_electronico" header="Correo Electrónico" sortable style={{ width: '14rem' }}></Column>
