@@ -200,25 +200,41 @@ export default function SolicitudesTable() {
                     type="search"
                     onInput={(e) => setGlobalFilter(e.target.value)}
                     placeholder="Buscar..."
-                    style={{ marginRight: '1rem', width: '200px' }}
+                    className="p-inputtext"
                 />
                 <Button
                     label="Exportar"
                     icon="pi pi-upload"
-                    className="p-button-help"
-                    style={{ borderRadius: "10px", background: "#05579E", border: "1px solid #05579E" }}
+                    className="p-button p-button-help"
+                    style={{
+                        borderRadius: "10px",
+                        background: "#05579E",
+                        border: "1px solid #05579E",
+                        marginLeft: "10px",
+                        padding: window.innerWidth <= 768 ? '6px 10px' : '10px 16px',
+                        fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                    }}
                     onClick={() => dt.current.exportCSV()}
                 />
                 <Button
                     label="Nueva Solicitud"
                     icon="pi pi-plus"
-                    className="p-button-help"
-                    style={{ borderRadius: "10px", background: "#05579E", border: "1px solid #05579E", marginLeft: "10px" }}
+                    className="p-button p-button-help"
+                    style={{
+                        borderRadius: "10px",
+                        background: "#05579E",
+                        border: "1px solid #05579E",
+                        marginLeft: "10px",
+                        padding: window.innerWidth <= 768 ? '6px 10px' : '10px 16px',
+                        fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                    }}
                     onClick={() => navigate('/mantenimiento/CrearSolicitud')}
                 />
             </Col>
         </Row>
     );
+    
+    
 
     if (isLoading) {
         return <ProgressBar mode="indeterminate" />;
@@ -232,11 +248,17 @@ export default function SolicitudesTable() {
         <>
             <Toast ref={toast} />
             <Row style={{ display: 'flex', flexDirection: 'column' }}>
-                <Card title="Solicitudes" bordered={false} style={{
-                    boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
-                    borderRadius: "5px",
-                }}>
+
                     <Col span={24} style={{ flexGrow: 1 }}>
+                    <div
+                        className="card-container"
+                        style={{
+                            boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+                            borderRadius: '8px',
+                            padding: '16px',
+                            backgroundColor: '#fff',
+                        }}
+                    >
                         <DataTable
                             ref={dt}
                             value={solicitudes}
@@ -267,9 +289,9 @@ export default function SolicitudesTable() {
                             <Column field="fecha_creacion" header="Fecha de Creación" sortable body={rowData => format(new Date(rowData.fecha_creacion), 'dd-MM-yyyy')} style={{ width: '12rem' }}></Column>
                             <Column field="estado" header="Estado" body={statusBodyTemplate} sortable style={{ width: '10rem' }}></Column>
                         </DataTable>
-
+                        </div>
                     </Col>
-                </Card>
+
                 <CitaForm key={currentSolicitud?.id_solicitud} visible={isModalVisible} onClose={() => handleFormClose(true)} solicitudData={currentSolicitud} isUpdate={isUpdate} />
             </Row>
         </>

@@ -54,29 +54,37 @@ const TotalesTable = ({ inventariosProductos }) => {
   };
 
   return (
-    <Card bordered={false}>
-      <h3>Total de Productos</h3>
-      <Input
-        placeholder="Buscar por código o producto"
-        value={searchText}
-        onChange={(e) => handleSearch(e.target.value)}
-        style={{ marginBottom: '16px', width: '300px' }}
-        prefix={<SearchOutlined />}
-      />
-      <Table
-        columns={[
-          { title: 'Código', dataIndex: 'codigo_producto', key: 'codigo_producto' },
-          { title: 'Producto', dataIndex: 'nombre', key: 'nombre' },
-          { title: 'Cantidad Total', dataIndex: 'cantidad', key: 'cantidad' },
-          { title: 'Unidad Medida', dataIndex: 'unidad_medida', key: 'unidad_medida' },
-        ]}
-        dataSource={filteredData}
-        pagination={false}
-        sticky
-        scroll={{ y: 250 }}
-        style={{ maxHeight: '300px', overflowY: 'auto' }}
-      />
-    </Card>
+    <>
+      <div className="card-container"
+        style={{
+          boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)', // Sombra suave
+          borderRadius: '8px', // Bordes redondeados
+          padding: '16px', // Espaciado interno
+          backgroundColor: '#fff', // Fondo blanco
+        }}>
+        <h3>Total de Productos</h3>
+        <Input
+          placeholder="Buscar por código o producto"
+          value={searchText}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ marginBottom: '16px', width: '300px' }}
+          prefix={<SearchOutlined />}
+        />
+
+        <Table
+          columns={[
+            { title: 'Código', dataIndex: 'codigo_producto', key: 'codigo_producto', width: 120 },
+            { title: 'Producto', dataIndex: 'nombre', key: 'nombre', width: 200 },
+            { title: 'Cantidad Total', dataIndex: 'cantidad', key: 'cantidad', width: 150 },
+            { title: 'Unidad Medida', dataIndex: 'unidad_medida', key: 'unidad_medida', width: 150 },
+          ]}
+          dataSource={filteredData}
+          pagination={false}
+          sticky
+          scroll={{ y: 300 }}
+        />
+      </div>
+    </>
   );
 };
 

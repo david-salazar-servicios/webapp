@@ -82,46 +82,46 @@ const ProcessCalendar = () => {
   };
 
   const filteredEvents = solicitudes
-  ?.filter((solicitud) => {
-    const matchesStatusFilter =
-      activeStatusFilter === "All" || solicitud.estado === activeStatusFilter;
+    ?.filter((solicitud) => {
+      const matchesStatusFilter =
+        activeStatusFilter === "All" || solicitud.estado === activeStatusFilter;
 
-    const matchesSearchTerm =
-      solicitud.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      solicitud.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      solicitud.id_solicitud.toString().includes(searchTerm);
+      const matchesSearchTerm =
+        solicitud.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        solicitud.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        solicitud.id_solicitud.toString().includes(searchTerm);
 
-    const isToday = isNotAdmin
-      ? dayjs(solicitud.fecha_preferencia).isSame(dayjs(), "day")
-      : true;
+      const isToday = isNotAdmin
+        ? dayjs(solicitud.fecha_preferencia).isSame(dayjs(), "day")
+        : true;
 
-    return matchesStatusFilter && matchesSearchTerm && isToday;
-  })
-  .map((solicitud) => {
-    const start = dayjs(solicitud.fecha_preferencia.replace("Z", "")); // Remove "Z" for local timezone interpretation
-    let end = start.add(1, "hour"); // Add 1 hour by default
+      return matchesStatusFilter && matchesSearchTerm && isToday;
+    })
+    .map((solicitud) => {
+      const start = dayjs(solicitud.fecha_preferencia.replace("Z", "")); // Remove "Z" for local timezone interpretation
+      let end = start.add(1, "hour"); // Add 1 hour by default
 
-    // Ajusta el tiempo de finalización para que no pase de las 23:59
-    if (start.hour() === 23) {
-      end = start.endOf("day"); // Establece el final como 23:59 del mismo día
-    }
+      // Ajusta el tiempo de finalización para que no pase de las 23:59
+      if (start.hour() === 23) {
+        end = start.endOf("day"); // Establece el final como 23:59 del mismo día
+      }
 
-    return {
-      title: `ID-${solicitud.id_solicitud} | ${solicitud.nombre || "Sin nombre"} ${solicitud.apellido || "Sin apellido"}`,
-      start: start.format("YYYY-MM-DDTHH:mm:ss"), // ISO format
-      end: end.format("YYYY-MM-DDTHH:mm:ss"), // Ensure a valid end time is provided
-      backgroundColor: getStatusColor(solicitud.estado),
-      extendedProps: {
-        id: solicitud.id_solicitud,
-        estado: solicitud.estado,
-        nombre: solicitud.nombre,
-        apellido: solicitud.apellido,
-        correo: solicitud.correo_electronico,
-        telefono: solicitud.telefono,
-        observacion: solicitud.observacion,
-      },
-    };
-  });
+      return {
+        title: `ID-${solicitud.id_solicitud} | ${solicitud.nombre || "Sin nombre"} ${solicitud.apellido || "Sin apellido"}`,
+        start: start.format("YYYY-MM-DDTHH:mm:ss"), // ISO format
+        end: end.format("YYYY-MM-DDTHH:mm:ss"), // Ensure a valid end time is provided
+        backgroundColor: getStatusColor(solicitud.estado),
+        extendedProps: {
+          id: solicitud.id_solicitud,
+          estado: solicitud.estado,
+          nombre: solicitud.nombre,
+          apellido: solicitud.apellido,
+          correo: solicitud.correo_electronico,
+          telefono: solicitud.telefono,
+          observacion: solicitud.observacion,
+        },
+      };
+    });
 
   if (isLoading) {
     return <Spin size="large" />;
@@ -132,7 +132,7 @@ const ProcessCalendar = () => {
   }
 
   return (
-    <div style={{ height: "100%", padding: "20px" }}>
+    <div>
 
       {!isNotAdmin && (
 
@@ -220,38 +220,47 @@ const ProcessCalendar = () => {
 
       )}
 
-      <Card
-        title="Calendario de Procesos"
-        bordered
-        style={{ borderRadius: "8px" }}
-      >
-        <div className="responsive-calendar-container">
-          <FullCalendar
-            locale={esLocale}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            events={filteredEvents}
-            eventClick={handleEventClick}
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay",
-            }}
-            height="600px"
-            timeZone="local" // Use the browser's local time zone
-            eventTimeFormat={{
-              hour: "numeric",
-              minute: "2-digit",
-              meridiem: "short",
-            }}
-          />
+<div
+  className="card-container"
+  style={{
+    boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2)",
+    borderRadius: "8px",
+    padding: "16px",
+    backgroundColor: "#fff",
+    overflowX: "hidden", // Deshabilita scroll horizontal
+    width: "100%", // Asegura el ancho completo
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  <FullCalendar
+    locale={esLocale}
+    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+    initialView="dayGridMonth"
+    events={filteredEvents}
+    eventClick={handleEventClick}
+    headerToolbar={{
+      left: "prev,next today",
+      center: "title",
+      right: "dayGridMonth,timeGridWeek,timeGridDay",
+    }}
+    height="auto" // Ajusta la altura automáticamente
+    timeZone="local"
+    eventTimeFormat={{
+      hour: "numeric",
+      minute: "2-digit",
+      meridiem: "short",
+    }}
+    style={{
+      width: "100%", // Asegura que el calendario ocupe el ancho completo
+    }}
+  />
+</div>
 
-        </div>
 
 
-
-
-      </Card>
 
       {selectedEvent && (
         <Modal

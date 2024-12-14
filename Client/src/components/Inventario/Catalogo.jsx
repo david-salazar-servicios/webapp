@@ -217,50 +217,50 @@ const ProductoForm = ({ onProductChange }) => {
                                     <Option value="Metro">Metro</Option>
                                 </Select>
                             </Form.Item>
-                            
+
                             {!isNotAdmin && (
                                 <>
-                                  <Form.Item
-                                name="precio_costo"
-                                label={<span>Precio Costo</span>}
-                                rules={[{ required: true, message: 'Por favor ingresa el precio costo!' }]}
-                            >
-                                <Input
-                                    onChange={(e) => {
-                                        const { value } = e.target;
-                                        const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
-                                        e.target.value = numericValue;
-                                    }}
-                                />
-                            </Form.Item>
+                                    <Form.Item
+                                        name="precio_costo"
+                                        label={<span>Precio Costo</span>}
+                                        rules={[{ required: true, message: 'Por favor ingresa el precio costo!' }]}
+                                    >
+                                        <Input
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
+                                                e.target.value = numericValue;
+                                            }}
+                                        />
+                                    </Form.Item>
 
-                            <Form.Item
-                                name="excedente"
-                                label="Excedente"
-                                rules={[{ required: true, message: 'Por favor ingresa el excedente!' }]}
-                            >
-                                <Input
-                                    addonAfter="%"
-                                    placeholder="Ej. 15"
-                                    onChange={(e) => {
-                                        const { value } = e.target;
-                                        const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
-                                        form.setFieldsValue({ excedente: numericValue });
-                                    }}
-                                />
-                            </Form.Item>
+                                    <Form.Item
+                                        name="excedente"
+                                        label="Excedente"
+                                        rules={[{ required: true, message: 'Por favor ingresa el excedente!' }]}
+                                    >
+                                        <Input
+                                            addonAfter="%"
+                                            placeholder="Ej. 15"
+                                            onChange={(e) => {
+                                                const { value } = e.target;
+                                                const numericValue = value.replace(/[^0-9.]/g, ''); // Allow only digits and a decimal point
+                                                form.setFieldsValue({ excedente: numericValue });
+                                            }}
+                                        />
+                                    </Form.Item>
 
-                            <Form.Item
-                                name="precio_venta"
-                                label="Precio Venta"
-                            >
-                                <Input disabled />
-                            </Form.Item>
+                                    <Form.Item
+                                        name="precio_venta"
+                                        label="Precio Venta"
+                                    >
+                                        <Input disabled />
+                                    </Form.Item>
                                 </>
 
 
                             )}
-                          
+
 
                             <Form.Item
                                 name="imagen"
@@ -287,19 +287,29 @@ const ProductoForm = ({ onProductChange }) => {
                 </Col>
             </Row>
 
-            <Row gutter={[16, 16]} style={{ marginTop: '30px' }}>
-                <Col span={24}>
-                    <Card title="Lista de Productos" bordered={false}>
-                        <Table
-                            dataSource={productos}
-                            columns={columns}
-                            rowKey="codigo_producto"
-                            pagination={{ position: ['bottomRight'], pageSize: 5 }}
-                            loading={creating || updating}
-                        />
-                    </Card>
-                </Col>
-            </Row>
+
+            <div
+                className="card-container"
+                style={{
+                    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: '#fff',
+                    overflowX: 'auto',
+                    marginTop:'20px'
+                }}
+            >
+                <Table
+                    dataSource={productos}
+                    columns={columns}
+                    rowKey="codigo_producto"
+                    pagination={{ position: ['bottomRight'], pageSize: 5 }}
+                    loading={creating || updating}
+                    scroll={{ x: 'max-content' }} // Habilita desplazamiento horizontal
+                />
+            </div>
+
+
         </>
     );
 };

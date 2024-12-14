@@ -15,8 +15,6 @@ export default function ReporteProformaYSolicitudes() {
             const finalizadas = proformasData.filter(proforma => proforma.estado === 'Finalizada');
             const total = finalizadas.reduce((acc, proforma) => acc + parseFloat(proforma.total || 0), 0);
             setTotalProformasFinalizadas(total);
-        } else {
-            console.warn('Proformas data is not an array:', proformasData);
         }
     }, [proformasData]);
 
@@ -24,8 +22,6 @@ export default function ReporteProformaYSolicitudes() {
         if (Array.isArray(solicitudesData)) {
             const confirmadas = solicitudesData.filter(solicitud => solicitud.estado === 'Confirmada');
             setTotalSolicitudesConfirmadas(confirmadas.length);
-        } else {
-            console.warn('Solicitudes data is not an array:', solicitudesData);
         }
     }, [solicitudesData]);
 
@@ -42,15 +38,42 @@ export default function ReporteProformaYSolicitudes() {
     }
 
     return (
-        <div className="reporte-container">
+        <div
+            className="reporte-proforma-solicitudes-container"
+            style={{
+                display: 'flex',
+                justifyContent: 'center', // Centrar horizontalmente
+                alignItems: 'center', // Centrar verticalmente
+                gap: '20px', // Espaciado entre las tarjetas
+                flexWrap: 'wrap', // Permitir que se ajusten en dispositivos pequeños
+            }}
+        >
             {/* Card para Proformas Finalizadas */}
             <Card
-            
                 bordered={false}
                 className="reporte-card"
+                style={{
+                    width: '300px',
+                    height: '150px',
+                    backgroundColor: '#EAF8FF',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '10px',
+                }}
             >
                 <h4>Total de Proformas Finalizadas</h4>
-                <div className="reporte-card-value">
+                <div
+                    className="reporte-card-value"
+                    style={{
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        color: '#05579E',
+                    }}
+                >
                     {`₡ ${new Intl.NumberFormat('en-US').format(totalProformasFinalizadas)}`}
                 </div>
             </Card>
@@ -59,9 +82,28 @@ export default function ReporteProformaYSolicitudes() {
             <Card
                 bordered={false}
                 className="reporte-card"
+                style={{
+                    width: '300px',
+                    height: '150px',
+                    backgroundColor: '#EAF8FF',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    borderRadius: '10px',
+                }}
             >
                 <h4>Total de Solicitudes Confirmadas</h4>
-                <div className="reporte-card-value">
+                <div
+                    className="reporte-card-value"
+                    style={{
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        color: '#05579E',
+                    }}
+                >
                     {totalSolicitudesConfirmadas}
                 </div>
             </Card>

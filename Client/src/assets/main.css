@@ -3142,3 +3142,38 @@ footer ul.menu-list li a:hover {
       align-items: center;
   }
 }
+
+/* Estilo general */
+.table-header .p-inputtext {
+  width: 200px;
+  font-size: 14px;
+  padding: 10px;
+  margin-right: 1rem;
+}
+
+.table-header .p-button {
+  font-size: 14px;
+  padding: 10px 16px;
+}
+
+/* Pantallas pequeñas (≤768px) */
+@media (max-width: 768px) {
+  .table-header .p-inputtext {
+      width: 150px;
+      font-size: 12px;
+      padding: 6px;
+  }
+
+  .table-header .p-button {
+      font-size: 12px;
+      padding: 6px 10px;
+  }
+}
+
+/* Pantallas muy pequeñas (≤576px) */
+@media (max-width: 576px) {
+  .table-header .p-button-label {
+      display: none; /* Oculta el texto del botón */
+  }
+}
+

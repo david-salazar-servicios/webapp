@@ -66,7 +66,7 @@ export default function ProformasTable() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)} // Update search query
                     placeholder="Buscar por N° Archivo, Cliente, Técnico, Proforma o Solicitud"
-                    style={{ marginRight: '1rem', width: '400px' }}
+                    className="p-inputtext"
                 />
                 <Button
                     label="Exportar"
@@ -121,16 +121,14 @@ export default function ProformasTable() {
     }
 
     return (
-        <Row style={{ display: 'flex', flexDirection: 'column' }}>
-            <Card
-                title="Proformas"
-                bordered={false}
-                style={{
-                    boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
-                    borderRadius: "5px",
-                }}
-            >
-                <Col span={24} style={{ flexGrow: 1 }}>
+        <div className="card-container"
+        style={{
+            boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2)', // Sombra suave
+            borderRadius: '8px', // Bordes redondeados
+            padding: '16px', // Espaciado interno
+            backgroundColor: '#fff', // Fondo blanco
+        }}>
+
                     <DataTable
                         ref={dt}
                         value={filteredProformas || []} // Data from API
@@ -147,11 +145,11 @@ export default function ProformasTable() {
                         onRowClick={(e) => handleRowClick(e.data)} // Redirect on row click
                     >
                         {!isNotAdmin && (
-                            <Column field="numeroarchivo" header="N° Archivo" sortable style={{ width: '8rem' }}></Column>
+                            <Column field="numeroarchivo" header="N° Archivo" sortable style={{ width: '10rem' }}></Column>
                         )}
 
-                        <Column field="cliente" header="Cliente" sortable style={{ width: '8rem' }}></Column>
-                        <Column field="tecnico" header="Técnico" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="cliente" header="Cliente" sortable style={{ width: '10rem' }}></Column>
+                        <Column field="tecnico" header="Técnico" sortable style={{ width: '10rem' }}></Column>
                         {!isNotAdmin && (
 
                             <Column
@@ -167,27 +165,27 @@ export default function ProformasTable() {
                             header="Fecha de Creación"
                             body={(rowData) => format(new Date(rowData.fechacreacion), 'dd-MM-yyyy')}
                             sortable
-                            style={{ width: '8rem' }}
+                            style={{ width: '10rem' }}
                         />
-                        <Column field="id_proforma" header="Proforma" sortable style={{ width: '8rem' }}></Column>
-                        <Column field="id_solicitud" header="Solicitud" sortable style={{ width: '8rem' }}></Column>
+                        <Column field="id_proforma" header="Proforma" sortable style={{ width: '10rem' }}></Column>
+                        <Column field="id_solicitud" header="Solicitud" sortable style={{ width: '10rem' }}></Column>
                         <Column
                             field="ultima_modificacion"
                             header="Última Modificación"
                             body={(rowData) => format(new Date(rowData.ultima_modificacion), 'dd-MM-yyyy')}
                             sortable
-                            style={{ width: '8rem' }}
+                            style={{ width: '10rem' }}
                         />
                         <Column
                             field="estado"
                             header="Estado"
                             body={estadoBodyTemplate} // Apply custom body template
                             sortable
-                            style={{ width: '8rem' }}
+                            style={{ width: '10rem' }}
                         />
                     </DataTable>
-                </Col>
-            </Card>
-        </Row>
+           
+
+        </div>
     );
 }

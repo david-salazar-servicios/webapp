@@ -11,13 +11,12 @@ import { Toast } from 'primereact/toast';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'; // Asegúrate de importar dayjs
 import utc from 'dayjs/plugin/utc'; // Plugins que estás utilizando
-import buddhistEra from 'dayjs/plugin/buddhistEra';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
 
 dayjs.extend(utc);
-dayjs.extend(buddhistEra);
+
 
 // Configuración del formato de fecha y hora en español
 const spanishLocale = {
@@ -26,10 +25,10 @@ const spanishLocale = {
         ...esES.DatePicker,
         lang: {
             ...esES.DatePicker.lang,
-            fieldDateFormat: 'BBBB-MM-DD',
-            fieldDateTimeFormat: 'BBBB-MM-DD HH:mm:ss',
-            yearFormat: 'BBBB',
-            cellYearFormat: 'BBBB',
+            fieldDateFormat: 'YYYY-MM-DD',
+            fieldDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
+            yearFormat: 'YYYY',
+            cellYearFormat: 'YYYY',
         }
     }
 };
