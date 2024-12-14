@@ -17,9 +17,9 @@ const login = async (req, res) => {
         }
 
         const user = foundUser.rows[0];
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(foundUser.rows[0].contrasena, salt);
-        const match = await bcrypt.compare(password.trim(), hash);
+
+        // Compare provided password with hashed password
+        const match = await bcrypt.compare(password.trim(), user.contrasena);
 
         if (!match) {
             return res.status(401).json({ message: "Unauthorized: Incorrect password" });
@@ -28,11 +28,11 @@ const login = async (req, res) => {
         const roles = await pool.query(
             'SELECT roles.nombre FROM usuario_roles ' +
             'INNER JOIN roles ON usuario_roles.id_rol = roles.id_rol ' +
-            'WHERE usuario_roles.id_usuario = $1', 
+            'WHERE usuario_roles.id_usuario = $1',
             [user.id_usuario]
         );
 
-        const userRoles = roles.rows.map(role => role.nombre);
+        const userRoles = roles.rows.map((role) => role.nombre);
 
         const accessToken = jwt.sign(
             {
@@ -47,36 +47,29 @@ const login = async (req, res) => {
             { expiresIn: "15m" }
         );
 
-        global.CURRENT_USER = {
-            userId: user.id_usuario,
-            username: user.nombre,
-            email: user.correo_electronico,
-            roles: userRoles,
-        };
-        
-
         const refreshToken = jwt.sign(
-            { username: user.nombre,
-              email: user.correo_electronico},
+            {
+                username: user.nombre,
+                email: user.correo_electronico,
+            },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
         );
 
-        // Configura el nuevo token de refresco después de la línea anterior
-        res.cookie('jwt', refreshToken, {
-            httpOnly: true, // La cookie solo es accesible por el servidor web
-            secure: true, // Solo se enviará con una solicitud HTTPS
-            sameSite: 'None', // Imprescindible si la cookie debe enviarse en solicitudes entre sitios
-            maxAge: 7 * 24 * 60 * 60 * 1000 // Duración de la cookie
+        res.cookie("jwt", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
-        
+
         res.json({ accessToken });
-                
     } catch (err) {
-        console.error('SQL Error', err);
+        console.error("SQL Error", err);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 const refresh = async (req, res) => {
     const cookies = req.cookies;
 

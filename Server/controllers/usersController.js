@@ -1,5 +1,6 @@
 const pool = require('../db'); // Ajusta la ruta según sea necesario.
 const bcrypt = require("bcryptjs");
+
 // @desc Get all users
 // @route GET /users
 // @access Private
@@ -26,9 +27,14 @@ const createNewUser = async (req, res) => {
     try {
         const { nombre, apellido, correo_electronico, contrasena, telefono } = req.body;
 
+        // Hash the password
+        const saltRounds = 10; // Use bcrypt salt rounds
+        const hashedPassword = await bcrypt.hash(contrasena, saltRounds);
+
+        // Insert the new user with the hashed password
         const newUser = await pool.query(
-            'INSERT INTO usuario (nombre, apellido, correo_electronico, contrasena, telefono) VALUES ($1, $2, $3, $4, $5) RETURNING *', 
-            [nombre, apellido, correo_electronico, contrasena, telefono]
+            'INSERT INTO usuario (nombre, apellido, correo_electronico, contrasena, telefono) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [nombre, apellido, correo_electronico, hashedPassword, telefono]
         );
 
         res.json(newUser.rows[0]);
@@ -37,6 +43,7 @@ const createNewUser = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 // @desc Delete a user by ID
 // @route DELETE /users/:id
@@ -60,13 +67,20 @@ const deleteUser = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await pool.query('SELECT * FROM usuario WHERE id_usuario = $1', [id]);
 
-        if (user.rows.length === 0) {
+        // Fetch the user from the database
+        const userResult = await pool.query('SELECT * FROM usuario WHERE id_usuario = $1', [id]);
+
+        if (userResult.rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json(user.rows[0]);
+        const user = userResult.rows[0];
+
+        // Do NOT include the hashed password in the response
+        delete user.contrasena;
+
+        res.json(user);
     } catch (error) {
         console.error("Error retrieving user:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -78,19 +92,27 @@ const getUserById = async (req, res) => {
 // @access Private
 const updateUser = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { nombre, apellido, correo_electronico, contrasena, telefono } = req.body;
+        const { id } = req.params; // User ID from request parameters
+        let { nombre, apellido, correo_electronico, contrasena, telefono } = req.body;
 
+        // Check if the password is being updated and hash it
+        if (contrasena) {
+            const saltRounds = 10; // Recommended salt rounds
+            contrasena = await bcrypt.hash(contrasena, saltRounds);
+        }
+
+        // Perform the SQL update query
         const updatedUser = await pool.query(
-            'UPDATE usuario SET nombre = $1, apellido = $2, correo_electronico = $3, contrasena = $4, telefono = $6 WHERE id_usuario = $5 RETURNING *',
-            [nombre, apellido, correo_electronico, contrasena, id, telefono]
+            'UPDATE usuario SET nombre = $1, apellido = $2, correo_electronico = $3, contrasena = $4, telefono = $5 WHERE id_usuario = $6 RETURNING *',
+            [nombre, apellido, correo_electronico, contrasena, telefono, id]
         );
 
+        // Check if the user exists
         if (updatedUser.rows.length === 0) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json(updatedUser.rows[0]);
+        res.json(updatedUser.rows[0]); // Respond with the updated user
     } catch (error) {
         console.error("Error updating user:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
@@ -171,42 +193,35 @@ const updateUserRoles = async (req, res) => {
     }
 };
 const updateUserPassword = async (req, res) => {
-
-    const { id, newPassword, tempPassword } = req.body; // Agrega la contraseña temporal al body
+    const { id, newPassword, tempPassword } = req.body;
 
     try {
-        // Primero, verifica si la contraseña temporal coincide con la actual en la base de datos
-        const user = await pool.query('SELECT * FROM usuario WHERE id_usuario = $1', [id]);
+        // Fetch the current password from the database
+        const userResult = await pool.query('SELECT contrasena FROM usuario WHERE id_usuario = $1', [id]);
 
-        if (user.rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ message: "User not found" });
         }
 
-        // Asumiendo que la contraseña en la base de datos está hasheada,
-        // necesitarías una función para comparar la contraseña temporal.
-        // Si estás usando bcrypt, por ejemplo, sería algo así:
-        
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(user.rows[0].contrasena, salt);
-        const match = await bcrypt.compare(tempPassword, hash);
-        // Si no usas contraseñas hasheadas (lo cual no se recomienda), la comparación sería directa:
-        //const match = tempPassword === user.rows[0].contrasena;
+        const currentHashedPassword = userResult.rows[0].contrasena;
 
-        if (!match) {
-            return res.status(401).json({ message: 'Temporary password does not match' });
+        // Compare the provided temporary password with the current hashed password
+        const isMatch = await bcrypt.compare(tempPassword, currentHashedPassword);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Contraseña temporal no es correcta" });
         }
 
-        // Si la contraseña temporal es correcta, actualiza la nueva contraseña
+        // Hash the new password
+        const saltRounds = 10;
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update the password in the database
         const updatedPassword = await pool.query(
-            'UPDATE usuario SET contrasena = $1 WHERE id_usuario = $2 RETURNING *',
-            [newPassword, id]
+            'UPDATE usuario SET contrasena = $1, password_reset = false WHERE id_usuario = $2 RETURNING *',
+            [hashedNewPassword, id]
         );
-        await pool.query('UPDATE usuario SET password_reset = false WHERE id_usuario = $1', [id]);
 
-        const userData = updatedPassword.rows[0];
-        delete userData.contrasena; // Asegúrate de no devolver la contraseña.
-
-        res.json({ message: 'Password updated successfully', user: userData });
+        res.json({ message: "Contraseña actualizada con éxito!", user: updatedPassword.rows[0] });
     } catch (error) {
         console.error("Error updating user's password:", error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });

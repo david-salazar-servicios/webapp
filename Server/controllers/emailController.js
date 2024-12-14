@@ -1,22 +1,32 @@
 const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid'); // Agrega esta línea
 const pool = require('../db'); // Asegúrate de que esta ruta sea correcta.
+const bcrypt = require("bcryptjs");
+
 
 const sendEmail = async (req, res) => {
-    const email = req.body.email; // El correo electrónico ingresado por el usuario.
+    const email = req.body.email; // The email entered by the user.
+
     try {
-        // Verifica si el email existe en la base de datos
-        const userResult = await pool.query('SELECT * FROM usuario WHERE correo_electronico = $1', [email]);
+        // Check if the email exists in the database
+        const userResult = await pool.query(
+            "SELECT * FROM usuario WHERE correo_electronico = $1",
+            [email]
+        );
 
         if (userResult.rows.length === 0) {
-            // Si no existe el usuario, enviar una respuesta indicando que no está registrado.
-            return res.status(404).json({ message: 'Correo electrónico no registrado.' });
+            // If the user does not exist, send a response indicating the email is not registered.
+            return res.status(404).json({ message: "Correo electrónico no registrado." });
         }
 
-        // Genera una contraseña temporal
-        const tempPassword = uuidv4();
-        console.log("Email", req.body, "TempPassword:", tempPassword);
+        // Generate a temporary password
+        const tempPassword = uuidv4().slice(0, 8); // Limit to 8 characters for simplicity
 
+        // Hash the temporary password before storing it
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(tempPassword, saltRounds);
+
+        // Create a nodemailer transporter
         const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 587,
@@ -26,28 +36,36 @@ const sendEmail = async (req, res) => {
                 pass: process.env.GMAIL_PASSWORD,
             },
             tls: {
-                rejectUnauthorized: false
-            }
+                rejectUnauthorized: false,
+            },
         });
 
+        // Email content
         const mailOptions = {
-            from: 'davidsalazarservicios@gmail.com', // Reemplaza con tu correo
-            to: email, // El destinatario del correo
-            subject: 'Tu contraseña temporal',
+            from: process.env.GMAIL_USERNAME, // Your email
+            to: email, // Recipient's email
+            subject: "Tu contraseña temporal",
             text: `Aquí está tu contraseña temporal: ${tempPassword}. Se recomienda cambiarla después de iniciar sesión.`,
         };
 
+        // Send the email
         let info = await transporter.sendMail(mailOptions);
 
-        // Actualiza la contraseña en la base de datos para el usuario correspondiente
-        await pool.query('UPDATE usuario SET contrasena = $1 WHERE correo_electronico = $2', [tempPassword, email]);
-        await pool.query('UPDATE usuario SET password_reset = true WHERE correo_electronico = $1', [email]);
-        res.json({ message: 'Correo enviado con éxito', info });
+        // Update the password and password_reset flag in the database
+        await pool.query(
+            "UPDATE usuario SET contrasena = $1, password_reset = true WHERE correo_electronico = $2",
+            [hashedPassword, email]
+        );
+
+        res.json({ message: "Correo enviado con éxito", info });
     } catch (error) {
-        console.error('Error en la operación:', error);
-        res.status(500).send('Error al procesar la solicitud');
+        console.error("Error en la operación:", error);
+        res.status(500).send("Error al procesar la solicitud");
     }
 };
+
+module.exports = { sendEmail };
+
 
 const sendEmailContacto = async (req, res) => {
     console.log("Received body:", req.body);  // Log the received body
